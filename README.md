@@ -66,6 +66,14 @@ cd <your project>
 make all
 ```
 
+## Maintainers
+
+| Name                                           | Email                        |
+| :--------------------------------------------- | :--------------------------- |
+| [@brumhard](https://github.com/brumhard)       | tobias.brumhard@mail.schwarz |
+| [@linuxluigi](https://github.com/linuxluigi)   | steffen.exler@mail.schwarz   |
+| [@danielzwink](https://github.com/danielzwink) | daniel.zwink@mail.schwarz    |
+
 ## Contribution
 
 Contributions are very much appreciated.  
