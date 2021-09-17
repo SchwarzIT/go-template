@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package {{ cookiecutter.app_name }}.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+{%- if cookiecutter.grpc_gateway_enabled == "yes" %}
+import "protoc-gen-openapiv2/options/annotations.proto";
+{%- endif %}
+
+// Defines the import path that should be used to import the generated package,
+// and the package name.
+option go_package = "{{ cookiecutter.module_name | replace('.git', '') }}/internal/pkg/pb;pb";
+
+{% if cookiecutter.grpc_gateway_enabled == "yes" -%}
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  swagger: "2.0"
+  info: {
+    title: "{{ cookiecutter.app_name }}-api"
+    version: "1.0"
+    description: "{{cookiecutter.project_description}}"
+  }
+  schemes: HTTP
+  host: "localhost:8080"
+};
+{%- endif %}
+
+service {{ cookiecutter.app_name[0]|upper}}{{cookiecutter.app_name[1:] }}Service {
+  {%- if cookiecutter.grpc_gateway_enabled == "yes" %}
+  rpc GetExample(GetExampleRequest) returns (GetExampleResponse) {
+    option (google.api.http) = {
+      get: "/v1/example"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get example response"
+      description: "Returns an empty example response"
+      tags: "example"
+    };
+  }
+  {% else %}
+  rpc GetExample(GetExampleRequest) returns (GetExampleResponse) {}
+  {%- endif %}
+}
+
+message GetExampleRequest {}
+
+message GetExampleResponse {}

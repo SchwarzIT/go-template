@@ -1,0 +1,18 @@
+version: v1beta1
+plugins:
+  - name: go
+    out: internal/pkg/api/pb
+    opt: paths=source_relative
+  - name: go-grpc
+    out: internal/pkg/api/pb
+    opt: paths=source_relative,require_unimplemented_servers=true
+{%- if cookiecutter.grpc_gateway_enabled == "yes" %}
+  - name: grpc-gateway
+    out: internal/pkg/api/pb
+    opt: paths=source_relative
+  - name: openapiv2
+    out: api/openapi
+{%- endif %}
+  - name: validate
+    out: internal/pkg/api/pb
+    opt: paths=source_relative,lang=go

@@ -1,0 +1,8 @@
+cookiecutter==1.7.3
+
+# Testing
+# ------------------------------------------------------------------------------
+mypy==0.910  # https://github.com/python/mypy
+tox==3.23.1
+pytest==5.4.3  # pyup: <6  # https://github.com/hackebrot/pytest-cookies/issues/51
+pytest-cookies==0.5.1
