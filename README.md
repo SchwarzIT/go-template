@@ -1,5 +1,7 @@
 # `go/template`
 
+[![SIT](https://img.shields.io/badge/SIT-awesome-blueviolet.svg)](https://jobs.schwarz)
+
 Powered by [Cookiecutter](https://github.com/cookiecutter/cookiecutter), `go/template` is a tool for jumpstarting production-ready Golang projects quickly.
 
 ## Batteries included
