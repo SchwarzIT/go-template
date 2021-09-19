@@ -1,0 +1,34 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[{*.go,Makefile,.gitmodules,go.mod,go.sum}]
+indent_style = tab
+
+[*.md]
+indent_style = tab
+trim_trailing_whitespace = false
+
+[*.{yml,yaml,json}]
+indent_style = space
+indent_size = 2
+
+[*.{js,jsx,ts,tsx,css,less,sass,scss,vue,py}]
+indent_style = space
+indent_size = 4
+
+[{*.sh,pre-push}]
+# we choose the google style guide here: https://google.github.io/styleguide/shellguide.html
+indent_style = space
+indent_size = 2
+
+shell_variant = posix     # like -ln=posix
+binary_next_line = true   # like -bn
+switch_case_indent = true # like -ci
+space_redirects = true    # like -sr
+keep_padding = true       # like -kp
+function_next_line = true # like -fn
