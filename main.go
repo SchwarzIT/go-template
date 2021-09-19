@@ -60,8 +60,10 @@ func run() error {
 	printBanner()
 	optionNameToValue := make(map[string]interface{}, len(options))
 	for _, currentOption := range options {
-		// TODO: implement dependsOn
-		// TODO: implement validation func
+		if !dependenciesMet(currentOption, optionNameToValue) {
+			continue
+		}
+
 		// default value could contain templating functions
 		var err error
 		currentOption.Default, err = applyTemplate(currentOption.Default, funcMap, optionNameToValue)
@@ -123,6 +125,32 @@ func run() error {
 	}
 
 	return nil
+}
+
+func dependenciesMet(option Option, optionNameToValue map[string]interface{}) bool {
+	if len(option.DependsOn) == 0 {
+		return true
+	}
+
+	for _, dep := range option.DependsOn {
+		depVal, ok := optionNameToValue[dep]
+		if !ok {
+			// if not found it means it not set
+			return false
+		}
+
+		depBoolVal, ok := depVal.(bool)
+		if !ok {
+			// value will only be checked for bool values
+			continue
+		}
+
+		if !depBoolVal {
+			return false
+		}
+	}
+
+	return true
 }
 
 func initRepo(optionToNameValue map[string]interface{}) error {
