@@ -71,6 +71,7 @@ func run() error {
 			return err
 		}
 
+		// TODO: add validation for value (probably regex pattern)
 		val, err := readValue(currentOption)
 		if err != nil {
 			return err
@@ -82,7 +83,7 @@ func run() error {
 	printProgress("Generating repo folder...")
 
 	targetDir := optionNameToValue["projectSlug"].(string)
-	if _, err := os.Stat(targetDir); os.IsNotExist(err) {
+	if _, err := os.Stat(targetDir); !os.IsNotExist(err) {
 		return fmt.Errorf("directory %s already exists", targetDir)
 	}
 
