@@ -20,14 +20,19 @@ linters-settings:
       - octalLiteral
       - whyNoLint
       - wrapperFunc
+      - hugeParam # TODO maybe pass all by pointer?
+      - rangeValCopy # TODO fix in the future maybe
+      - sloppyReassign # TODO fix in the future maybe
   gocyclo:
-    min-complexity: 15
-  # gci:
-  #   local-prefixes: insert your package name here
-  # goimports:
-  #   local-prefixes: insert your package name here
-  golint:
-    min-confidence: 0
+    min-complexity: 30 # decrease this
+      # gci:
+      #   local-prefixes: insert your package name here
+      # goimports:
+      #   local-prefixes: insert your package name here
+      #revive:
+      #rules:
+      #- name: var-naming
+    #severity: warning
   gomnd:
     settings:
       mnd:
@@ -44,6 +49,9 @@ linters-settings:
     allow-unused: false # report any unused nolint directives
     require-explanation: true # require an explanation for nolint directives
     require-specific: true # require nolint directives to be specific about which linter is being skipped
+  stylecheck:
+    # ST1003 underscore in package names and var-naming
+    checks: ["all", "-ST1003"]
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
@@ -56,16 +64,11 @@ linters:
     - dogsled
     - dupl
     - exportloopref
-    - exhaustive
-    - funlen
-    - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
     - gofmt
     - goimports
-    - golint
-    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
@@ -86,22 +89,27 @@ linters:
     - unused
     - varcheck
     - whitespace
-    - gochecknoglobals
-    - goerr113
     - prealloc
 
   # don't enable:
+  # - funlen # TODO reconcile functions are way too large
+  # - revive # TODO disable underscore in package name
+  # - gomnd # magic number detected -> sometimes useful
+  # - golint # is deprecated
+  # - goerr113 # we have some dynamic errors
+  # - exhaustive # missing switch case statements
   # - asciicheck
   # - errcheck # Disabled since it detects defers that do not check errors. This is a standard pattern.
   #              see https://github.com/kisielk/errcheck/issues/55
   # - scopelint
+  # - gochecknoinits
+  # - gochecknoglobals
   # - gocognit
   # - godot
   # - godox
   # - interfacer
   # - nestif
   # - testpackage
-  # - revive
   # - wsl
 
 issues:
@@ -113,6 +121,9 @@ issues:
         - gochecknoglobals
         - gosec
         - noctx
+        - goerr113
+        - goconst
+        - dupl
 
     # https://github.com/go-critic/go-critic/issues/926
     - linters:

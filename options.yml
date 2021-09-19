@@ -1,0 +1,23 @@
+- name: projectName
+  default: "Awesome Project"
+  description: Name of the project
+- name: projectSlug
+  default: '{{.projectName | lower | replace " " "-"}}'
+  description: Technical name of the project for folders and names
+- name: projectDescription
+  default: "The awesome project provides awesome features to awesome people."
+  description: Description of the project used in the README.
+- name: appName
+  default: '{{.projectSlug}}'
+  description: Name of the app that is built.
+- name: golanciVersion
+  default: '{{latestReleaseTag "https://github.com/golangci/golangci-lint" "v1.40.1"}}'
+  description: Golangci-lint version to use.
+- name: grpcEnabled
+  default: false
+  description: Enable gRPC integration. Includes protobuf files and buf setup.
+- name: grpcGatewayEnabled
+  default: false
+  description: Enable gRPC-gateway integration. Includes additional gRPC plugins.
+  dependsOn:
+    - grpcEnabled
