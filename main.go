@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"github.com/fatih/color"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -16,6 +15,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig"
+	"github.com/fatih/color"
 	"github.com/schwarzit/go-template/pkg/repos"
 	"sigs.k8s.io/yaml"
 )
@@ -157,15 +157,18 @@ func dependenciesMet(option Option, optionNameToValue map[string]interface{}) bo
 }
 
 func initRepo(optionToNameValue map[string]interface{}) error {
+	targetDir := optionToNameValue["projectSlug"].(string)
+
 	gitInit := exec.Command("git", "init")
-	gitInit.Dir = optionToNameValue["projectSlug"].(string)
+	gitInit.Dir = targetDir
 
 	if err := gitInit.Run(); err != nil {
 		return err
 	}
 
+	// nolint: gosec // no security issue possible with go mod init
 	goModInit := exec.Command("go", "mod", "init", optionToNameValue["moduleName"].(string))
-	goModInit.Dir = optionToNameValue["projectSlug"].(string)
+	goModInit.Dir = targetDir
 
 	return goModInit.Run()
 }
