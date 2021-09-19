@@ -2,7 +2,7 @@
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY out/bin/{{cookiecutter.app_name}} .
+COPY out/bin/{{.appName}} .
 USER nonroot:nonroot
 
-ENTRYPOINT ["/{{cookiecutter.app_name}}"]
+ENTRYPOINT ["/{{.appName}}"]

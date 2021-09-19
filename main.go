@@ -49,8 +49,6 @@ func run() error {
 
 	optionNameToValue := make(map[string]interface{}, len(options))
 	for _, currentOption := range options {
-		log.Printf("key: %s", currentOption.Name)
-
 		// default value could contain templating functions
 		var err error
 		currentOption.Default, err = applyTemplate(currentOption.Default, funcMap, optionNameToValue)
@@ -63,10 +61,8 @@ func run() error {
 		if err != nil {
 			return err
 		}
-		log.Printf("new value: %v", val)
 
 		optionNameToValue[currentOption.Name] = val
-		log.Printf("--------------")
 	}
 
 	return fs.WalkDir(dirTemplate, templateFolder, func(path string, d fs.DirEntry, err error) error {

@@ -5,8 +5,8 @@ SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
 # constants
-GOLANGCI_VERSION = {{cookiecutter.golangci_version}}
-DOCKER_REPO = {{cookiecutter.app_name}}
+GOLANGCI_VERSION = {{.golangciVersion}}
+DOCKER_REPO = {{.appName}}
 DOCKER_TAG = latest
 
 bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
@@ -26,14 +26,14 @@ out/bin:
 	@git init
 
 go.mod:
-	go mod init {{cookiecutter.module_name}}
+	go mod init {{.moduleName}}
 
 .PHONY: git-hooks
 git-hooks: ## Binds the defined hooks from local .githooks directory to git config
 	@git config --local core.hooksPath .githooks/
 
 .PHONY: all
-all: .git git-hooks bin/golangci-lint go.mod tidy download {% if cookiecutter.grpc_enabled == "yes" %}generate{% endif %} ## Initializes all tools
+all: .git git-hooks bin/golangci-lint go.mod tidy download {{if .grpcEnabled}}generate{{end}} ## Initializes all tools
 	@go mod tidy # hack to run tidy again after generating
 
 .PHONY: env-%
@@ -101,7 +101,7 @@ clean-bin: ## Cleans local binary folders
 
 .PHONY: clean-outputs
 clean-outputs: ## Cleans output folders out, vendor
-	@rm -rf out vendor api/proto/google api/proto/validate {% if cookiecutter.grpc_gateway_enabled == "yes" %}api/proto/protoc-gen-openapiv2{% endif %}
+	@rm -rf out vendor api/proto/google api/proto/validate {{if .grpcGatewayEnabled}}api/proto/protoc-gen-openapiv2{{end}}
 
 .PHONY: clean-go
 clean-go: ## Cleans module file
@@ -114,19 +114,19 @@ clean: clean-bin clean-outputs clean-go ## Cleans everything up
 docker: build-linux ## Builds docker image
 	docker build -t $(DOCKER_REPO):$(DOCKER_TAG) .
 
-{% if cookiecutter.grpc_enabled == "yes" -%}
+{{if .grpcEnabled}}
 # Go dependencies versioned through tools.go
 GO_DEPENDENCIES = google.golang.org/protobuf/cmd/protoc-gen-go \
 				google.golang.org/grpc/cmd/protoc-gen-go-grpc \
 				github.com/envoyproxy/protoc-gen-validate \
 				github.com/bufbuild/buf/cmd/buf \
                 github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking \
-                github.com/bufbuild/buf/cmd/protoc-gen-buf-lint 
-{%- if cookiecutter.grpc_gateway_enabled == "yes" %}
+                github.com/bufbuild/buf/cmd/protoc-gen-buf-lint
+{{if .grpcGatewayEnabled}}
 # additional dependencies for grpc-gateway
 GO_DEPENDENCIES += github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
 				github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-{%- endif %}
+{{end}}
 
 define make-go-dependency
   # target template for go tools, can be referenced e.g. via /bin/<tool>
@@ -147,12 +147,12 @@ api/proto/validate:
 	@mkdir -p api/proto/validate
 	curl -s https://raw.githubusercontent.com/envoyproxy/protoc-gen-validate/main/validate/validate.proto -o api/proto/validate/validate.proto
 
-{% if cookiecutter.grpc_gateway_enabled == "yes" -%}
+{{if .grpcGatewayEnabled}}
 api/proto/protoc-gen-openapiv2:
 	@mkdir -p api/proto/protoc-gen-openapiv2/options
 	curl -s https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/master/protoc-gen-openapiv2/options/openapiv2.proto -o api/proto/protoc-gen-openapiv2/options/openapiv2.proto
 	curl -s https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/master/protoc-gen-openapiv2/options/annotations.proto -o api/proto/protoc-gen-openapiv2/options/annotations.proto
-{%- endif %}
+{{end}}
 
 .PHONY: protolint
 protolint: bin/buf bin/protoc-gen-buf-lint ## Lints your protobuf files
@@ -164,9 +164,9 @@ protobreaking: bin/buf bin/protoc-gen-buf-breaking ## Compares your current prot
 
 .PHONY: generate
 generate: ## Generates code from protobuf files
-generate: api/proto/google api/proto/validate {% if cookiecutter.grpc_gateway_enabled == "yes" %}api/proto/protoc-gen-openapiv2 bin/protoc-gen-grpc-gateway bin/protoc-gen-openapiv2{% endif %} bin/buf bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
-	PATH=$(PWD)/bin:$$PATH buf generate --path api/proto/{{ cookiecutter.app_name }}/v1/{{ cookiecutter.app_name }}.proto
-{%- endif %}
+generate: api/proto/google api/proto/validate {{if .grpcGatewayEnabled}}api/proto/protoc-gen-openapiv2 bin/protoc-gen-grpc-gateway bin/protoc-gen-openapiv2{{end}} bin/buf bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
+	PATH=$(PWD)/bin:$$PATH buf generate --path api/proto/{{.appName}}/v1/{{.appName}}.proto
+{{end}}
 
 .PHONY: ci
 ci: lint-reports test-reports ## Executes lint and test and generates reports

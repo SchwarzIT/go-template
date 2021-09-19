@@ -8,9 +8,9 @@ lint:
   ignore:
     - google
     - validate
-{%- if cookiecutter.grpc_gateway_enabled == "yes" %}
+{{if .grpcGatewayEnabled}}
     - protoc-gen-openapiv2
-{%- endif %}
+{{end}}
   except:
     - RPC_RESPONSE_STANDARD_NAME
     - RPC_REQUEST_RESPONSE_UNIQUE

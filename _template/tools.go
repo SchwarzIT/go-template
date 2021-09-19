@@ -9,8 +9,8 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate"
 	_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
 	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
-	{%- if cookiecutter.grpc_gateway_enabled == "yes" %}
+	{{if .grpcGatewayEnabled}}
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
-	{%- endif %}
+	{{end}}
 )
