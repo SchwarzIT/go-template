@@ -5,14 +5,16 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"github.com/Masterminds/sprig"
 	"io/fs"
 	"log"
 	"os"
-	"sigs.k8s.io/yaml"
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/Masterminds/sprig"
+	"github.com/schwarzit/go-template/pkg/repos"
+	"sigs.k8s.io/yaml"
 )
 
 //go:embed _template
