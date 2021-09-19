@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"io/fs"
-	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -30,9 +29,9 @@ var optionBytes []byte
 const templateFolder = "_template"
 
 func main() {
-	// TODO: pretty print errors
 	if err := run(); err != nil {
-		log.Fatal(err)
+		printError(err)
+		os.Exit(1)
 	}
 }
 
@@ -198,10 +197,6 @@ func postHook(options []Option, optionNameToValue map[string]interface{}) error 
 	return nil
 }
 
-func printProgress(str string) {
-	_, _ = color.New(color.FgCyan, color.Bold).Println(str)
-}
-
 // readValue reads a value from the cli.
 func readValue(option Option) (interface{}, error) {
 	printOption(option)
@@ -243,21 +238,6 @@ func readStdin() (string, error) {
 	return strings.TrimSpace(s), nil
 }
 
-func printOption(option Option) {
-	highlight := color.New(color.FgCyan).SprintFunc()
-	underline := color.New(color.FgHiYellow, color.Underline).SprintFunc()
-	fmt.Printf("%s\n", underline(option.Description))
-	fmt.Printf("%s: (%v) ", highlight(option.Name), option.Default)
-}
-
-func printBanner() {
-	highlight := color.New(color.FgCyan).SprintFunc()
-	fmt.Printf("Hi! Welcome to the %s cli.\n", highlight("go/template"))
-	fmt.Printf("This command will walk you through creating a new project.\n\n")
-	fmt.Printf("Enter a value or leave blank to accept the (default), and press %s.\n", highlight("<ENTER>"))
-	fmt.Printf("Press %s at any time to quit.\n\n", highlight("^C"))
-}
-
 // applyTemplate executes a the template in the defaultValue with the valueMap as data.
 // If the defaultValue is not a string, the input defaultValue will be returned.
 func applyTemplate(defaultValue interface{}, funcMap template.FuncMap, valueMap map[string]interface{}) (interface{}, error) {
@@ -282,4 +262,30 @@ func executeTemplateString(str string, funcMap template.FuncMap, valueMap map[st
 	}
 
 	return buffer.String(), nil
+}
+
+func printError(err error) {
+	headerHighlight := color.New(color.FgRed, color.Bold).SprintFunc()
+	highlight := color.New(color.FgRed).SprintFunc()
+
+	_, _ = fmt.Fprintf(os.Stderr, "%s: %s\n", headerHighlight("Error during execution"), highlight(err.Error()))
+}
+
+func printOption(option Option) {
+	highlight := color.New(color.FgCyan).SprintFunc()
+	underline := color.New(color.FgHiYellow, color.Underline).SprintFunc()
+	fmt.Printf("%s\n", underline(option.Description))
+	fmt.Printf("%s: (%v) ", highlight(option.Name), option.Default)
+}
+
+func printBanner() {
+	highlight := color.New(color.FgCyan).SprintFunc()
+	fmt.Printf("Hi! Welcome to the %s cli.\n", highlight("go/template"))
+	fmt.Printf("This command will walk you through creating a new project.\n\n")
+	fmt.Printf("Enter a value or leave blank to accept the (default), and press %s.\n", highlight("<ENTER>"))
+	fmt.Printf("Press %s at any time to quit.\n\n", highlight("^C"))
+}
+
+func printProgress(str string) {
+	_, _ = color.New(color.FgCyan, color.Bold).Println(str)
 }
