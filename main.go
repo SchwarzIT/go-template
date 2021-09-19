@@ -68,6 +68,8 @@ func run() error {
 		optionNameToValue[currentOption.Name] = val
 	}
 
+	printGenerating()
+
 	return fs.WalkDir(dirTemplate, templateFolder, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -106,6 +108,10 @@ func run() error {
 	// TODO: run certain setup commands
 	//  - git init
 	//  - go mod init
+}
+
+func printGenerating() {
+	_, _ = color.New(color.FgCyan, color.Bold).Println("Generating repo folder...")
 }
 
 // readValue reads a value from the cli.
