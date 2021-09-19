@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"runtime"
 	"strconv"
@@ -60,6 +61,7 @@ func run() error {
 	optionNameToValue := make(map[string]interface{}, len(options))
 	for _, currentOption := range options {
 		// TODO: implement dependsOn
+		// TODO: implement validation func
 		// default value could contain templating functions
 		var err error
 		currentOption.Default, err = applyTemplate(currentOption.Default, funcMap, optionNameToValue)
@@ -67,7 +69,6 @@ func run() error {
 			return err
 		}
 
-		// TODO: only read value if dependencies.len == 0 or dependencies fulfilled
 		val, err := readValue(currentOption)
 		if err != nil {
 			return err
@@ -76,7 +77,9 @@ func run() error {
 		optionNameToValue[currentOption.Name] = val
 	}
 
-	printGenerating()
+	printProgress("Generating repo folder...")
+
+	// TODO: check if target directory already exists
 
 	err := fs.WalkDir(dirTemplate, templateFolder, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -109,13 +112,31 @@ func run() error {
 		return err
 	}
 
-	postHook(options, optionNameToValue)
-	// TODO: run certain setup commands
-	//  - git init
-	//  - go mod init
-	//initRepo(optionNameToValue["projectSlug"])
+	printProgress("Removing obsolete files...")
+	if err := postHook(options, optionNameToValue); err != nil {
+		return err
+	}
+
+	printProgress("Initializing git and Go modules...")
+	if err := initRepo(optionNameToValue); err != nil {
+		return err
+	}
 
 	return nil
+}
+
+func initRepo(optionToNameValue map[string]interface{}) error {
+	gitInit := exec.Command("git", "init")
+	gitInit.Dir = optionToNameValue["projectSlug"].(string)
+
+	if err := gitInit.Run(); err != nil {
+		return err
+	}
+
+	goModInit := exec.Command("go", "mod", "init", optionToNameValue["moduleName"].(string))
+	goModInit.Dir = optionToNameValue["projectSlug"].(string)
+
+	return goModInit.Run()
 }
 
 func postHook(options []Option, optionNameToValue map[string]interface{}) error {
@@ -145,8 +166,8 @@ func postHook(options []Option, optionNameToValue map[string]interface{}) error 
 	return nil
 }
 
-func printGenerating() {
-	_, _ = color.New(color.FgCyan, color.Bold).Println("Generating repo folder...")
+func printProgress(str string) {
+	_, _ = color.New(color.FgCyan, color.Bold).Println(str)
 }
 
 // readValue reads a value from the cli.

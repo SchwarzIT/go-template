@@ -22,18 +22,12 @@ out:
 out/bin:
 	@mkdir -p out/bin
 
-.git:
-	@git init
-
-go.mod:
-	go mod init {{.moduleName}}
-
 .PHONY: git-hooks
 git-hooks: ## Binds the defined hooks from local .githooks directory to git config
 	@git config --local core.hooksPath .githooks/
 
 .PHONY: all
-all: .git git-hooks bin/golangci-lint go.mod tidy download {{if .grpcEnabled}}generate{{end}} ## Initializes all tools
+all: git-hooks tidy {{if .grpcEnabled}}generate{{end}} ## Initializes all tools
 	@go mod tidy # hack to run tidy again after generating
 
 .PHONY: env-%

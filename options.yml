@@ -3,7 +3,7 @@
   description: Name of the project.
 - name: projectSlug
   default: '{{.projectName | lower | replace " " "-"}}'
-  description: Technical name of the project for folders and names.
+  description: Technical name of the project for folders and names. This will also be used as output directory.
 - name: projectDescription
   default: "The awesome project provides awesome features to awesome people."
   description: Description of the project used in the README.
