@@ -5,9 +5,11 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"github.com/fatih/color"
 	"io/fs"
 	"log"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"text/template"
@@ -47,6 +49,7 @@ func run() error {
 		return err
 	}
 
+	printBanner()
 	optionNameToValue := make(map[string]interface{}, len(options))
 	for _, currentOption := range options {
 		// default value could contain templating functions
@@ -107,28 +110,58 @@ func run() error {
 
 // readValue reads a value from the cli.
 func readValue(option Option) (interface{}, error) {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("Enter text for %s (%s, default: %v): ", option.Name, option.Description, option.Default)
-	text, err := reader.ReadString('\n')
+	printOption(option)
+	defer fmt.Println()
+
+	s, err := readStdin()
 	if err != nil {
 		return nil, err
 	}
 
-	text = strings.TrimRight(text, "\n")
-	if text == "" {
+	if s == "" {
 		return option.Default, nil
 	}
 
 	switch option.Default.(type) {
 	case string:
-		return text, nil
+		return s, nil
 	case bool:
-		return strconv.ParseBool(text)
+		return strconv.ParseBool(s)
 	case int:
-		return strconv.Atoi(text)
+		return strconv.Atoi(s)
 	default:
 		panic("unsupported type")
 	}
+}
+
+func readStdin() (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+	s, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+
+	s = strings.TrimSuffix(s, "\n")
+	if runtime.GOOS == "windows" {
+		s = strings.TrimSuffix(s, "\r")
+	}
+
+	return s, nil
+}
+
+func printOption(option Option) {
+	highlight := color.New(color.FgCyan).SprintFunc()
+	underline := color.New(color.FgHiYellow, color.Underline).SprintFunc()
+	fmt.Printf("%s\n", underline(option.Description))
+	fmt.Printf("%s: (%v) ", highlight(option.Name), option.Default)
+}
+
+func printBanner() {
+	highlight := color.New(color.FgCyan).SprintFunc()
+	fmt.Printf("Hi! Welcome to the %s cli.\n", highlight("go/template"))
+	fmt.Printf("This command will walk you through creating a new project.\n\n")
+	fmt.Printf("Enter a value or leave blank to accept the (default), and press %s.\n", highlight("<ENTER>"))
+	fmt.Printf("Press %s at any time to quit.\n\n", highlight("^C"))
 }
 
 // applyTemplate executes a the template in the defaultValue with the valueMap as data.
