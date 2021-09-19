@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"path"
 	"runtime"
 	"strconv"
 	"strings"
@@ -38,6 +39,12 @@ type Option struct {
 	Default     interface{} `json:"default"`
 	Description string      `json:"description"`
 	DependsOn   []string    `json:"dependsOn"`
+	Files       Files       `json:"files"`
+}
+
+type Files struct {
+	Add    []string `json:"add"`
+	Remove []string `json:"remove"`
 }
 
 func run() error {
@@ -52,6 +59,7 @@ func run() error {
 	printBanner()
 	optionNameToValue := make(map[string]interface{}, len(options))
 	for _, currentOption := range options {
+		// TODO: implement dependsOn
 		// default value could contain templating functions
 		var err error
 		currentOption.Default, err = applyTemplate(currentOption.Default, funcMap, optionNameToValue)
@@ -70,7 +78,7 @@ func run() error {
 
 	printGenerating()
 
-	return fs.WalkDir(dirTemplate, templateFolder, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(dirTemplate, templateFolder, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -97,17 +105,44 @@ func run() error {
 
 		return os.WriteFile(pathToWrite, []byte(data), os.ModePerm)
 	})
+	if err != nil {
+		return err
+	}
 
-	// TODO: implement post hook to remove files that are not needed
-	//  - either manually, or assing define files that are specific to an option in the options
-	//  - defined
-	//      - should only be allowed for bool values (working as switches?)
-	//      - validate options in pipeline to make sure they are valid
-	//      - write file only if the file is they are not included in any disabled switch
-
+	postHook(options, optionNameToValue)
 	// TODO: run certain setup commands
 	//  - git init
 	//  - go mod init
+	//initRepo(optionNameToValue["projectSlug"])
+
+	return nil
+}
+
+func postHook(options []Option, optionNameToValue map[string]interface{}) error {
+	var toDelete []string
+
+	for _, opt := range options {
+		optEnabled, ok := optionNameToValue[opt.Name].(bool)
+		if !ok {
+			// if not bool value, files will be ignored
+			continue
+		}
+
+		if optEnabled {
+			toDelete = append(toDelete, opt.Files.Remove...)
+			continue
+		}
+		// the files are added in the loop anyways, but if the option is disabled they should be removed again
+		toDelete = append(toDelete, opt.Files.Add...)
+	}
+
+	for _, item := range toDelete {
+		if err := os.RemoveAll(path.Join(optionNameToValue["projectSlug"].(string), item)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func printGenerating() {
