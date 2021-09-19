@@ -82,7 +82,10 @@ func run() error {
 
 	printProgress("Generating repo folder...")
 
-	// TODO: check if target directory already exists
+	targetDir := optionNameToValue["projectSlug"].(string)
+	if _, err := os.Stat(targetDir); os.IsNotExist(err) {
+		return fmt.Errorf("directory %s already exists", targetDir)
+	}
 
 	err := fs.WalkDir(dirTemplate, templateFolder, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -94,7 +97,7 @@ func run() error {
 			return err
 		}
 
-		pathToWrite = strings.ReplaceAll(pathToWrite, templateFolder, optionNameToValue["projectSlug"].(string))
+		pathToWrite = strings.ReplaceAll(pathToWrite, templateFolder, targetDir)
 		if d.IsDir() {
 			return os.MkdirAll(pathToWrite, os.ModePerm)
 		}
