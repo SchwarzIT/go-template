@@ -30,6 +30,7 @@ var optionBytes []byte
 const templateFolder = "_template"
 
 func main() {
+	// TODO: pretty print errors
 	if err := run(); err != nil {
 		log.Fatal(err)
 	}
@@ -236,7 +237,7 @@ func readStdin() (string, error) {
 		s = strings.TrimSuffix(s, "\r")
 	}
 
-	return s, nil
+	return strings.TrimSpace(s), nil
 }
 
 func printOption(option Option) {
