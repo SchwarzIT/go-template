@@ -23,16 +23,30 @@ import (
 
 func init() {
 	rootCmd.AddCommand(newCmd)
+
+	funcMap = sprig.TxtFuncMap()
+	funcMap["latestReleaseTag"] = latestReleaseTagWithDefault
+	newCmd.Flags().StringVarP(
+		&configFile,
+		"config", "c", "",
+		`Config file that defines all parameters.
+This is helpful if you don't want to run the CLI interactively.
+It should either be a json or a yaml file.`,
+	)
 }
 
-var newCmd = &cobra.Command{
-	Use:   "new",
-	Short: "Create a new project repository.",
-	Long:  "Fill out all given parameters to configure and jump start your next project repository.",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return run()
-	},
-}
+var (
+	newCmd = &cobra.Command{
+		Use:   "new",
+		Short: "Create a new project repository.",
+		Long:  "Fill out all given parameters to configure and jump start your next project repository.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return run()
+		},
+	}
+	funcMap    template.FuncMap
+	configFile string
+)
 
 type Option struct {
 	Name        string      `json:"name"`
@@ -56,37 +70,19 @@ func latestReleaseTagWithDefault(repo, defaultTag string) string {
 	return tag
 }
 
+// TODO: only use globals in toplevel run. Pass as values to other functions to make testing easier.
 func run() error {
-	funcMap := sprig.TxtFuncMap()
-	funcMap["latestReleaseTag"] = latestReleaseTagWithDefault
-
 	var options []Option
 	if err := yaml.Unmarshal(config.Options, &options); err != nil {
 		return err
 	}
 
-	printBanner()
-	optionNameToValue := make(map[string]interface{}, len(options))
-	for _, currentOption := range options {
-		if !dependenciesMet(currentOption, optionNameToValue) {
-			continue
-		}
-
-		// default value could contain templating functions
-		var err error
-		currentOption.Default, err = applyTemplate(currentOption.Default, funcMap, optionNameToValue)
-		if err != nil {
-			return err
-		}
-
-		// TODO: add validation for value (probably regex pattern)
-		val, err := readValue(currentOption)
-		if err != nil {
-			return err
-		}
-
-		optionNameToValue[currentOption.Name] = val
+	optionNameToValue, err := getValues(options)
+	if err != nil {
+		return err
 	}
+
+	// TODO: add validation for value (probably regex pattern)
 
 	printProgress("Generating repo folder...")
 
@@ -95,7 +91,7 @@ func run() error {
 		return fmt.Errorf("directory %s already exists", targetDir)
 	}
 
-	err := fs.WalkDir(config.TemplateDir, config.TemplateKey, func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(config.TemplateDir, config.TemplateKey, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -137,6 +133,53 @@ func run() error {
 	}
 
 	return nil
+}
+
+func getValues(options []Option) (map[string]interface{}, error) {
+	if configFile != "" {
+		return getValuesFromFile(options, configFile)
+	}
+	return getValuesInteractively(options)
+}
+
+func getValuesFromFile(options []Option, file string) (map[string]interface{}, error) {
+	fileBytes, err := os.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+
+	optionNameToValue := make(map[string]interface{}, len(options))
+	if err := yaml.Unmarshal(fileBytes, &optionNameToValue); err != nil {
+		return nil, err
+	}
+
+	return optionNameToValue, nil
+}
+
+func getValuesInteractively(options []Option) (map[string]interface{}, error) {
+	printBanner()
+	optionNameToValue := make(map[string]interface{}, len(options))
+	for _, currentOption := range options {
+		if !dependenciesMet(currentOption, optionNameToValue) {
+			continue
+		}
+
+		// default value could contain templating functions
+		var err error
+		currentOption.Default, err = applyTemplate(currentOption.Default, funcMap, optionNameToValue)
+		if err != nil {
+			return nil, err
+		}
+
+		val, err := readValue(currentOption)
+		if err != nil {
+			return nil, err
+		}
+
+		optionNameToValue[currentOption.Name] = val
+	}
+
+	return optionNameToValue, nil
 }
 
 func dependenciesMet(option Option, optionNameToValue map[string]interface{}) bool {
