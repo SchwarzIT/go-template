@@ -3,11 +3,11 @@ name: CI
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: ["*"]
     paths-ignore: ["docs/**"]
 
   push:
-    branches: ["main"]
+    branches: ["*"]
     paths-ignore: ["docs/**"]
 
   # Allows you to run this workflow manually from the Actions tab
