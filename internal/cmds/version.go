@@ -2,6 +2,7 @@ package cmds
 
 import (
 	"fmt"
+
 	"github.com/schwarzit/go-template/config"
 	"github.com/schwarzit/go-template/pkg/repos"
 	"github.com/spf13/cobra"

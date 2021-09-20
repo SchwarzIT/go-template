@@ -39,7 +39,7 @@ linters-settings:
         # don't include the "operation" and "assign"
         checks: argument,case,condition,return
   govet:
-    check-shadowing: true
+    check-shadowing: false
   lll:
     line-length: 140
   misspell:

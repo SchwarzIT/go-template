@@ -2,8 +2,9 @@ package cmds
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"os"
+
+	"github.com/fatih/color"
 )
 
 func printProgress(str string) {
