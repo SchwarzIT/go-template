@@ -12,12 +12,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint_test:
-    name: Run linting & unittest
-    runs-on: ubuntu-latest
+  test:
+    strategy:
+      matrix:
+        go-version: [1.16.x, 1.17.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
 
-      - name: Install prometheus config validator
-        run: make ci
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run linting & unittest
+      run: make ci
