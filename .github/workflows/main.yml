@@ -10,6 +10,9 @@ on:
     branches: ["main"]
     paths-ignore: ["docs/**"]
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 jobs:
   lint_test:
     name: Run linting & unittest
