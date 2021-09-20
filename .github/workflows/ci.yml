@@ -1,0 +1,22 @@
+---
+name: CI
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths-ignore: ["docs/**"]
+
+  push:
+    branches: ["main"]
+    paths-ignore: ["docs/**"]
+
+jobs:
+  lint_test:
+    name: Run linting & unittest
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install prometheus config validator
+        run: make ci
