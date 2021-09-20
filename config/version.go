@@ -1,10 +1,8 @@
-//go:build prod
-// +build prod
-
 package config
 
 import (
 	_ "embed"
+	"strings"
 )
 
 var (

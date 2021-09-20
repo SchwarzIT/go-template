@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// TODO: add nice colors to the help output as in new command
 var rootCmd = &cobra.Command{
 	Use:              "go-template",
 	Short:            "go/template is a tool for jumpstarting production-ready Golang projects quickly",

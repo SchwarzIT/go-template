@@ -122,6 +122,8 @@ func run() error {
 		return err
 	}
 
+	// TODO: delete created directory if any error occurs
+
 	printProgress("Removing obsolete files...")
 	if err := postHook(options, optionNameToValue); err != nil {
 		return err
