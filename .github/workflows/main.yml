@@ -1,4 +1,5 @@
 ---
+# based on https://github.com/mvdan/github-actions-golang
 name: CI
 
 on:
@@ -52,5 +53,10 @@ jobs:
     - name: Build package
       run: make build
 
-    - name: Show builds
-      run: ls -la out/bin
+    - name: Execute build
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+      run: ./out/bin/go-template --help
+
+    - name: Execute build
+      if: matrix.os == 'windows-latest'
+      run: ./out/bin/go-template.exe --help
