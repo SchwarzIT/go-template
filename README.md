@@ -1,6 +1,7 @@
 # `go/template`
 
 [![SIT](https://img.shields.io/badge/SIT-awesome-blueviolet.svg)](https://jobs.schwarz)
+[![Semgrep](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml)
 
 `go/template` is a tool for jumpstarting production-ready Golang projects quickly.
 
