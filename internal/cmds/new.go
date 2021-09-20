@@ -4,20 +4,21 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/Masterminds/sprig"
-	"github.com/fatih/color"
-	"github.com/schwarzit/go-template/config"
-	"github.com/schwarzit/go-template/pkg/repos"
-	"github.com/spf13/cobra"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path"
 	"runtime"
-	"sigs.k8s.io/yaml"
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/Masterminds/sprig"
+	"github.com/fatih/color"
+	"github.com/schwarzit/go-template/config"
+	"github.com/schwarzit/go-template/pkg/repos"
+	"github.com/spf13/cobra"
+	"sigs.k8s.io/yaml"
 )
 
 func init() {
