@@ -47,9 +47,18 @@ type Files struct {
 	Remove []string `json:"remove"`
 }
 
+func latestReleaseTagWithDefault(repo, defaultTag string) string {
+	tag, err := repos.LatestReleaseTag(repo)
+	if err != nil {
+		return defaultTag
+	}
+
+	return tag
+}
+
 func run() error {
 	funcMap := sprig.TxtFuncMap()
-	funcMap["latestReleaseTag"] = repos.LatestReleaseTag
+	funcMap["latestReleaseTag"] = latestReleaseTagWithDefault
 
 	var options []Option
 	if err := yaml.Unmarshal(config.Options, &options); err != nil {
@@ -280,8 +289,4 @@ func printBanner() {
 	fmt.Printf("This command will walk you through creating a new project.\n\n")
 	fmt.Printf("Enter a value or leave blank to accept the (default), and press %s.\n", highlight("<ENTER>"))
 	fmt.Printf("Press %s at any time to quit.\n\n", highlight("^C"))
-}
-
-func printProgress(str string) {
-	_, _ = color.New(color.FgCyan, color.Bold).Println(str)
 }
