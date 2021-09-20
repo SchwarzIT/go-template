@@ -47,3 +47,9 @@ jobs:
 
     - name: Run linting & unittest
       run: make ci
+
+    - name: Build package
+      run: make build
+
+    - name: Show builds
+      run: ls -la out/bin
