@@ -9,6 +9,10 @@ import (
 
 const goTemplateGithubRepo = "https://github.com/schwarzit/go-template"
 
+func (gt *GT) PrintVersion() {
+	_, _ = fmt.Fprintln(gt.Out, config.Version)
+}
+
 func (gt *GT) CheckVersion() {
 	tag, err := repos.LatestReleaseTag(goTemplateGithubRepo)
 	if err != nil {
