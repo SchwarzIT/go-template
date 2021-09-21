@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	Version string = strings.TrimSpace(version)
+	Version = strings.TrimSpace(version)
 
 	//go:embed version.txt
 	version string

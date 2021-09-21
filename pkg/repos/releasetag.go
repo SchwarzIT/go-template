@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"path"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // LatestReleaseTag returns the latest release tag for a given repo.
@@ -36,7 +38,7 @@ func LatestReleaseTag(repo string) (string, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("could not get tags for repo, status: %d", resp.StatusCode)
+		return "", errors.Wrap(ErrStatus(resp.StatusCode), "could not get tags for repo")
 	}
 
 	defer resp.Body.Close()
@@ -51,4 +53,10 @@ func LatestReleaseTag(repo string) (string, error) {
 	}
 
 	return releases[0]["name"].(string), nil
+}
+
+type ErrStatus int
+
+func (e ErrStatus) Error() string {
+	return fmt.Sprintf("unexpected status code: %d", int(e))
 }

@@ -13,10 +13,13 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/pkg/errors"
 	"github.com/schwarzit/go-template/config"
 	"github.com/schwarzit/go-template/pkg/option"
 	"sigs.k8s.io/yaml"
 )
+
+var ErrAlreadyExists = errors.New("already exists")
 
 type NewRepositoryOptions struct {
 	OptionNameToValue map[string]interface{}
@@ -43,7 +46,9 @@ func (gt *GT) GetOptionToValueInteractively() (map[string]interface{}, error) {
 	gt.printBanner()
 	optionNameToValue := make(map[string]interface{}, len(gt.Options))
 	for _, currentOption := range gt.Options {
-		if !dependenciesMet(currentOption, optionNameToValue) {
+		// Fix implicit memory aliasing (gosec G601)
+		currentOption := currentOption
+		if !dependenciesMet(&currentOption, optionNameToValue) {
 			continue
 		}
 
@@ -54,7 +59,7 @@ func (gt *GT) GetOptionToValueInteractively() (map[string]interface{}, error) {
 			return nil, err
 		}
 
-		val, err := gt.readOptionValue(currentOption)
+		val, err := gt.readOptionValue(&currentOption)
 		if err != nil {
 			return nil, err
 		}
@@ -65,7 +70,7 @@ func (gt *GT) GetOptionToValueInteractively() (map[string]interface{}, error) {
 	return optionNameToValue, nil
 }
 
-func dependenciesMet(opt option.Option, optionNameToValue map[string]interface{}) bool {
+func dependenciesMet(opt *option.Option, optionNameToValue map[string]interface{}) bool {
 	if len(opt.DependsOn) == 0 {
 		return true
 	}
@@ -96,7 +101,7 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 
 	targetDir := opts.OptionNameToValue["projectSlug"].(string)
 	if _, err := os.Stat(targetDir); !os.IsNotExist(err) {
-		return fmt.Errorf("directory %s already exists", targetDir)
+		return errors.Wrapf(ErrAlreadyExists, "directory %s", targetDir)
 	}
 
 	defer func() {
@@ -194,7 +199,7 @@ func postHook(options []option.Option, optionNameToValue map[string]interface{})
 }
 
 // readOptionValue reads a value for an option from the cli.
-func (gt *GT) readOptionValue(opts option.Option) (interface{}, error) {
+func (gt *GT) readOptionValue(opts *option.Option) (interface{}, error) {
 	gt.printOption(opts)
 	defer fmt.Fprintln(gt.Out)
 

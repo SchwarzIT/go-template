@@ -18,8 +18,7 @@ func (gt *GT) printWarning(str string) {
 	_, _ = fmt.Fprintf(gt.Err, "%s: %s\n", headerHighlight("WARNING"), highlight(str))
 }
 
-// TODO: print to gt.Out
-func (gt *GT) printOption(opts option.Option) {
+func (gt *GT) printOption(opts *option.Option) {
 	highlight := color.New(color.FgCyan).SprintFunc()
 	underline := color.New(color.FgHiYellow, color.Underline).SprintFunc()
 	_, _ = fmt.Fprintf(gt.Out, "%s\n", underline(opts.Description))
