@@ -91,8 +91,7 @@ func dependenciesMet(opt option.Option, optionNameToValue map[string]interface{}
 	return true
 }
 
-// TODO: only use globals in toplevel run. Pass as values to other functions to make testing easier.
-func (gt *GT) NewRepository(opts *NewRepositoryOptions) error {
+func (gt *GT) NewRepository(opts *NewRepositoryOptions) (err error) {
 	gt.printProgress("Generating repo folder...")
 
 	targetDir := opts.OptionNameToValue["projectSlug"].(string)
@@ -100,7 +99,13 @@ func (gt *GT) NewRepository(opts *NewRepositoryOptions) error {
 		return fmt.Errorf("directory %s already exists", targetDir)
 	}
 
-	err := fs.WalkDir(config.TemplateDir, config.TemplateKey, func(path string, d fs.DirEntry, err error) error {
+	defer func() {
+		if err != nil {
+			// ignore error to not overwrite original error
+			_ = os.RemoveAll(targetDir)
+		}
+	}()
+	err = fs.WalkDir(config.TemplateDir, config.TemplateKey, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -130,8 +135,6 @@ func (gt *GT) NewRepository(opts *NewRepositoryOptions) error {
 	if err != nil {
 		return err
 	}
-
-	// TODO: delete created directory if any error occurs
 
 	gt.printProgress("Removing obsolete files...")
 	if err := postHook(gt.Options, opts.OptionNameToValue); err != nil {

@@ -8,7 +8,7 @@ import (
 func buildNewCommand(gt *gotemplate.GT) *cobra.Command {
 	var (
 		configFile string
-		opts       *gotemplate.NewRepositoryOptions
+		opts       gotemplate.NewRepositoryOptions
 	)
 
 	cmd := &cobra.Command{
@@ -25,7 +25,7 @@ func buildNewCommand(gt *gotemplate.GT) *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return gt.NewRepository(opts)
+			return gt.NewRepository(&opts)
 		},
 	}
 
