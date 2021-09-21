@@ -36,7 +36,7 @@
 ### Install
 
 ```bash
-go get -u github.com/SchwarzIT/go-template
+go install github.com/schwarzit/go-template@latest
 ```
 
 ### Initialize your repo from the template
