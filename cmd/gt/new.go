@@ -25,7 +25,7 @@ func buildNewCommand(gt *gotemplate.GT) *cobra.Command {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return gt.NewRepository(&opts)
+			return gt.InitNewProject(&opts)
 		},
 	}
 

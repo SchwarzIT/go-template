@@ -91,7 +91,7 @@ func dependenciesMet(opt option.Option, optionNameToValue map[string]interface{}
 	return true
 }
 
-func (gt *GT) NewRepository(opts *NewRepositoryOptions) (err error) {
+func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 	gt.printProgress("Generating repo folder...")
 
 	targetDir := opts.OptionNameToValue["projectSlug"].(string)

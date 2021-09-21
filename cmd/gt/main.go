@@ -39,6 +39,9 @@ func buildRootCommand() *cobra.Command {
 
 			gt.CheckVersion()
 		},
+		// don't show errors and usage on errors in any RunE function.
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
 
 	cmd.AddCommand(buildNewCommand(gt))
