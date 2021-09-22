@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 
@@ -35,7 +36,7 @@ func buildRootCommand() *cobra.Command {
 			// Enable swapping out stdout/stderr for testing
 			gt.Out = cmd.OutOrStdout()
 			gt.Err = cmd.OutOrStderr()
-			gt.In = cmd.InOrStdin()
+			gt.InScanner = bufio.NewScanner(cmd.InOrStdin())
 
 			gt.CheckVersion()
 		},

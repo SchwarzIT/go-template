@@ -1,14 +1,12 @@
 package gotemplate
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path"
-	"runtime"
 	"strconv"
 	"strings"
 	"text/template"
@@ -36,6 +34,8 @@ func (gt *GT) LoadOptionToValueFromFile(file string) (map[string]interface{}, er
 	if err := yaml.Unmarshal(fileBytes, &optionNameToValue); err != nil {
 		return nil, err
 	}
+
+	// TODO: make sure that all options are set if needed?
 
 	return optionNameToValue, nil
 }
@@ -225,18 +225,11 @@ func (gt *GT) readOptionValue(opts *option.Option) (interface{}, error) {
 }
 
 func (gt *GT) readStdin() (string, error) {
-	reader := bufio.NewReader(gt.In)
-	s, err := reader.ReadString('\n')
-	if err != nil {
-		return "", err
+	if ok := gt.InScanner.Scan(); !ok {
+		return "", gt.InScanner.Err()
 	}
 
-	s = strings.TrimSuffix(s, "\n")
-	if runtime.GOOS == "windows" {
-		s = strings.TrimSuffix(s, "\r")
-	}
-
-	return strings.TrimSpace(s), nil
+	return strings.TrimSpace(gt.InScanner.Text()), nil
 }
 
 // applyTemplate executes a the template in the defaultValue with the valueMap as data.

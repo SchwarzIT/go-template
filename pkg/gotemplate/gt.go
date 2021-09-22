@@ -1,6 +1,7 @@
 package gotemplate
 
 import (
+	"bufio"
 	"io"
 	"text/template"
 
@@ -18,9 +19,9 @@ type GT struct {
 }
 
 type Streams struct {
-	Out io.Writer
-	Err io.Writer
-	In  io.Reader
+	Out       io.Writer
+	Err       io.Writer
+	InScanner *bufio.Scanner
 }
 
 func New() *GT {
