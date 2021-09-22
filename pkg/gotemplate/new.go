@@ -146,7 +146,7 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 	}
 
 	gt.printProgress("Removing obsolete files...")
-	if err := postHook(gt.Options, opts.OptionNameToValue); err != nil {
+	if err := postHook(targetDir, gt.Options, opts.OptionNameToValue); err != nil {
 		return err
 	}
 
@@ -166,14 +166,13 @@ func initRepo(targetDir, moduleName string) error {
 		return err
 	}
 
-	// nolint: gosec // no security issue possible with go mod init
 	goModInit := exec.Command("go", "mod", "init", moduleName)
 	goModInit.Dir = targetDir
 
 	return goModInit.Run()
 }
 
-func postHook(options []option.Option, optionNameToValue map[string]interface{}) error {
+func postHook(targetDir string, options []option.Option, optionNameToValue map[string]interface{}) error {
 	var toDelete []string
 
 	for _, opt := range options {
@@ -192,7 +191,7 @@ func postHook(options []option.Option, optionNameToValue map[string]interface{})
 	}
 
 	for _, item := range toDelete {
-		if err := os.RemoveAll(path.Join(optionNameToValue["projectSlug"].(string), item)); err != nil {
+		if err := os.RemoveAll(path.Join(targetDir, item)); err != nil {
 			return err
 		}
 	}

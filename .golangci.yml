@@ -121,6 +121,7 @@ issues:
         - gochecknoglobals
         - gosec
         - noctx
+        - goerr113
 
     # https://github.com/go-critic/go-critic/issues/926
     - linters:
