@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/Masterminds/semver"
 	"github.com/pkg/errors"
 	"github.com/schwarzit/go-template/pkg/repos"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ func TestLatestGithubReleaseTag(t *testing.T) {
 		name       string
 		listerFunc repos.GithubTagListerFunc
 		expectErr  bool
-		expectTag  string
+		expectTag  *semver.Version
 	}{
 		{
 			name: "error is returned",
@@ -43,7 +44,7 @@ func TestLatestGithubReleaseTag(t *testing.T) {
 				return []string{"v1.0.0", "v1.0.2"}, nil
 			},
 			expectErr: false,
-			expectTag: "1.0.2",
+			expectTag: semver.MustParse("v1.0.2"),
 		},
 	}
 

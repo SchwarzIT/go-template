@@ -2,21 +2,23 @@ package gotemplate
 
 import (
 	"bufio"
-	"github.com/google/go-github/v39/github"
+	"context"
 	"io"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
+	"github.com/google/go-github/v39/github"
 	"github.com/schwarzit/go-template/config"
 	"github.com/schwarzit/go-template/pkg/option"
+	"github.com/schwarzit/go-template/pkg/repos"
 	"sigs.k8s.io/yaml"
 )
 
 type GT struct {
 	Streams
-	FuncMap      template.FuncMap
-	Options      []option.Option
-	GitHubClient *github.Client
+	FuncMap         template.FuncMap
+	Options         []option.Option
+	GithubTagLister repos.GithubTagLister
 }
 
 type Streams struct {
@@ -32,9 +34,23 @@ func New() *GT {
 		panic("embedded options are invalid")
 	}
 
+	githubClient := github.NewClient(nil)
+
 	gt := &GT{
-		Options:      options,
-		GitHubClient: github.NewClient(nil),
+		Options: options,
+		GithubTagLister: repos.GithubTagListerFunc(func(ctx context.Context, owner, repo string) ([]string, error) {
+			tags, _, err := githubClient.Repositories.ListTags(ctx, owner, repo, nil)
+			if err != nil {
+				return nil, err
+			}
+
+			var tagStrings []string
+			for _, tag := range tags {
+				tagStrings = append(tagStrings, tag.GetName())
+			}
+
+			return tagStrings, nil
+		}),
 	}
 
 	gt.FuncMap = sprig.TxtFuncMap()
@@ -44,10 +60,10 @@ func New() *GT {
 }
 
 func (gt *GT) latestReleaseTagWithDefault(owner, repo, defaultTag string) string {
-	tag, err := gt.getLatestGithubVersion(owner, repo)
+	tag, err := repos.LatestGithubReleaseTag(gt.GithubTagLister, owner, repo)
 	if err != nil {
 		return defaultTag
 	}
 
-	return tag
+	return tag.String()
 }

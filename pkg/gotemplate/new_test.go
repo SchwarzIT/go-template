@@ -8,20 +8,21 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"sigs.k8s.io/yaml"
 	"strings"
 	"testing"
 
 	"github.com/schwarzit/go-template/pkg/gotemplate"
 	"github.com/schwarzit/go-template/pkg/option"
 	"github.com/stretchr/testify/assert"
+	"sigs.k8s.io/yaml"
 )
 
-const targetDirOptionName = "projectSlug"
+const (
+	targetDirOptionName = "projectSlug"
+	optionName          = "someOption"
+)
 
 func TestGT_LoadOptionToValueFromFile(t *testing.T) {
-	optionName := "someOption"
-
 	gt := gotemplate.GT{
 		Options: []option.Option{
 			{
@@ -45,8 +46,6 @@ func TestGT_LoadOptionToValueFromFile(t *testing.T) {
 }
 
 func TestGT_GetOptionToValueInteractively(t *testing.T) {
-	optionName := "someOption"
-
 	gt := gotemplate.GT{
 		Streams: gotemplate.Streams{Out: &bytes.Buffer{}},
 	}
@@ -173,10 +172,14 @@ func TestGT_InitNewProject(t *testing.T) {
 		tmpDir := t.TempDir()
 		opts.CWD = tmpDir
 
-		err = gt.InitNewProject(opts)
+		err := gt.InitNewProject(opts)
 		assert.NoError(t, err)
 
 		err = filepath.WalkDir(getTargetDir(tmpDir, opts), func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
 			if strings.Contains(path, "<no value>") {
 				return fmt.Errorf("found a leftover template variable in %s", path)
 			}

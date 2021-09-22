@@ -2,6 +2,7 @@ package repos
 
 import (
 	"context"
+
 	"github.com/Masterminds/semver"
 	"github.com/pkg/errors"
 )
@@ -19,21 +20,21 @@ func (f GithubTagListerFunc) ListTags(ctx context.Context, owner, repo string) (
 }
 
 // LatestGithubReleaseTag returns the latest release tag for a given repo.
-func LatestGithubReleaseTag(lister GithubTagLister, owner, repo string) (string, error) {
+func LatestGithubReleaseTag(lister GithubTagLister, owner, repo string) (*semver.Version, error) {
 	tags, err := lister.ListTags(context.Background(), owner, repo)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if len(tags) < 1 {
-		return "", errors.Wrap(ErrNoTagsAvailable, repo)
+		return nil, errors.Wrap(ErrNoTagsAvailable, repo)
 	}
 
 	latest := &semver.Version{}
 	for _, tag := range tags {
 		currentVersion, err := semver.NewVersion(tag)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		if currentVersion.GreaterThan(latest) {
@@ -41,5 +42,5 @@ func LatestGithubReleaseTag(lister GithubTagLister, owner, repo string) (string,
 		}
 	}
 
-	return latest.String(), nil
+	return latest, nil
 }
