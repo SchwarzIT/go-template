@@ -19,7 +19,9 @@ import (
 
 var ErrAlreadyExists = errors.New("already exists")
 
+// TODO: add validation for opts
 type NewRepositoryOptions struct {
+	CWD               string
 	OptionNameToValue map[string]interface{}
 }
 
@@ -99,7 +101,9 @@ func dependenciesMet(opt *option.Option, optionNameToValue map[string]interface{
 func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 	gt.printProgress("Generating repo folder...")
 
-	targetDir := opts.OptionNameToValue["projectSlug"].(string)
+	targetDir := path.Join(opts.CWD, opts.OptionNameToValue["projectSlug"].(string))
+	gt.printProgress(fmt.Sprintf("Writing to %s...", targetDir))
+
 	if _, err := os.Stat(targetDir); !os.IsNotExist(err) {
 		return errors.Wrapf(ErrAlreadyExists, "directory %s", targetDir)
 	}
@@ -147,16 +151,14 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 	}
 
 	gt.printProgress("Initializing git and Go modules...")
-	if err := initRepo(opts.OptionNameToValue); err != nil {
+	if err := initRepo(targetDir, opts.OptionNameToValue["moduleName"].(string)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func initRepo(optionToNameValue map[string]interface{}) error {
-	targetDir := optionToNameValue["projectSlug"].(string)
-
+func initRepo(targetDir, moduleName string) error {
 	gitInit := exec.Command("git", "init")
 	gitInit.Dir = targetDir
 
@@ -165,7 +167,7 @@ func initRepo(optionToNameValue map[string]interface{}) error {
 	}
 
 	// nolint: gosec // no security issue possible with go mod init
-	goModInit := exec.Command("go", "mod", "init", optionToNameValue["moduleName"].(string))
+	goModInit := exec.Command("go", "mod", "init", moduleName)
 	goModInit.Dir = targetDir
 
 	return goModInit.Run()

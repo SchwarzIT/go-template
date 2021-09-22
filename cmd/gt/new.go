@@ -37,6 +37,12 @@ This is helpful if you don't want to run the CLI interactively.
 It should either be a json or a yaml file.`,
 	)
 
+	cmd.Flags().StringVar(
+		&opts.CWD, "cwd", "./",
+		`Current working directory.
+Can be set to decide where to create the new project folder.,
+`)
+
 	return cmd
 }
 
