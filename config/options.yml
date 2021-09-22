@@ -14,7 +14,7 @@
   default: 'github.com/user/{{.projectSlug}}'
   description: Name of the Go module passed to go mod init.
 - name: golangciVersion
-  default: '{{latestReleaseTag "https://github.com/golangci/golangci-lint" "v1.40.1"}}'
+  default: '{{latestReleaseTag "golangci" "golangci-lint" "1.40.1"}}'
   description: Golangci-lint version to use.
 - name: grpcEnabled
   default: false

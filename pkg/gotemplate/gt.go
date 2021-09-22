@@ -2,20 +2,21 @@ package gotemplate
 
 import (
 	"bufio"
+	"github.com/google/go-github/v39/github"
 	"io"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
 	"github.com/schwarzit/go-template/config"
 	"github.com/schwarzit/go-template/pkg/option"
-	"github.com/schwarzit/go-template/pkg/repos"
 	"sigs.k8s.io/yaml"
 )
 
 type GT struct {
 	Streams
-	FuncMap template.FuncMap
-	Options []option.Option
+	FuncMap      template.FuncMap
+	Options      []option.Option
+	GitHubClient *github.Client
 }
 
 type Streams struct {
@@ -31,17 +32,19 @@ func New() *GT {
 		panic("embedded options are invalid")
 	}
 
-	funcMap := sprig.TxtFuncMap()
-	funcMap["latestReleaseTag"] = latestReleaseTagWithDefault
-
-	return &GT{
-		FuncMap: funcMap,
-		Options: options,
+	gt := &GT{
+		Options:      options,
+		GitHubClient: github.NewClient(nil),
 	}
+
+	gt.FuncMap = sprig.TxtFuncMap()
+	gt.FuncMap["latestReleaseTag"] = gt.latestReleaseTagWithDefault
+
+	return gt
 }
 
-func latestReleaseTagWithDefault(repo, defaultTag string) string {
-	tag, err := repos.LatestReleaseTag(repo)
+func (gt *GT) latestReleaseTagWithDefault(owner, repo, defaultTag string) string {
+	tag, err := gt.getLatestGithubVersion(owner, repo)
 	if err != nil {
 		return defaultTag
 	}

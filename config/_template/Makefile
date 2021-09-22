@@ -13,7 +13,7 @@ bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
 	@ln -sf golangci-lint-$(GOLANGCI_VERSION) $@
 
 bin/golangci-lint-$(GOLANGCI_VERSION):
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b bin $(GOLANGCI_VERSION)
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b bin v$(GOLANGCI_VERSION)
 	@mv bin/golangci-lint $@
 
 out:
