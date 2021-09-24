@@ -1,5 +1,10 @@
 package option
 
+type Configuration struct {
+	Parameters   []Option
+	Integrations []Option
+}
+
 type Option struct {
 	Name        string      `json:"name"`
 	Default     interface{} `json:"default"`

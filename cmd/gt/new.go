@@ -21,7 +21,7 @@ func buildNewCommand(gt *gotemplate.GT) *cobra.Command {
 				return err
 			}
 
-			opts.OptionNameToValue = optionNameToValue
+			opts.ConfigValues = optionNameToValue
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -1,34 +1,37 @@
-- name: projectName
-  default: "Awesome Project"
-  description: Name of the project.
-- name: projectSlug
-  default: '{{.projectName | lower | replace " " "-"}}'
-  description: Technical name of the project for folders and names. This will also be used as output directory.
-- name: projectDescription
-  default: "The awesome project provides awesome features to awesome people."
-  description: Description of the project used in the README.
-- name: appName
-  default: 'awesomecli'
-  description: Name of the app that is built.
-- name: moduleName
-  default: 'github.com/user/{{.projectSlug}}'
-  description: Name of the Go module passed to go mod init.
-- name: golangciVersion
-  default: '{{latestReleaseTag "golangci" "golangci-lint" "1.40.1"}}'
-  description: Golangci-lint version to use.
-- name: grpcEnabled
-  default: false
-  description: Enable gRPC integration. Includes protobuf files and buf setup.
-  files:
-    add:
-      - api/proto
-      - tools.go
-      - buf.gen.yaml
-      - buf.yaml
-    remove:
-      - api/openapi.v1.yml
-- name: grpcGatewayEnabled
-  default: false
-  description: Enable gRPC-gateway integration. Includes additional gRPC plugins.
-  dependsOn:
-    - grpcEnabled
+parameters:
+  - name: projectName
+    default: "Awesome Project"
+    description: Name of the project.
+  - name: projectSlug
+    default: '{{.projectName | lower | replace " " "-"}}'
+    description: Technical name of the project for folders and names. This will also be used as output directory.
+  - name: projectDescription
+    default: "The awesome project provides awesome features to awesome people."
+    description: Description of the project used in the README.
+  - name: appName
+    default: "awesomecli"
+    description: Name of the app that is built.
+  - name: moduleName
+    default: "github.com/user/{{.projectSlug}}"
+    description: Name of the Go module passed to go mod init.
+  - name: golangciVersion
+    default: '{{latestReleaseTag "golangci" "golangci-lint" "1.40.1"}}'
+    description: Golangci-lint version to use.
+
+integrations:
+  - name: grpcEnabled
+    default: false
+    description: Enable gRPC integration. Includes protobuf files and buf setup.
+    files:
+      add:
+        - api/proto
+        - tools.go
+        - buf.gen.yaml
+        - buf.yaml
+      remove:
+        - api/openapi.v1.yml
+  - name: grpcGatewayEnabled
+    default: false
+    description: Enable gRPC-gateway integration. Includes additional gRPC plugins.
+    dependsOn:
+      - grpcEnabled

@@ -24,10 +24,12 @@ const (
 
 func TestGT_LoadOptionToValueFromFile(t *testing.T) {
 	gt := gotemplate.GT{
-		Options: []option.Option{
-			{
-				Name:    optionName,
-				Default: "theDefault",
+		Configs: option.Configuration{
+			Parameters: []option.Option{
+				{
+					Name:    optionName,
+					Default: "theDefault",
+				},
 			},
 		},
 	}
@@ -54,7 +56,7 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 	t.Run("reads values from file", func(t *testing.T) {
 		// simulate writing the value to stdin
 		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "\n"))
-		gt.Options = []option.Option{
+		gt.Configs.Parameters = []option.Option{
 			{
 				Name:    optionName,
 				Default: "theDefault",
@@ -71,7 +73,7 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 		templatedOptionDefault := fmt.Sprintf(`{{.%s}}-templated`, optionName)
 		// simulate setting a value for first option and use default for next
 		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "\n\n"))
-		gt.Options = []option.Option{
+		gt.Configs.Parameters = []option.Option{
 			{
 				Name:    optionName,
 				Default: "theDefault",
@@ -95,7 +97,7 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 		out := &bytes.Buffer{}
 		gt.Out = out
 
-		gt.Options = []option.Option{
+		gt.Configs.Parameters = []option.Option{
 			{
 				Name:    optionName,
 				Default: false,
@@ -122,7 +124,7 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 		out := &bytes.Buffer{}
 		gt.Out = out
 
-		gt.Options = []option.Option{
+		gt.Configs.Parameters = []option.Option{
 			{
 				Name:    optionName,
 				Default: true,
@@ -153,7 +155,7 @@ func TestGT_InitNewProject(t *testing.T) {
 	err = yaml.Unmarshal(testValuesBytes, &values)
 	assert.NoError(t, err)
 
-	opts := &gotemplate.NewRepositoryOptions{OptionNameToValue: values}
+	opts := &gotemplate.NewRepositoryOptions{ConfigValues: values}
 	t.Run("generates folder in target dir and initializes it with go.mod and .git", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		opts.CWD = tmpDir
@@ -217,7 +219,7 @@ func TestGT_InitNewProject(t *testing.T) {
 		tmpDir := t.TempDir()
 		// force error with empty values
 		err = gt.InitNewProject(
-			&gotemplate.NewRepositoryOptions{CWD: tmpDir, OptionNameToValue: map[string]interface{}{
+			&gotemplate.NewRepositoryOptions{CWD: tmpDir, ConfigValues: map[string]interface{}{
 				targetDirOptionName: "testingDir",
 			}},
 		)
@@ -228,7 +230,7 @@ func TestGT_InitNewProject(t *testing.T) {
 	})
 
 	t.Run("files for integrations are properly deleted or added", func(t *testing.T) {
-		for _, opt := range gt.Options {
+		for _, opt := range gt.Configs.Parameters {
 			if _, ok := opt.Default.(bool); !ok {
 				continue
 			}
@@ -238,7 +240,7 @@ func TestGT_InitNewProject(t *testing.T) {
 					tmpDir := t.TempDir()
 					values[opt.Name] = enabled
 
-					opts := &gotemplate.NewRepositoryOptions{CWD: tmpDir, OptionNameToValue: values}
+					opts := &gotemplate.NewRepositoryOptions{CWD: tmpDir, ConfigValues: values}
 					err := gt.InitNewProject(opts)
 					assert.NoError(t, err)
 
@@ -266,5 +268,5 @@ func TestGT_InitNewProject(t *testing.T) {
 }
 
 func getTargetDir(dir string, opts *gotemplate.NewRepositoryOptions) string {
-	return path.Join(dir, opts.OptionNameToValue[targetDirOptionName].(string))
+	return path.Join(dir, opts.ConfigValues[targetDirOptionName].(string))
 }

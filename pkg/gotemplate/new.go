@@ -21,8 +21,8 @@ var ErrAlreadyExists = errors.New("already exists")
 
 // TODO: add validation for opts
 type NewRepositoryOptions struct {
-	CWD               string
-	OptionNameToValue map[string]interface{}
+	CWD          string
+	ConfigValues map[string]interface{}
 }
 
 // LoadOptionToValueFromFile loads value for the options from a file.
@@ -32,7 +32,7 @@ func (gt *GT) LoadOptionToValueFromFile(file string) (map[string]interface{}, er
 		return nil, err
 	}
 
-	optionNameToValue := make(map[string]interface{}, len(gt.Options))
+	optionNameToValue := make(map[string]interface{}, len(gt.Configs.Integrations)+len(gt.Configs.Parameters))
 	if err := yaml.Unmarshal(fileBytes, &optionNameToValue); err != nil {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func (gt *GT) GetOptionToValueInteractively() (map[string]interface{}, error) {
 	// TODO: add validation for value (probably regex pattern)
 
 	gt.printBanner()
-	optionNameToValue := make(map[string]interface{}, len(gt.Options))
-	for _, currentOption := range gt.Options {
+	optionNameToValue := make(map[string]interface{}, len(gt.Configs.Integrations)+len(gt.Configs.Parameters))
+	for _, currentOption := range gt.Configs.Parameters {
 		// Fix implicit memory aliasing (gosec G601)
 		currentOption := currentOption
 		if !dependenciesMet(&currentOption, optionNameToValue) {
@@ -101,7 +101,7 @@ func dependenciesMet(opt *option.Option, optionNameToValue map[string]interface{
 func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 	gt.printProgress("Generating repo folder...")
 
-	targetDir := path.Join(opts.CWD, opts.OptionNameToValue["projectSlug"].(string))
+	targetDir := path.Join(opts.CWD, opts.ConfigValues["projectSlug"].(string))
 	gt.printProgress(fmt.Sprintf("Writing to %s...", targetDir))
 
 	if _, err := os.Stat(targetDir); !os.IsNotExist(err) {
@@ -119,7 +119,7 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 			return err
 		}
 
-		pathToWrite, err := gt.executeTemplateString(path, opts.OptionNameToValue)
+		pathToWrite, err := gt.executeTemplateString(path, opts.ConfigValues)
 		if err != nil {
 			return err
 		}
@@ -134,7 +134,7 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 			return err
 		}
 
-		data, err := gt.executeTemplateString(string(fileBytes), opts.OptionNameToValue)
+		data, err := gt.executeTemplateString(string(fileBytes), opts.ConfigValues)
 		if err != nil {
 			return err
 		}
@@ -145,13 +145,13 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 		return err
 	}
 
-	gt.printProgress("Removing obsolete files...")
-	if err := postHook(targetDir, gt.Options, opts.OptionNameToValue); err != nil {
+	gt.printProgress("Removing obsolete files of unused integrations...")
+	if err := postHook(targetDir, gt.Configs.Integrations, opts.ConfigValues); err != nil {
 		return err
 	}
 
 	gt.printProgress("Initializing git and Go modules...")
-	if err := initRepo(targetDir, opts.OptionNameToValue["moduleName"].(string)); err != nil {
+	if err := initRepo(targetDir, opts.ConfigValues["moduleName"].(string)); err != nil {
 		return err
 	}
 
