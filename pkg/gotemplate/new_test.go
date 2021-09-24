@@ -77,7 +77,10 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 			{
 				Name:    optionName,
 				Default: "theDefault",
-				Regex:   `[a-z1-9]+(-[a-z1-9]+)*$`,
+				Regex: option.Regex{
+					Pattern:     `[a-z1-9]+(-[a-z1-9]+)*$`,
+					Description: "only lowercase letters and dashes",
+				},
 			},
 		}
 
@@ -85,6 +88,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]interface{}{optionName: "matches-the-regex"}, values)
 		assert.Contains(t, out.String(), "WARNING")
+		assert.Contains(t, out.String(), "only lowercase letters and dashes", "should include regex description in warning message")
 	})
 
 	t.Run("checks regex on defaults as well", func(t *testing.T) {
@@ -96,7 +100,10 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 			{
 				Name:    optionName,
 				Default: "DOES_NOT_MATCH",
-				Regex:   `[a-z1-9]+(-[a-z1-9]+)*$`,
+				Regex: option.Regex{
+					Pattern:     `[a-z1-9]+(-[a-z1-9]+)*$`,
+					Description: "only lowercase letters and dashes",
+				},
 			},
 		}
 

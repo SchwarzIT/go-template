@@ -249,10 +249,10 @@ func (gt *GT) readOptionValue(opt *option.Option) (interface{}, error) {
 		s = defaultStr
 	}
 
-	if opt.Regex != "" {
-		matched, err := regexp.MatchString(opt.Regex, s)
+	if opt.Regex.Pattern != "" {
+		matched, err := regexp.MatchString(opt.Regex.Pattern, s)
 		if err != nil || !matched {
-			gt.printWarning(fmt.Sprintf("Option %s needs to match regex %q\n", opt.Name, opt.Regex))
+			gt.printWarning(fmt.Sprintf("Option %s needs to match defined regex (desc: %q, pattern: %q)\n", opt.Name, opt.Regex.Description, opt.Regex.Pattern))
 			return gt.readOptionValue(opt)
 		}
 	}
