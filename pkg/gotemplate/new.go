@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -25,6 +26,7 @@ type NewRepositoryOptions struct {
 	ConfigValues map[string]interface{}
 }
 
+// TODO: change file format to also have parameters and integrations and flatMap that into configValues
 // LoadConfigValuesFromFile loads value for the options from a file.
 func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, error) {
 	fileBytes, err := os.ReadFile(file)
@@ -46,30 +48,36 @@ func (gt *GT) LoadConfigValuesInteractively() (map[string]interface{}, error) {
 	// TODO: add validation for value (probably regex pattern)
 
 	gt.printBanner()
-	configValues := make(map[string]interface{}, len(gt.Configs.Integrations)+len(gt.Configs.Parameters))
-	for _, currentOption := range gt.Configs.Parameters {
-		// Fix implicit memory aliasing (gosec G601)
-		currentOption := currentOption
-		if !dependenciesMet(&currentOption, configValues) {
-			continue
-		}
-
-		// default value could contain templating functions
-		var err error
-		currentOption.Default, err = gt.applyTemplate(currentOption.Default, configValues)
-		if err != nil {
-			return nil, err
-		}
-
-		val, err := gt.readOptionValue(&currentOption)
-		if err != nil {
-			return nil, err
-		}
-
-		configValues[currentOption.Name] = val
+	parametersValues, err := gt.loadValuesInteractively(gt.Configs.Parameters)
+	if err != nil {
+		return nil, err
 	}
 
-	for _, currentOption := range gt.Configs.Parameters {
+	gt.printf("After loading the base parameters you now have the options to enable additional integrations.\n")
+	integrationValues, err := gt.loadValuesInteractively(gt.Configs.Integrations)
+	if err != nil {
+		return nil, err
+	}
+
+	return gt.mergeMaps(parametersValues, integrationValues), nil
+}
+
+func (gt *GT) mergeMaps(maps ...map[string]interface{}) map[string]interface{} {
+	returnMap := map[string]interface{}{}
+
+	for _, m := range maps {
+		for k, v := range m {
+			returnMap[k] = v
+		}
+	}
+
+	return returnMap
+}
+
+func (gt *GT) loadValuesInteractively(options []option.Option) (map[string]interface{}, error) {
+	configValues := make(map[string]interface{}, len(options))
+
+	for _, currentOption := range options {
 		// Fix implicit memory aliasing (gosec G601)
 		currentOption := currentOption
 		if !dependenciesMet(&currentOption, configValues) {
@@ -222,8 +230,8 @@ func postHook(targetDir string, options []option.Option, configValues map[string
 }
 
 // readOptionValue reads a value for an option from the cli.
-func (gt *GT) readOptionValue(opts *option.Option) (interface{}, error) {
-	gt.printOption(opts)
+func (gt *GT) readOptionValue(opt *option.Option) (interface{}, error) {
+	gt.printOption(opt)
 	defer fmt.Fprintln(gt.Out)
 
 	s, err := gt.readStdin()
@@ -232,10 +240,24 @@ func (gt *GT) readOptionValue(opts *option.Option) (interface{}, error) {
 	}
 
 	if s == "" {
-		return opts.Default, nil
+		// if default is a string it should also be regex checked, otherwise just return default
+		defaultStr, ok := opt.Default.(string)
+		if !ok {
+			return opt.Default, nil
+		}
+
+		s = defaultStr
 	}
 
-	switch opts.Default.(type) {
+	if opt.Regex != "" {
+		matched, err := regexp.MatchString(opt.Regex, s)
+		if err != nil || !matched {
+			gt.printWarning(fmt.Sprintf("Option %s needs to match regex %q\n", opt.Name, opt.Regex))
+			return gt.readOptionValue(opt)
+		}
+	}
+
+	switch opt.Default.(type) {
 	case string:
 		return s, nil
 	case bool:

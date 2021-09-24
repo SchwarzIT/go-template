@@ -22,7 +22,7 @@ const (
 	optionName          = "someOption"
 )
 
-func TestGT_LoadOptionToValueFromFile(t *testing.T) {
+func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 	gt := gotemplate.GT{
 		Configs: option.Configuration{
 			Parameters: []option.Option{
@@ -47,13 +47,13 @@ func TestGT_LoadOptionToValueFromFile(t *testing.T) {
 	})
 }
 
-func TestGT_GetOptionToValueInteractively(t *testing.T) {
+func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 	gt := gotemplate.GT{
 		Streams: gotemplate.Streams{Out: &bytes.Buffer{}},
 	}
 
 	optionValue := "someValue with spaces"
-	t.Run("reads values from file", func(t *testing.T) {
+	t.Run("reads values from stdin", func(t *testing.T) {
 		// simulate writing the value to stdin
 		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "\n"))
 		gt.Configs.Parameters = []option.Option{
@@ -66,6 +66,44 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 		values, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]interface{}{optionName: optionValue}, values)
+	})
+
+	t.Run("checks regex if it is set", func(t *testing.T) {
+		// simulate writing the value to stdin
+		out := &bytes.Buffer{}
+		gt.Err = out
+		gt.InScanner = bufio.NewScanner(strings.NewReader("DOES_NOT_MATCH\n matches-the-regex\n"))
+		gt.Configs.Parameters = []option.Option{
+			{
+				Name:    optionName,
+				Default: "theDefault",
+				Regex:   `[a-z1-9]+(-[a-z1-9]+)*$`,
+			},
+		}
+
+		values, err := gt.LoadConfigValuesInteractively()
+		assert.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{optionName: "matches-the-regex"}, values)
+		assert.Contains(t, out.String(), "WARNING")
+	})
+
+	t.Run("checks regex on defaults as well", func(t *testing.T) {
+		// simulate writing the value to stdin
+		out := &bytes.Buffer{}
+		gt.Err = out
+		gt.InScanner = bufio.NewScanner(strings.NewReader("\nmatches-the-regex"))
+		gt.Configs.Parameters = []option.Option{
+			{
+				Name:    optionName,
+				Default: "DOES_NOT_MATCH",
+				Regex:   `[a-z1-9]+(-[a-z1-9]+)*$`,
+			},
+		}
+
+		values, err := gt.LoadConfigValuesInteractively()
+		assert.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{optionName: "matches-the-regex"}, values)
+		assert.Contains(t, out.String(), "WARNING")
 	})
 
 	t.Run("applies templates from earlier options and uses default if not set", func(t *testing.T) {

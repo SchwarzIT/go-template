@@ -5,18 +5,22 @@ parameters:
   - name: projectSlug
     default: '{{.projectName | lower | replace " " "-"}}'
     description: Technical name of the project for folders and names. This will also be used as output directory.
+    regex: ^[a-z1-9]+(-[a-z1-9]+)*$
   - name: projectDescription
     default: "The awesome project provides awesome features to awesome people."
     description: Description of the project used in the README.
   - name: appName
-    default: "awesomecli"
+    default: awesomecli
     description: Name of the app that is built.
+    regex: ^[a-z]+$
   - name: moduleName
     default: "github.com/user/{{.projectSlug}}"
     description: Name of the Go module passed to go mod init.
+    regex: ^[\S]+$
   - name: golangciVersion
     default: '{{latestReleaseTag "golangci" "golangci-lint" "1.40.1"}}'
     description: Golangci-lint version to use.
+    regex: ^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
 
 integrations:
   - name: grpcEnabled
