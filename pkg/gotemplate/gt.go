@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"context"
 	"io"
+	"net/http"
 	"text/template"
+	"time"
 
 	"github.com/Masterminds/sprig"
 	"github.com/google/go-github/v39/github"
@@ -34,7 +36,7 @@ func New() *GT {
 		panic("embedded options are invalid")
 	}
 
-	githubClient := github.NewClient(nil)
+	githubClient := github.NewClient(&http.Client{Timeout: time.Second})
 
 	gt := &GT{
 		Configs: configs,
