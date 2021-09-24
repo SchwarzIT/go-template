@@ -92,8 +92,9 @@ func (gt *GT) loadValuesInteractively(options []option.Option) (map[string]inter
 		}
 
 		val, err := gt.readOptionValue(&currentOption)
-		if err != nil {
-			return nil, err
+		for err != nil {
+			gt.printWarning(err.Error())
+			val, err = gt.readOptionValue(&currentOption)
 		}
 
 		configValues[currentOption.Name] = val
@@ -252,7 +253,8 @@ func (gt *GT) readOptionValue(opt *option.Option) (interface{}, error) {
 	if opt.Regex.Pattern != "" {
 		matched, err := regexp.MatchString(opt.Regex.Pattern, s)
 		if err != nil || !matched {
-			gt.printWarning(fmt.Sprintf("Option %s needs to match defined regex (desc: %q, pattern: %q)\n", opt.Name, opt.Regex.Description, opt.Regex.Pattern))
+			gt.printf("\n")
+			gt.printWarning(fmt.Sprintf("Option %s needs to match defined regex (desc: %q, pattern: %q)", opt.Name, opt.Regex.Description, opt.Regex.Pattern))
 			return gt.readOptionValue(opt)
 		}
 	}

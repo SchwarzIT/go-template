@@ -68,7 +68,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		assert.Equal(t, map[string]interface{}{optionName: optionValue}, values)
 	})
 
-	t.Run("checks regex if it is set", func(t *testing.T) {
+	t.Run("checks regex if it is set and retry if no match", func(t *testing.T) {
 		// simulate writing the value to stdin
 		out := &bytes.Buffer{}
 		gt.Err = out
@@ -110,6 +110,23 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		values, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]interface{}{optionName: "matches-the-regex"}, values)
+		assert.Contains(t, out.String(), "WARNING")
+	})
+
+	t.Run("retries to get value on error", func(t *testing.T) {
+		out := &bytes.Buffer{}
+		gt.Err = out
+		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "not a bool\ntrue\n"))
+		gt.Configs.Parameters = []option.Option{
+			{
+				Name:    optionName,
+				Default: false,
+			},
+		}
+
+		values, err := gt.LoadConfigValuesInteractively()
+		assert.NoError(t, err)
+		assert.Equal(t, map[string]interface{}{optionName: true}, values)
 		assert.Contains(t, out.String(), "WARNING")
 	})
 
