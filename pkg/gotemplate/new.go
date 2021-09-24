@@ -25,38 +25,38 @@ type NewRepositoryOptions struct {
 	ConfigValues map[string]interface{}
 }
 
-// LoadOptionToValueFromFile loads value for the options from a file.
-func (gt *GT) LoadOptionToValueFromFile(file string) (map[string]interface{}, error) {
+// LoadConfigValuesFromFile loads value for the options from a file.
+func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, error) {
 	fileBytes, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
 
-	optionNameToValue := make(map[string]interface{}, len(gt.Configs.Integrations)+len(gt.Configs.Parameters))
-	if err := yaml.Unmarshal(fileBytes, &optionNameToValue); err != nil {
+	configValues := make(map[string]interface{}, len(gt.Configs.Integrations)+len(gt.Configs.Parameters))
+	if err := yaml.Unmarshal(fileBytes, &configValues); err != nil {
 		return nil, err
 	}
 
 	// TODO: make sure that all options are set if needed?
 
-	return optionNameToValue, nil
+	return configValues, nil
 }
 
-func (gt *GT) GetOptionToValueInteractively() (map[string]interface{}, error) {
+func (gt *GT) LoadConfigValuesInteractively() (map[string]interface{}, error) {
 	// TODO: add validation for value (probably regex pattern)
 
 	gt.printBanner()
-	optionNameToValue := make(map[string]interface{}, len(gt.Configs.Integrations)+len(gt.Configs.Parameters))
+	configValues := make(map[string]interface{}, len(gt.Configs.Integrations)+len(gt.Configs.Parameters))
 	for _, currentOption := range gt.Configs.Parameters {
 		// Fix implicit memory aliasing (gosec G601)
 		currentOption := currentOption
-		if !dependenciesMet(&currentOption, optionNameToValue) {
+		if !dependenciesMet(&currentOption, configValues) {
 			continue
 		}
 
 		// default value could contain templating functions
 		var err error
-		currentOption.Default, err = gt.applyTemplate(currentOption.Default, optionNameToValue)
+		currentOption.Default, err = gt.applyTemplate(currentOption.Default, configValues)
 		if err != nil {
 			return nil, err
 		}
@@ -66,19 +66,41 @@ func (gt *GT) GetOptionToValueInteractively() (map[string]interface{}, error) {
 			return nil, err
 		}
 
-		optionNameToValue[currentOption.Name] = val
+		configValues[currentOption.Name] = val
 	}
 
-	return optionNameToValue, nil
+	for _, currentOption := range gt.Configs.Parameters {
+		// Fix implicit memory aliasing (gosec G601)
+		currentOption := currentOption
+		if !dependenciesMet(&currentOption, configValues) {
+			continue
+		}
+
+		// default value could contain templating functions
+		var err error
+		currentOption.Default, err = gt.applyTemplate(currentOption.Default, configValues)
+		if err != nil {
+			return nil, err
+		}
+
+		val, err := gt.readOptionValue(&currentOption)
+		if err != nil {
+			return nil, err
+		}
+
+		configValues[currentOption.Name] = val
+	}
+
+	return configValues, nil
 }
 
-func dependenciesMet(opt *option.Option, optionNameToValue map[string]interface{}) bool {
+func dependenciesMet(opt *option.Option, configValues map[string]interface{}) bool {
 	if len(opt.DependsOn) == 0 {
 		return true
 	}
 
 	for _, dep := range opt.DependsOn {
-		depVal, ok := optionNameToValue[dep]
+		depVal, ok := configValues[dep]
 		if !ok {
 			// if not found it means it not set
 			return false
@@ -172,11 +194,11 @@ func initRepo(targetDir, moduleName string) error {
 	return goModInit.Run()
 }
 
-func postHook(targetDir string, options []option.Option, optionNameToValue map[string]interface{}) error {
+func postHook(targetDir string, options []option.Option, configValues map[string]interface{}) error {
 	var toDelete []string
 
 	for _, opt := range options {
-		optEnabled, ok := optionNameToValue[opt.Name].(bool)
+		optEnabled, ok := configValues[opt.Name].(bool)
 		if !ok {
 			// if not bool value, files will be ignored
 			continue

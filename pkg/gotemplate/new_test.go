@@ -41,7 +41,7 @@ func TestGT_LoadOptionToValueFromFile(t *testing.T) {
 		err := os.WriteFile(testFile, []byte(fmt.Sprintf(`%s: %s`, optionName, optionValue)), os.ModePerm)
 		assert.NoError(t, err)
 
-		values, err := gt.LoadOptionToValueFromFile(testFile)
+		values, err := gt.LoadConfigValuesFromFile(testFile)
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]interface{}{optionName: optionValue}, values)
 	})
@@ -63,7 +63,7 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 			},
 		}
 
-		values, err := gt.GetOptionToValueInteractively()
+		values, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]interface{}{optionName: optionValue}, values)
 	})
@@ -84,7 +84,7 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 			},
 		}
 
-		values, err := gt.GetOptionToValueInteractively()
+		values, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]interface{}{optionName: optionValue, templateOptionName: fmt.Sprintf("%s-templated", optionValue)}, values)
 	})
@@ -109,7 +109,7 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 			},
 		}
 
-		values, err := gt.GetOptionToValueInteractively()
+		values, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
 		assert.Equal(t, len(values), 1)
 		assert.Contains(t, out.String(), optionName)
@@ -135,7 +135,7 @@ func TestGT_GetOptionToValueInteractively(t *testing.T) {
 			},
 		}
 
-		values, err := gt.GetOptionToValueInteractively()
+		values, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(values))
 		assert.Equal(t, false, values[optionName])

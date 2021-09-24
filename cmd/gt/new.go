@@ -16,12 +16,12 @@ func buildNewCommand(gt *gotemplate.GT) *cobra.Command {
 		Short: "Create a new project repository.",
 		Long:  "Fill out all given parameters to configure and jump start your next project repository.",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			optionNameToValue, err := getValues(gt, configFile)
+			configValues, err := getValues(gt, configFile)
 			if err != nil {
 				return err
 			}
 
-			opts.ConfigValues = optionNameToValue
+			opts.ConfigValues = configValues
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -48,7 +48,7 @@ Can be set to decide where to create the new project folder.,
 
 func getValues(gt *gotemplate.GT, configFile string) (map[string]interface{}, error) {
 	if configFile != "" {
-		return gt.LoadOptionToValueFromFile(configFile)
+		return gt.LoadConfigValuesFromFile(configFile)
 	}
-	return gt.GetOptionToValueInteractively()
+	return gt.LoadConfigValuesInteractively()
 }
