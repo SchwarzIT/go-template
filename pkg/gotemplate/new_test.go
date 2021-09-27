@@ -22,6 +22,30 @@ const (
 	optionName          = "someOption"
 )
 
+func TestNewRepositoryOptions_Validate(t *testing.T) {
+	t.Run("CWD does not exist", func(t *testing.T) {
+		opts := gotemplate.NewRepositoryOptions{
+			CWD: "random-dir-that-does-not-exist",
+		}
+
+		assert.Error(t, opts.Validate())
+	})
+
+	t.Run("CWD is not set", func(t *testing.T) {
+		opts := gotemplate.NewRepositoryOptions{}
+
+		assert.NoError(t, opts.Validate())
+	})
+
+	t.Run("CWD set to valid dir", func(t *testing.T) {
+		opts := gotemplate.NewRepositoryOptions{
+			CWD: t.TempDir(),
+		}
+
+		assert.NoError(t, opts.Validate())
+	})
+}
+
 func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 	gt := gotemplate.GT{
 		Configs: option.Configuration{
@@ -34,9 +58,9 @@ func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 		},
 	}
 
-	dir := t.TempDir()
-	testFile := path.Join(dir, "test.yml")
 	t.Run("reads values from file", func(t *testing.T) {
+		dir := t.TempDir()
+		testFile := path.Join(dir, "test.yml")
 		optionValue := "someOtherValue"
 		testFileContent := fmt.Sprintf(`---
 parameters:
@@ -48,6 +72,39 @@ parameters:
 		values, err := gt.LoadConfigValuesFromFile(testFile)
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]interface{}{optionName: optionValue}, values)
+	})
+
+	t.Run("validates that parameters are not empty", func(t *testing.T) {
+		dir := t.TempDir()
+		testFile := path.Join(dir, "test.yml")
+		testFileContent := fmt.Sprintf(`---
+parameters:
+    %s: ""
+`, optionName)
+		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
+		assert.NoError(t, err)
+
+		_, err = gt.LoadConfigValuesFromFile(testFile)
+		assert.ErrorIs(t, err, gotemplate.ErrParameterNotSet)
+	})
+
+	t.Run("validates regex if set", func(t *testing.T) {
+		gt.Configs.Parameters[0].Regex = option.Regex{
+			Pattern:     `[a-z1-9]+(-[a-z1-9]+)*$`,
+			Description: "only lowercase letters and dashes",
+		}
+
+		dir := t.TempDir()
+		testFile := path.Join(dir, "test.yml")
+		testFileContent := fmt.Sprintf(`---
+parameters:
+    %s: "NOT_A_VALID_VALUE"
+`, optionName)
+		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
+		assert.NoError(t, err)
+
+		_, err = gt.LoadConfigValuesFromFile(testFile)
+		assert.ErrorIs(t, err, gotemplate.ErrMalformedInput)
 	})
 }
 

@@ -18,15 +18,31 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-var ErrAlreadyExists = errors.New("already exists")
+var (
+	ErrAlreadyExists   = errors.New("already exists")
+	ErrParameterNotSet = errors.New("parameters not set")
+	ErrMalformedInput  = errors.New("malformed input")
+)
 
-// TODO: add validation for opts
 type NewRepositoryOptions struct {
 	CWD          string
 	ConfigValues map[string]interface{}
 }
 
-// LoadConfigValuesFromFile loads value for the options from a file.
+// Validate validates all properties of NewRepositoryOptions except the ConfigValues, since those are validated by the Load functions.
+func (opts NewRepositoryOptions) Validate() error {
+	if opts.CWD == "" {
+		return nil
+	}
+
+	if _, err := os.Stat(opts.CWD); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// LoadConfigValuesFromFile loads value for the options from a file and validates the inputs
 func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, error) {
 	fileBytes, err := os.ReadFile(file)
 	if err != nil {
@@ -42,7 +58,30 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, err
 		return nil, err
 	}
 
-	return gt.mergeMaps(fileStruct.Parameters, fileStruct.Integrations), nil
+	optionValues := gt.mergeMaps(fileStruct.Parameters, fileStruct.Integrations)
+
+	for _, param := range gt.Configs.Parameters {
+		val, ok := optionValues[param.Name]
+		if !ok || val == "" {
+			return nil, errors.Wrap(ErrParameterNotSet, param.Name)
+		}
+
+		s, ok := val.(string)
+		if !ok {
+			continue
+		}
+
+		// TODO: check if value is of correct type
+
+		if param.Regex.Pattern != "" {
+			matched, err := regexp.MatchString(param.Regex.Pattern, s)
+			if err != nil || !matched {
+				return nil, errors.Wrap(ErrMalformedInput, param.Name)
+			}
+		}
+	}
+
+	return optionValues, nil
 }
 
 func (gt *GT) LoadConfigValuesInteractively() (map[string]interface{}, error) {
