@@ -9,6 +9,7 @@ import (
 
 func (gt *GT) printProgressf(format string, a ...interface{}) {
 	_, _ = color.New(color.FgCyan, color.Bold).Fprintf(gt.Out, format, a...)
+	_, _ = fmt.Fprintln(gt.Out)
 }
 
 func (gt *GT) printf(format string, a ...interface{}) {
@@ -19,8 +20,9 @@ func (gt *GT) printWarningf(format string, a ...interface{}) {
 	headerHighlight := color.New(color.FgYellow, color.Bold).SprintFunc()
 	highlight := color.New(color.FgYellow)
 
-	_, _ = fmt.Fprint(gt.Err, headerHighlight("WARNING"))
+	_, _ = fmt.Fprintf(gt.Err, "%s: ", headerHighlight("WARNING"))
 	_, _ = highlight.Fprintf(gt.Err, format, a...)
+	_, _ = fmt.Fprintln(gt.Err)
 }
 
 func (gt *GT) printOption(opts *option.Option) {

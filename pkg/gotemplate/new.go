@@ -60,10 +60,11 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, err
 
 	optionValues := gt.mergeMaps(fileStruct.Parameters, fileStruct.Integrations)
 
-	for _, param := range gt.Configs.Parameters {
-		val, ok := optionValues[param.Name]
+	params := gt.Configs.Parameters
+	for i := range params {
+		val, ok := optionValues[params[i].Name]
 		if !ok || val == "" {
-			return nil, errors.Wrap(ErrParameterNotSet, param.Name)
+			return nil, errors.Wrap(ErrParameterNotSet, params[i].Name)
 		}
 
 		s, ok := val.(string)
@@ -73,10 +74,10 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, err
 
 		// TODO: check if value is of correct type
 
-		if param.Regex.Pattern != "" {
-			matched, err := regexp.MatchString(param.Regex.Pattern, s)
+		if params[i].Regex.Pattern != "" {
+			matched, err := regexp.MatchString(params[i].Regex.Pattern, s)
 			if err != nil || !matched {
-				return nil, errors.Wrap(ErrMalformedInput, param.Name)
+				return nil, errors.Wrap(ErrMalformedInput, params[i].Name)
 			}
 		}
 	}
