@@ -7,19 +7,20 @@ import (
 	"github.com/schwarzit/go-template/pkg/option"
 )
 
-func (gt *GT) printProgress(str string) {
-	_, _ = color.New(color.FgCyan, color.Bold).Fprintln(gt.Out, str)
+func (gt *GT) printProgressf(format string, a ...interface{}) {
+	_, _ = color.New(color.FgCyan, color.Bold).Fprintf(gt.Out, format, a...)
 }
 
 func (gt *GT) printf(format string, a ...interface{}) {
 	_, _ = fmt.Fprintf(gt.Out, format, a...)
 }
 
-func (gt *GT) printWarning(str string) {
+func (gt *GT) printWarningf(format string, a ...interface{}) {
 	headerHighlight := color.New(color.FgYellow, color.Bold).SprintFunc()
-	highlight := color.New(color.FgYellow).SprintFunc()
+	highlight := color.New(color.FgYellow)
 
-	_, _ = fmt.Fprintf(gt.Err, "%s: %s\n", headerHighlight("WARNING"), highlight(str))
+	_, _ = fmt.Fprint(gt.Err, headerHighlight("WARNING"))
+	_, _ = highlight.Fprintf(gt.Err, format, a...)
 }
 
 func (gt *GT) printOption(opts *option.Option) {

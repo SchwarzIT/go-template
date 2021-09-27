@@ -10,7 +10,7 @@ import (
 
 	"github.com/Masterminds/sprig"
 	"github.com/google/go-github/v39/github"
-	"github.com/schwarzit/go-template/config"
+	gotemplate "github.com/schwarzit/go-template"
 	"github.com/schwarzit/go-template/pkg/option"
 	"github.com/schwarzit/go-template/pkg/repos"
 	"sigs.k8s.io/yaml"
@@ -32,7 +32,7 @@ type Streams struct {
 func New() *GT {
 	var configs option.Configuration
 	// panic error since the embedded file should always be valid
-	if err := yaml.Unmarshal(config.Options, &configs); err != nil {
+	if err := yaml.Unmarshal(gotemplate.Options, &configs); err != nil {
 		panic("embedded options are invalid")
 	}
 

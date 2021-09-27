@@ -13,7 +13,7 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
-	"github.com/schwarzit/go-template/config"
+	gotemplate "github.com/schwarzit/go-template"
 	"github.com/schwarzit/go-template/pkg/option"
 	"sigs.k8s.io/yaml"
 )
@@ -39,14 +39,10 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, err
 		return nil, err
 	}
 
-	// TODO: make sure that all options are set if needed?
-
 	return configValues, nil
 }
 
 func (gt *GT) LoadConfigValuesInteractively() (map[string]interface{}, error) {
-	// TODO: add validation for value (probably regex pattern)
-
 	gt.printBanner()
 	parametersValues, err := gt.loadValuesInteractively(gt.Configs.Parameters)
 	if err != nil {
@@ -77,27 +73,25 @@ func (gt *GT) mergeMaps(maps ...map[string]interface{}) map[string]interface{} {
 func (gt *GT) loadValuesInteractively(options []option.Option) (map[string]interface{}, error) {
 	configValues := make(map[string]interface{}, len(options))
 
-	for _, currentOption := range options {
-		// Fix implicit memory aliasing (gosec G601)
-		currentOption := currentOption
-		if !dependenciesMet(&currentOption, configValues) {
+	for i := range options {
+		if !dependenciesMet(&options[i], configValues) {
 			continue
 		}
 
 		// default value could contain templating functions
 		var err error
-		currentOption.Default, err = gt.applyTemplate(currentOption.Default, configValues)
+		options[i].Default, err = gt.applyTemplate(options[i].Default, configValues)
 		if err != nil {
 			return nil, err
 		}
 
-		val, err := gt.readOptionValue(&currentOption)
+		val, err := gt.readOptionValue(&options[i])
 		for err != nil {
-			gt.printWarning(err.Error())
-			val, err = gt.readOptionValue(&currentOption)
+			gt.printWarningf(err.Error())
+			val, err = gt.readOptionValue(&options[i])
 		}
 
-		configValues[currentOption.Name] = val
+		configValues[options[i].Name] = val
 	}
 
 	return configValues, nil
@@ -130,10 +124,10 @@ func dependenciesMet(opt *option.Option, configValues map[string]interface{}) bo
 }
 
 func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
-	gt.printProgress("Generating repo folder...")
+	gt.printProgressf("Generating repo folder...")
 
 	targetDir := path.Join(opts.CWD, opts.ConfigValues["projectSlug"].(string))
-	gt.printProgress(fmt.Sprintf("Writing to %s...", targetDir))
+	gt.printProgressf("Writing to %s...", targetDir)
 
 	if _, err := os.Stat(targetDir); !os.IsNotExist(err) {
 		return errors.Wrapf(ErrAlreadyExists, "directory %s", targetDir)
@@ -145,7 +139,7 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 			_ = os.RemoveAll(targetDir)
 		}
 	}()
-	err = fs.WalkDir(config.TemplateDir, config.TemplateKey, func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(gotemplate.FS, gotemplate.Key, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -155,12 +149,12 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 			return err
 		}
 
-		pathToWrite = strings.ReplaceAll(pathToWrite, config.TemplateKey, targetDir)
+		pathToWrite = strings.ReplaceAll(pathToWrite, gotemplate.Key, targetDir)
 		if d.IsDir() {
 			return os.MkdirAll(pathToWrite, os.ModePerm)
 		}
 
-		fileBytes, err := fs.ReadFile(config.TemplateDir, path)
+		fileBytes, err := fs.ReadFile(gotemplate.FS, path)
 		if err != nil {
 			return err
 		}
@@ -176,12 +170,12 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 		return err
 	}
 
-	gt.printProgress("Removing obsolete files of unused integrations...")
+	gt.printProgressf("Removing obsolete files of unused integrations...")
 	if err := postHook(targetDir, gt.Configs.Integrations, opts.ConfigValues); err != nil {
 		return err
 	}
 
-	gt.printProgress("Initializing git and Go modules...")
+	gt.printProgressf("Initializing git and Go modules...")
 	if err := initRepo(targetDir, opts.ConfigValues["moduleName"].(string)); err != nil {
 		return err
 	}
@@ -206,19 +200,19 @@ func initRepo(targetDir, moduleName string) error {
 func postHook(targetDir string, options []option.Option, configValues map[string]interface{}) error {
 	var toDelete []string
 
-	for _, opt := range options {
-		optEnabled, ok := configValues[opt.Name].(bool)
+	for i := range options {
+		optEnabled, ok := configValues[options[i].Name].(bool)
 		if !ok {
 			// if not bool value, files will be ignored
 			continue
 		}
 
 		if optEnabled {
-			toDelete = append(toDelete, opt.Files.Remove...)
+			toDelete = append(toDelete, options[i].Files.Remove...)
 			continue
 		}
 		// the files are added in the loop anyways, but if the option is disabled they should be removed again
-		toDelete = append(toDelete, opt.Files.Add...)
+		toDelete = append(toDelete, options[i].Files.Add...)
 	}
 
 	for _, item := range toDelete {
@@ -254,7 +248,7 @@ func (gt *GT) readOptionValue(opt *option.Option) (interface{}, error) {
 		matched, err := regexp.MatchString(opt.Regex.Pattern, s)
 		if err != nil || !matched {
 			gt.printf("\n")
-			gt.printWarning(fmt.Sprintf("Option %s needs to match defined regex (desc: %q, pattern: %q)", opt.Name, opt.Regex.Description, opt.Regex.Pattern))
+			gt.printWarningf("Option %s needs to match defined regex (desc: %q, pattern: %q)", opt.Name, opt.Regex.Description, opt.Regex.Pattern)
 			return gt.readOptionValue(opt)
 		}
 	}
