@@ -13,13 +13,13 @@ parameters:
     description: Description of the project used in the README.
   - name: appName
     default: awesomecli
-    description: Name of the app that is built.
+    description: The name of the binary that you want to create. Could be the same your `project_slug` but since Go supports multiple apps in one repo it could also be sth. else. For example if your project is for some API there could be one app for the server and one CLI client.
     regex:
       pattern: ^[a-z]+$
       description: only lowercase letters
   - name: moduleName
     default: "github.com/user/{{.projectSlug}}"
-    description: Name of the Go module passed to go mod init.
+    description: The name of the Go module defined in the `go.mod` file. This is used if you want to `go get` the module. Please be aware that this depends on your version control system. The default points to `github.com` but for devops for example it would look sth. like this `dev.azure.com/org/project/repo.git`
     regex:
       pattern: ^[\S]+$
       description: no whitespace
