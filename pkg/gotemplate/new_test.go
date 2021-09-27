@@ -38,7 +38,11 @@ func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 	testFile := path.Join(dir, "test.yml")
 	t.Run("reads values from file", func(t *testing.T) {
 		optionValue := "someOtherValue"
-		err := os.WriteFile(testFile, []byte(fmt.Sprintf(`%s: %s`, optionName, optionValue)), os.ModePerm)
+		testFileContent := fmt.Sprintf(`---
+parameters:
+    %s: %s
+`, optionName, optionValue)
+		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
 		assert.NoError(t, err)
 
 		values, err := gt.LoadConfigValuesFromFile(testFile)

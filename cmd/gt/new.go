@@ -34,7 +34,20 @@ func buildNewCommand(gt *gotemplate.GT) *cobra.Command {
 		"config", "c", "",
 		`Config file that defines all parameters.
 This is helpful if you don't want to run the CLI interactively.
-It should either be a json or a yaml file.`,
+It should either be a json or a yaml file.
+An example file could look like:
+
+// values.yaml
+parameters:
+    projectName: Some Project
+    projectSlug: some-project
+    projectDescription: Some random project
+    appName: somecli
+    moduleName: github.com/some-user/some-project
+    golangciVersion: 1.42.1
+integrations:
+    grpcEnabled: true
+    grpcGatewayEnabled: false`,
 	)
 
 	cmd.Flags().StringVar(

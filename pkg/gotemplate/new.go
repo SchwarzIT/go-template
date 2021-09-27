@@ -26,7 +26,6 @@ type NewRepositoryOptions struct {
 	ConfigValues map[string]interface{}
 }
 
-// TODO: change file format to also have parameters and integrations and flatMap that into configValues
 // LoadConfigValuesFromFile loads value for the options from a file.
 func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, error) {
 	fileBytes, err := os.ReadFile(file)
@@ -34,12 +33,16 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, err
 		return nil, err
 	}
 
-	configValues := make(map[string]interface{}, len(gt.Configs.Integrations)+len(gt.Configs.Parameters))
-	if err := yaml.Unmarshal(fileBytes, &configValues); err != nil {
+	fileStruct := struct {
+		Parameters   map[string]interface{} `json:"parameters"`
+		Integrations map[string]interface{} `json:"integrations"`
+	}{}
+
+	if err := yaml.Unmarshal(fileBytes, &fileStruct); err != nil {
 		return nil, err
 	}
 
-	return configValues, nil
+	return gt.mergeMaps(fileStruct.Parameters, fileStruct.Integrations), nil
 }
 
 func (gt *GT) LoadConfigValuesInteractively() (map[string]interface{}, error) {
