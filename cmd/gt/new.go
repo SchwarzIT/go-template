@@ -37,6 +37,10 @@ This defines the parameters as key value pairs.
 To get further information look at the flag's documentation.
 `, underline("Interactive Mode"), underline("File Mode")),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if err := opts.Validate(); err != nil {
+				return err
+			}
+
 			configValues, err := getValues(gt, configFile)
 			if err != nil {
 				return err
