@@ -1,8 +1,6 @@
 package gotemplate
 
 import (
-	"fmt"
-
 	"github.com/schwarzit/go-template/config"
 	"github.com/schwarzit/go-template/pkg/repos"
 )
@@ -13,7 +11,7 @@ const (
 )
 
 func (gt *GT) PrintVersion() {
-	_, _ = fmt.Fprintln(gt.Out, config.Version)
+	gt.printf(config.Version)
 }
 
 func (gt *GT) CheckVersion() {
