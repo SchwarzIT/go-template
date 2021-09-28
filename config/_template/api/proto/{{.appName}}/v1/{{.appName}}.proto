@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package {{.appName}}.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+{{if .grpcGatewayEnabled}}
+import "protoc-gen-openapiv2/options/annotations.proto";
+{{end}}
+
+// Defines the import path that should be used to import the generated package,
+// and the package name.
+option go_package = "{{.moduleName | replace `.git` ``}}/internal/pkg/pb;pb";
+
+{{if .grpcGatewayEnabled}}
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  swagger: "2.0"
+  info: {
+    title: "{{.appName}}-api"
+    version: "1.0"
+    description: "{{.projectDescription}}"
+  }
+  schemes: HTTP
+  host: "localhost:8080"
+};
+{{end}}
+
+service {{ .appName | title}}Service {
+  {{if .grpcGatewayEnabled}}
+  rpc GetExample(GetExampleRequest) returns (GetExampleResponse) {
+    option (google.api.http) = {
+      get: "/v1/example"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get example response"
+      description: "Returns an empty example response"
+      tags: "example"
+    };
+  }
+  {{else}}
+  rpc GetExample(GetExampleRequest) returns (GetExampleResponse) {}
+  {{end}}
+}
+
+message GetExampleRequest {}
+
+message GetExampleResponse {}

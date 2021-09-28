@@ -1,0 +1,19 @@
+version: v1beta1
+build:
+  roots:
+    - api/proto
+lint:
+  use:
+    - DEFAULT
+  ignore:
+    - google
+    - validate
+{{if .grpcGatewayEnabled}}
+    - protoc-gen-openapiv2
+{{end}}
+  except:
+    - RPC_RESPONSE_STANDARD_NAME
+    - RPC_REQUEST_RESPONSE_UNIQUE
+breaking:
+  use:
+    - FILE

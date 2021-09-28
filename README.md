@@ -1,8 +1,10 @@
 # `go/template`
 
 [![SIT](https://img.shields.io/badge/SIT-awesome-blueviolet.svg)](https://jobs.schwarz)
+[![CI](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml)
+[![Semgrep](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml)
 
-Powered by [Cookiecutter](https://github.com/cookiecutter/cookiecutter), `go/template` is a tool for jumpstarting production-ready Golang projects quickly.
+`go/template` is a tool for jumpstarting production-ready Golang projects quickly.
 
 ## Batteries included
 
@@ -31,24 +33,10 @@ Powered by [Cookiecutter](https://github.com/cookiecutter/cookiecutter), `go/tem
 
 ## Usage
 
-### Install cookiecutter
-
-Homebrew (Mac OS X only):
+### Install
 
 ```bash
-brew install cookiecutter
-```
-
-Pipsi (Linux/OSX only):
-
-```bash
-pipsi install cookiecutter
-```
-
-Debian/Ubuntu:
-
-```bash
-sudo apt-get install cookiecutter
+go install github.com/schwarzit/go-template@latest
 ```
 
 ### Initialize your repo from the template
@@ -79,21 +67,3 @@ make all
 Contributions are very much appreciated.  
 If you have anything to add to the template you are welcome to open a PR.
 If your idea contains some major changes please open an issue to discuss first.
-
-## Test (only for template development)
-
-Create a python virtual env & install dev dependencies:
-
-```bash
-brew install virtualenv
-virtualenv -p python3 .venv
-source .venv/bin/activate
-pip3 install -r requirements.txt
-```
-
-Perform tests:
-
-```bash
-pytest
-mypy .
-```
