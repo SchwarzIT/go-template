@@ -32,7 +32,8 @@ This means all parameters values will be gathered through stdin user input.
 To use that just type plain "gt new" and follow the further instructions.
 
 %s
-Since interactive user input is not a feasible solution in all cases there's also the option to a pass config file through the "--config" flag.
+Since interactive user input is not a feasible solution in all cases there's also the option
+to a pass config file through the "--config" flag.
 This defines the parameters as key value pairs.
 To get further information look at the flag's documentation.
 `, underline("Interactive Mode"), underline("File Mode")),
