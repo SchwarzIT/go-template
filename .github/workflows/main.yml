@@ -54,13 +54,36 @@ jobs:
       - name: Build package
         run: make build
 
-      - name: Execute build
+      - name: Create a test project with defaults values
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
-        run: ./out/bin/gt --help
+        run: ./out/bin/gt -c pkg/gotemplate/testdata/values.yml
 
-      - name: Execute build
+      - name: Create a test project with defaults values
         if: matrix.os == 'windows-latest'
-        run: ./out/bin/gt.exe --help
+        run: ./out/bin/gt.exe -c pkg/gotemplate/testdata/values.yml
 
-      - name: Create a test project
-        run: make create-test-project
+      - name: Create go.mod files for test-project
+        run: go mod tidy
+        working-directory: ./testing-project
+
+      - name: Run CI pipeline for test-project
+        run: make ci
+        working-directory: ./testing-project
+
+      - name: Create build for test-project
+        run: make build
+        working-directory: ./testing-project
+
+      - name: Make docker build
+        run: make docker
+        working-directory: ./testing-project
+
+      - name: Execute test project-build
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        run: ./out/bin/testing
+        working-directory: ./testing-project
+
+      - name: Execute test project-build
+        if: matrix.os == 'windows-latest'
+        run: ./out/bin/testing.exe
+        working-directory: ./testing-project
