@@ -18,23 +18,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # cache go modules
-      - uses: actions/cache@v2
-        with:
-          # In order:
-          # * Module download cache
-          # * Build cache (Linux)
-          # * Build cache (Mac)
-          # * Build cache (Windows)
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-            ~/Library/Caches/go-build
-            %LocalAppData%\go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
       - uses: returntocorp/semgrep-action@v1
         with:
           config: >- # more at semgrep.dev/explore
@@ -106,15 +89,15 @@ jobs:
       - name: Create a default test-project to also scan with semgrep
         run: make create-test-project
 
-      - uses: returntocorp/semgrep-action@v1
-        with:
-          config: >- # more at semgrep.dev/explore
-            p/security-audit
-            p/secrets
-            p/ci
-            p/r2c
-            p/r2c-ci
-            p/docker
-            p/dockerfile
-            p/command-injection
-          working-directory: ./testing-project
+      - name: Run semgrep full scan on test-project
+        run: |
+          docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
+              --config p/security-audit \
+              --config p/secrets \
+              --config p/ci \
+              --config p/r2c \
+              --config p/r2c-ci \
+              --config p/docker \
+              --config p/dockerfile \
+              --config p/command-injection
+        working-directory: ./testing-project
