@@ -29,6 +29,11 @@ type NewRepositoryOptions struct {
 	ConfigValues map[string]interface{}
 }
 
+type FileStruct struct {
+	Parameters   map[string]interface{} `json:"parameters"`
+	Integrations map[string]interface{} `json:"integrations"`
+}
+
 // Validate validates all properties of NewRepositoryOptions except the ConfigValues, since those are validated by the Load functions.
 func (opts NewRepositoryOptions) Validate() error {
 	if opts.CWD == "" {
@@ -49,11 +54,7 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, err
 		return nil, err
 	}
 
-	fileStruct := struct {
-		Parameters   map[string]interface{} `json:"parameters"`
-		Integrations map[string]interface{} `json:"integrations"`
-	}{}
-
+	fileStruct := FileStruct{}
 	if err := yaml.Unmarshal(fileBytes, &fileStruct); err != nil {
 		return nil, err
 	}

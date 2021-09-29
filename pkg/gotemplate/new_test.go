@@ -274,11 +274,11 @@ func TestGT_InitNewProject(t *testing.T) {
 	testValuesBytes, err := os.ReadFile("./testdata/values.yml")
 	assert.NoError(t, err)
 
-	var values map[string]interface{}
-	err = yaml.Unmarshal(testValuesBytes, &values)
+	fileStruct := gotemplate.FileStruct{}
+	err = yaml.Unmarshal(testValuesBytes, &fileStruct)
 	assert.NoError(t, err)
 
-	opts := &gotemplate.NewRepositoryOptions{ConfigValues: values}
+	opts := &gotemplate.NewRepositoryOptions{ConfigValues: fileStruct.Parameters}
 	t.Run("generates folder in target dir and initializes it with go.mod and .git", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		opts.CWD = tmpDir
@@ -361,9 +361,9 @@ func TestGT_InitNewProject(t *testing.T) {
 			for _, enabled := range []bool{true, false} {
 				t.Run(fmt.Sprintf("%s: %t", opt.Name, enabled), func(t *testing.T) {
 					tmpDir := t.TempDir()
-					values[opt.Name] = enabled
+					fileStruct.Parameters[opt.Name] = enabled
 
-					opts := &gotemplate.NewRepositoryOptions{CWD: tmpDir, ConfigValues: values}
+					opts := &gotemplate.NewRepositoryOptions{CWD: tmpDir, ConfigValues: fileStruct.Parameters}
 					err := gt.InitNewProject(opts)
 					assert.NoError(t, err)
 
