@@ -90,7 +90,9 @@ jobs:
         run: make create-test-project
 
       - name: Setup basic project dependencies
-        run: make all
+        run: |
+          make all
+          rm -rf .git
         working-directory: ./testing-project
 
       - name: Run semgrep full scan on test-project
