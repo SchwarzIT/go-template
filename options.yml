@@ -25,6 +25,7 @@ parameters:
       description: no whitespace
   - name: author
     default: "Marty Mc Fly"
+    description: Name of the author of the project.
   - name: openSourceLicense
     default: '1'
     description: |
