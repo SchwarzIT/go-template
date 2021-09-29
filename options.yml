@@ -23,6 +23,26 @@ parameters:
     regex:
       pattern: ^[\S]+$
       description: no whitespace
+  - name: author
+    default: "Marty Mc Fly"
+  - name: openSourceLicense
+    default: '1'
+    description: |
+      Set an OpenSource license.
+      Unsure which to pick? Checkout Github's https://choosealicense.com/
+      Options:
+        1: MIT License
+        2: Apache License 2.0
+        3: GNU AGPLv3
+        4: GNU GPLv3
+        5: GNU LGPLv3
+        6: Mozilla Public License 2.0
+        7: Boost Software License 1.0
+        8: The Unlicense
+        9: Not open source
+    regex:
+      pattern: ^[1-9]$
+      description: select one of the options
   - name: golangciVersion
     default: '{{latestReleaseTag "golangci" "golangci-lint" "1.40.1"}}'
     description: Golangci-lint version to use.

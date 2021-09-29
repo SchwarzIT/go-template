@@ -4,6 +4,8 @@ parameters:
   projectDescription: Some project used for testing
   appName: testing
   moduleName: github.com/fake/testing
+  author: Gofer Mc Awesome
+  openSourceLicense: "1"
   golangciVersion: "1.42.1"
   grpcEnabled: false
   grpcGatewayEnabled: false
