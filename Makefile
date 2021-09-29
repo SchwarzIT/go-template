@@ -68,6 +68,10 @@ clean: ## Cleans up everything
 
 ci: lint-reports test-reports
 
+create-test-project: # create the default test project
+	rm -rf testing-project
+	go run cmd/gt/*.go new -c pkg/gotemplate/testdata/values.yml
+
 help:
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'
 	@echo ''
