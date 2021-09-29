@@ -91,16 +91,17 @@ jobs:
 
       - name: Setup basic project dependencies
         run: make all
-
-      - name: Run semgrep full scan on test-project
-        run: |
-          docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
-              --config p/security-audit \
-              --config p/secrets \
-              --config p/ci \
-              --config p/r2c \
-              --config p/r2c-ci \
-              --config p/docker \
-              --config p/dockerfile \
-              --config p/command-injection
         working-directory: ./testing-project
+
+      - uses: returntocorp/semgrep-action@v1
+        with:
+          config: >- # more at semgrep.dev/explore
+            p/security-audit
+            p/secrets
+            p/ci
+            p/r2c
+            p/r2c-ci
+            p/docker
+            p/dockerfile
+            p/command-injection
+          working-directory: ./testing-project
