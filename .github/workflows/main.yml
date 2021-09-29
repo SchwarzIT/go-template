@@ -61,3 +61,6 @@ jobs:
       - name: Execute build
         if: matrix.os == 'windows-latest'
         run: ./out/bin/gt.exe --help
+
+      - name: Create a test project
+        run: make create-test-project
