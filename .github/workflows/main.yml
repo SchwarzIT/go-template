@@ -56,11 +56,11 @@ jobs:
 
       - name: Create a test project with defaults values
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
-        run: ./out/bin/gt -c pkg/gotemplate/testdata/values.yml
+        run: ./out/bin/gt new -c pkg/gotemplate/testdata/values.yml
 
       - name: Create a test project with defaults values
         if: matrix.os == 'windows-latest'
-        run: ./out/bin/gt.exe -c pkg/gotemplate/testdata/values.yml
+        run: ./out/bin/gt.exe new -c pkg/gotemplate/testdata/values.yml
 
       - name: Create go.mod files for test-project
         run: go mod tidy
