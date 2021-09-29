@@ -92,6 +92,8 @@ jobs:
       - name: Setup basic project dependencies for semgrep
         run: |
           make all
+          git config --global user.email "marty-mc-fly@example.com"
+          git config --global user.name "Marty Mc Fly"
           git add -A
           git commit -m "init"
         working-directory: ./testing-project
