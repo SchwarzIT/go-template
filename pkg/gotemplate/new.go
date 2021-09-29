@@ -7,78 +7,146 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
 
 	"github.com/pkg/errors"
-	"github.com/schwarzit/go-template/config"
+	gotemplate "github.com/schwarzit/go-template"
 	"github.com/schwarzit/go-template/pkg/option"
 	"sigs.k8s.io/yaml"
 )
 
-var ErrAlreadyExists = errors.New("already exists")
+var (
+	ErrAlreadyExists   = errors.New("already exists")
+	ErrParameterNotSet = errors.New("parameters not set")
+	ErrMalformedInput  = errors.New("malformed input")
+)
 
-// TODO: add validation for opts
 type NewRepositoryOptions struct {
-	CWD               string
-	OptionNameToValue map[string]interface{}
+	CWD          string
+	ConfigValues map[string]interface{}
 }
 
-// LoadOptionToValueFromFile loads value for the options from a file.
-func (gt *GT) LoadOptionToValueFromFile(file string) (map[string]interface{}, error) {
+// Validate validates all properties of NewRepositoryOptions except the ConfigValues, since those are validated by the Load functions.
+func (opts NewRepositoryOptions) Validate() error {
+	if opts.CWD == "" {
+		return nil
+	}
+
+	if _, err := os.Stat(opts.CWD); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// LoadConfigValuesFromFile loads value for the options from a file and validates the inputs
+func (gt *GT) LoadConfigValuesFromFile(file string) (map[string]interface{}, error) {
 	fileBytes, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
 
-	optionNameToValue := make(map[string]interface{}, len(gt.Options))
-	if err := yaml.Unmarshal(fileBytes, &optionNameToValue); err != nil {
+	fileStruct := struct {
+		Parameters   map[string]interface{} `json:"parameters"`
+		Integrations map[string]interface{} `json:"integrations"`
+	}{}
+
+	if err := yaml.Unmarshal(fileBytes, &fileStruct); err != nil {
 		return nil, err
 	}
 
-	// TODO: make sure that all options are set if needed?
+	optionValues := gt.mergeMaps(fileStruct.Parameters, fileStruct.Integrations)
 
-	return optionNameToValue, nil
+	params := gt.Configs.Parameters
+	for i := range params {
+		val, ok := optionValues[params[i].Name]
+		if !ok || val == "" {
+			return nil, errors.Wrap(ErrParameterNotSet, params[i].Name)
+		}
+
+		s, ok := val.(string)
+		if !ok {
+			continue
+		}
+
+		// TODO: check if value is of correct type
+
+		if params[i].Regex.Pattern != "" {
+			matched, err := regexp.MatchString(params[i].Regex.Pattern, s)
+			if err != nil || !matched {
+				return nil, errors.Wrap(ErrMalformedInput, params[i].Name)
+			}
+		}
+	}
+
+	return optionValues, nil
 }
 
-func (gt *GT) GetOptionToValueInteractively() (map[string]interface{}, error) {
-	// TODO: add validation for value (probably regex pattern)
-
+func (gt *GT) LoadConfigValuesInteractively() (map[string]interface{}, error) {
 	gt.printBanner()
-	optionNameToValue := make(map[string]interface{}, len(gt.Options))
-	for _, currentOption := range gt.Options {
-		// Fix implicit memory aliasing (gosec G601)
-		currentOption := currentOption
-		if !dependenciesMet(&currentOption, optionNameToValue) {
+	parametersValues, err := gt.loadValuesInteractively(gt.Configs.Parameters)
+	if err != nil {
+		return nil, err
+	}
+
+	gt.printf("After loading the base parameters you now have the options to enable additional integrations.\n")
+	integrationValues, err := gt.loadValuesInteractively(gt.Configs.Integrations)
+	if err != nil {
+		return nil, err
+	}
+
+	return gt.mergeMaps(parametersValues, integrationValues), nil
+}
+
+func (gt *GT) mergeMaps(maps ...map[string]interface{}) map[string]interface{} {
+	returnMap := map[string]interface{}{}
+
+	for _, m := range maps {
+		for k, v := range m {
+			returnMap[k] = v
+		}
+	}
+
+	return returnMap
+}
+
+func (gt *GT) loadValuesInteractively(options []option.Option) (map[string]interface{}, error) {
+	configValues := make(map[string]interface{}, len(options))
+
+	for i := range options {
+		if !dependenciesMet(&options[i], configValues) {
 			continue
 		}
 
 		// default value could contain templating functions
 		var err error
-		currentOption.Default, err = gt.applyTemplate(currentOption.Default, optionNameToValue)
+		options[i].Default, err = gt.applyTemplate(options[i].Default, configValues)
 		if err != nil {
 			return nil, err
 		}
 
-		val, err := gt.readOptionValue(&currentOption)
-		if err != nil {
-			return nil, err
+		val, err := gt.readOptionValue(&options[i])
+		for err != nil {
+			gt.printWarningf(err.Error())
+			val, err = gt.readOptionValue(&options[i])
 		}
 
-		optionNameToValue[currentOption.Name] = val
+		configValues[options[i].Name] = val
 	}
 
-	return optionNameToValue, nil
+	return configValues, nil
 }
 
-func dependenciesMet(opt *option.Option, optionNameToValue map[string]interface{}) bool {
+func dependenciesMet(opt *option.Option, configValues map[string]interface{}) bool {
 	if len(opt.DependsOn) == 0 {
 		return true
 	}
 
 	for _, dep := range opt.DependsOn {
-		depVal, ok := optionNameToValue[dep]
+		depVal, ok := configValues[dep]
 		if !ok {
 			// if not found it means it not set
 			return false
@@ -99,10 +167,10 @@ func dependenciesMet(opt *option.Option, optionNameToValue map[string]interface{
 }
 
 func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
-	gt.printProgress("Generating repo folder...")
+	gt.printProgressf("Generating repo folder...")
 
-	targetDir := path.Join(opts.CWD, opts.OptionNameToValue["projectSlug"].(string))
-	gt.printProgress(fmt.Sprintf("Writing to %s...", targetDir))
+	targetDir := path.Join(opts.CWD, opts.ConfigValues["projectSlug"].(string))
+	gt.printProgressf("Writing to %s...", targetDir)
 
 	if _, err := os.Stat(targetDir); !os.IsNotExist(err) {
 		return errors.Wrapf(ErrAlreadyExists, "directory %s", targetDir)
@@ -114,27 +182,27 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 			_ = os.RemoveAll(targetDir)
 		}
 	}()
-	err = fs.WalkDir(config.TemplateDir, config.TemplateKey, func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(gotemplate.FS, gotemplate.Key, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		pathToWrite, err := gt.executeTemplateString(path, opts.OptionNameToValue)
+		pathToWrite, err := gt.executeTemplateString(path, opts.ConfigValues)
 		if err != nil {
 			return err
 		}
 
-		pathToWrite = strings.ReplaceAll(pathToWrite, config.TemplateKey, targetDir)
+		pathToWrite = strings.ReplaceAll(pathToWrite, gotemplate.Key, targetDir)
 		if d.IsDir() {
 			return os.MkdirAll(pathToWrite, os.ModePerm)
 		}
 
-		fileBytes, err := fs.ReadFile(config.TemplateDir, path)
+		fileBytes, err := fs.ReadFile(gotemplate.FS, path)
 		if err != nil {
 			return err
 		}
 
-		data, err := gt.executeTemplateString(string(fileBytes), opts.OptionNameToValue)
+		data, err := gt.executeTemplateString(string(fileBytes), opts.ConfigValues)
 		if err != nil {
 			return err
 		}
@@ -145,13 +213,13 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 		return err
 	}
 
-	gt.printProgress("Removing obsolete files...")
-	if err := postHook(targetDir, gt.Options, opts.OptionNameToValue); err != nil {
+	gt.printProgressf("Removing obsolete files of unused integrations...")
+	if err := postHook(targetDir, gt.Configs.Integrations, opts.ConfigValues); err != nil {
 		return err
 	}
 
-	gt.printProgress("Initializing git and Go modules...")
-	if err := initRepo(targetDir, opts.OptionNameToValue["moduleName"].(string)); err != nil {
+	gt.printProgressf("Initializing git and Go modules...")
+	if err := initRepo(targetDir, opts.ConfigValues["moduleName"].(string)); err != nil {
 		return err
 	}
 
@@ -172,22 +240,22 @@ func initRepo(targetDir, moduleName string) error {
 	return goModInit.Run()
 }
 
-func postHook(targetDir string, options []option.Option, optionNameToValue map[string]interface{}) error {
+func postHook(targetDir string, options []option.Option, configValues map[string]interface{}) error {
 	var toDelete []string
 
-	for _, opt := range options {
-		optEnabled, ok := optionNameToValue[opt.Name].(bool)
+	for i := range options {
+		optEnabled, ok := configValues[options[i].Name].(bool)
 		if !ok {
 			// if not bool value, files will be ignored
 			continue
 		}
 
 		if optEnabled {
-			toDelete = append(toDelete, opt.Files.Remove...)
+			toDelete = append(toDelete, options[i].Files.Remove...)
 			continue
 		}
 		// the files are added in the loop anyways, but if the option is disabled they should be removed again
-		toDelete = append(toDelete, opt.Files.Add...)
+		toDelete = append(toDelete, options[i].Files.Add...)
 	}
 
 	for _, item := range toDelete {
@@ -200,8 +268,8 @@ func postHook(targetDir string, options []option.Option, optionNameToValue map[s
 }
 
 // readOptionValue reads a value for an option from the cli.
-func (gt *GT) readOptionValue(opts *option.Option) (interface{}, error) {
-	gt.printOption(opts)
+func (gt *GT) readOptionValue(opt *option.Option) (interface{}, error) {
+	gt.printOption(opt)
 	defer fmt.Fprintln(gt.Out)
 
 	s, err := gt.readStdin()
@@ -210,10 +278,25 @@ func (gt *GT) readOptionValue(opts *option.Option) (interface{}, error) {
 	}
 
 	if s == "" {
-		return opts.Default, nil
+		// if default is a string it should also be regex checked, otherwise just return default
+		defaultStr, ok := opt.Default.(string)
+		if !ok {
+			return opt.Default, nil
+		}
+
+		s = defaultStr
 	}
 
-	switch opts.Default.(type) {
+	if opt.Regex.Pattern != "" {
+		matched, err := regexp.MatchString(opt.Regex.Pattern, s)
+		if err != nil || !matched {
+			gt.printf("\n")
+			gt.printWarningf("Option %s needs to match defined regex (desc: %q, pattern: %q)", opt.Name, opt.Regex.Description, opt.Regex.Pattern)
+			return gt.readOptionValue(opt)
+		}
+	}
+
+	switch opt.Default.(type) {
 	case string:
 		return s, nil
 	case bool:

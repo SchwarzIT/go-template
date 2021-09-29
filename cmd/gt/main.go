@@ -10,6 +10,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// nolint: gochecknoglobals // only a colored string, cannot be put into a const
+var goTemplateHighlighted = color.CyanString("go/template")
+
 func main() {
 	cmd := buildRootCommand()
 	if err := cmd.Execute(); err != nil {
@@ -31,7 +34,15 @@ func buildRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gt",
 		Short: "gt is go/template's cli for jumpstarting production-ready Golang projects quickly",
-		Long:  "A repo template generator build by schwarzit. Full documentation at github.com/SchwarzIT/go-template.",
+		Long: fmt.Sprintf(`%[1]s is a tool for jumpstarting production-ready Golang projects quickly.
+
+To begin working with %[1]s, run the 'gt new' command:
+
+	$ gt new
+
+This will prompt you to create a new Golang project using standard configs.
+
+For more information, please visit the project's Github page: github.com/schwarzit/go-template.`, goTemplateHighlighted),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// Enable swapping out stdout/stderr for testing
 			gt.Out = cmd.OutOrStdout()

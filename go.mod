@@ -7,7 +7,7 @@ require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/fatih/color v1.12.0
 	github.com/google/go-github/v39 v39.1.0
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0
 	sigs.k8s.io/yaml v1.3.0

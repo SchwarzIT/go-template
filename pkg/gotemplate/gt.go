@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"context"
 	"io"
+	"net/http"
 	"text/template"
+	"time"
 
 	"github.com/Masterminds/sprig"
 	"github.com/google/go-github/v39/github"
-	"github.com/schwarzit/go-template/config"
+	gotemplate "github.com/schwarzit/go-template"
 	"github.com/schwarzit/go-template/pkg/option"
 	"github.com/schwarzit/go-template/pkg/repos"
 	"sigs.k8s.io/yaml"
@@ -17,7 +19,7 @@ import (
 type GT struct {
 	Streams
 	FuncMap         template.FuncMap
-	Options         []option.Option
+	Configs         option.Configuration
 	GithubTagLister repos.GithubTagLister
 }
 
@@ -28,16 +30,16 @@ type Streams struct {
 }
 
 func New() *GT {
-	var options []option.Option
+	var configs option.Configuration
 	// panic error since the embedded file should always be valid
-	if err := yaml.Unmarshal(config.Options, &options); err != nil {
+	if err := yaml.Unmarshal(gotemplate.Options, &configs); err != nil {
 		panic("embedded options are invalid")
 	}
 
-	githubClient := github.NewClient(nil)
+	githubClient := github.NewClient(&http.Client{Timeout: time.Second})
 
 	gt := &GT{
-		Options: options,
+		Configs: configs,
 		GithubTagLister: repos.GithubTagListerFunc(func(ctx context.Context, owner, repo string) ([]string, error) {
 			tags, _, err := githubClient.Repositories.ListTags(ctx, owner, repo, nil)
 			if err != nil {

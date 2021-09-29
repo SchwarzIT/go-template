@@ -111,8 +111,8 @@ linters:
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
-    # config only contains globals
-    - path: config/
+    # config folder and embed.go only contain globals
+    - path: config/|embed\.go
       linters:
         - gochecknoglobals
     - path: _test\.go

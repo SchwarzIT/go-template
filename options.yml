@@ -1,0 +1,49 @@
+parameters:
+  - name: projectName
+    default: "Awesome Project"
+    description: Name of the project.
+  - name: projectSlug
+    default: '{{.projectName | lower | replace " " "-"}}'
+    description: Technical name of the project for folders and names. This will also be used as output directory.
+    regex:
+      pattern: ^[a-z1-9]+(-[a-z1-9]+)*$
+      description: only lowercase letters and dashes
+  - name: projectDescription
+    default: "The awesome project provides awesome features to awesome people."
+    description: Description of the project used in the README.
+  - name: appName
+    default: awesomecli
+    description: The name of the binary that you want to create. Could be the same your `project_slug` but since Go supports multiple apps in one repo it could also be sth. else. For example if your project is for some API there could be one app for the server and one CLI client.
+    regex:
+      pattern: ^[a-z]+$
+      description: only lowercase letters
+  - name: moduleName
+    default: "github.com/user/{{.projectSlug}}"
+    description: The name of the Go module defined in the `go.mod` file. This is used if you want to `go get` the module. Please be aware that this depends on your version control system. The default points to `github.com` but for devops for example it would look sth. like this `dev.azure.com/org/project/repo.git`
+    regex:
+      pattern: ^[\S]+$
+      description: no whitespace
+  - name: golangciVersion
+    default: '{{latestReleaseTag "golangci" "golangci-lint" "1.40.1"}}'
+    description: Golangci-lint version to use.
+    regex:
+      pattern: ^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
+      description: semver
+
+integrations:
+  - name: grpcEnabled
+    default: false
+    description: Enable gRPC integration. Includes protobuf files and buf setup.
+    files:
+      add:
+        - api/proto
+        - tools.go
+        - buf.gen.yaml
+        - buf.yaml
+      remove:
+        - api/openapi.v1.yml
+  - name: grpcGatewayEnabled
+    default: false
+    description: Enable gRPC-gateway integration. Includes additional gRPC plugins.
+    dependsOn:
+      - grpcEnabled

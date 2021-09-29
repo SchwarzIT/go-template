@@ -1,6 +1,6 @@
 // +build tools
 
-package _template
+package main
 
 import (
 	_ "github.com/bufbuild/buf/cmd/buf"
