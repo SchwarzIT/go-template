@@ -89,6 +89,9 @@ jobs:
       - name: Create a default test-project to also scan with semgrep
         run: make create-test-project
 
+      - name: Setup basic project dependencies
+        run: make all
+
       - name: Run semgrep full scan on test-project
         run: |
           docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
