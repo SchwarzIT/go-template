@@ -1,13 +1,26 @@
 package gotemplate
 
-// TODO: rebase!
-
 import (
-	"errors"
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/schwarzit/go-template/pkg/repos"
 )
+
+// ErrInvalidaPattern indicates that an error occured while matching
+// a value with a pattern.
+// The pattern is included in the error message.
+
+type ErrInvalidPattern struct {
+	Value   string
+	Pattern string
+}
+
+func (e *ErrInvalidPattern) Error() string {
+	return fmt.Sprint("%s: invalid pattern (expected %s)", e.Value, e.Pattern)
+}
 
 // TODO: remove interface?
 type Option interface {
@@ -107,77 +120,113 @@ type OptionValues struct {
 
 type OptionNameToValue map[string]interface{}
 
-var ErrTypeMismatch = errors.New("type mismatch")
-var ErrInvalidPattern = errors.New("invalid pattern")
+func NewOptions(githubTagLister repos.GithubTagLister) *Options {
+	return &Options{
+		Base: []Option{
+			&SomeOption{
+				name:         "projectName",
+				defaultValue: StaticValue("Awesome Project"),
+				description:  StringValue("Name of the project"),
+			},
+			&SomeOption{
+				name: "projectSlug",
+				defaultValue: DynamicValue(func(ov OptionValues) interface{} {
+					projectName := ov.Base["projectName"].(string)
+					return strings.ReplaceAll(strings.ToLower(projectName), " ", "-")
+				}),
+				description: StringValue("Technical name of the project for folders and names. This will also be used as output directory."),
+				validator:   RegexValidator(`^[a-z1-9]+(-[a-z1-9]+)*$`, "only lowercase letters and dashes"),
+			},
+			&SomeOption{
+				name:         "projectDescription",
+				defaultValue: StaticValue("The awesome project provides awesome features to awesome people."),
+				description:  StringValue("Description of the project used in the README."),
+			},
+			&SomeOption{
+				name:         "appName",
+				defaultValue: StaticValue("awesomecli"),
+				description:  StringValue("The name of the binary that you want to create. Could be the same your `project_slug` but since Go supports multiple apps in one repo it could also be sth. else. For example if your project is for some API there could be one app for the server and one CLI client."),
+				validator:    RegexValidator(`^[a-z]+$`, "only lowercase letters"),
+			},
+			&SomeOption{
+				name: "moduleName",
+				defaultValue: DynamicValue(func(vals OptionValues) interface{} {
+					projectSlug := vals.Base["projectSlug"].(string)
+					return fmt.Sprintf("github.com/user/%s", projectSlug)
+				}),
+				description: StringValue("The name of the Go module defined in the `go.mod` file. This is used if you want to `go get` the module. Please be aware that this depends on your version control system. The default points to `github.com` but for devops for example it would look sth. like this `dev.azure.com/org/project/repo.git`"),
+				validator:   RegexValidator(`^[\S]+$`, "no whitespaces"),
+			},
+			&SomeOption{
+				name: "golangciVersion",
+				defaultValue: DynamicValue(func(_ OptionValues) interface{} {
+					latestTag, err := repos.LatestGithubReleaseTag(githubTagLister, "golangci", "golangci-lint")
+					if err != nil {
+						return "1.42.1"
+					}
 
-var options = Options{
-	Base: []Option{
-		&SomeOption{
-			name:         "projectName",
-			defaultValue: StaticValue("Awesome Project"),
-			description:  StringValue("Name of the project"),
+					return latestTag.String()
+				}),
+				description: StringValue("Golangci-lint version to use."),
+				validator: RegexValidator(
+					`^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`,
+					"valid semver version string",
+				),
+			},
 		},
-		&SomeOption{
-			name: "projectSlug",
-			defaultValue: DynamicValue(func(ov OptionValues) interface{} {
-				projectName := ov.Base["projectName"].(string)
-				return strings.ReplaceAll(strings.ToLower(projectName), " ", "-")
-			}),
-			validator: RegexValidator(`^[a-z1-9]+(-[a-z1-9]+)*$`),
-		},
-	},
-	Extensions: []Category{
-		{
-			Name: "cicd",
-			Options: []Option{
-				&SomeOption{
-					name:         "pipeline",
-					defaultValue: StaticValue("1"),
-					validator:    RegexValidator(`^[1-2]$`),
-					description: StringValue(`Set a pipelining system.
-Options:
-    1. Github
-	2. Azure Devops`),
-					hook: func(v interface{}) error {
-						val := v.(string)
-						dirs := []string{".github", ".azuredevops"}
-						switch val {
-						case "1":
-							return removeAllBut(dirs, ".github")
-						case "2":
-							return removeAllBut(dirs, ".azuredevops")
-						}
-						return nil
+		Extensions: []Category{
+			{
+				Name: "cicd",
+				Options: []Option{
+					&SomeOption{
+						name:         "pipeline",
+						defaultValue: StaticValue(1),
+						validator:    RegexValidator(`^[1-2]$`, "number between 1-2"),
+						description: StringValue(`Set a pipelining system.
+	Options:
+		1. Github
+		2. Azure Devops`),
+						hook: func(v interface{}) error {
+							val := v.(int)
+							dirs := []string{".github", ".azuredevops"}
+							switch val {
+							case 1:
+								return removeAllBut(dirs, ".github")
+							case 2:
+								return removeAllBut(dirs, ".azuredevops")
+							}
+							return nil
+						},
+					},
+				},
+			},
+			{
+				Name: "grpc",
+				Options: []Option{
+					&SomeOption{
+						name:         "base",
+						defaultValue: StaticValue(false),
+						hook: func(v interface{}) error {
+							set := v.(bool)
+							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.yaml", "api/openapi.v1.yaml"}
+
+							if set {
+								return os.RemoveAll("api/openapi.v1.yaml")
+							}
+							return removeAllBut(files, "api/openapi.v1.yaml")
+						},
+					},
+					&SomeOption{
+						name:         "grpcGateway",
+						defaultValue: StaticValue(false),
+						shouldDisplay: DynamicBoolValue(func(vals OptionValues) bool {
+							return vals.Extensions["grpc"]["base"].(bool)
+						}),
 					},
 				},
 			},
 		},
-		{
-			Name: "grpc",
-			Options: []Option{
-				&SomeOption{
-					name:         "base",
-					defaultValue: StaticValue(false),
-					hook: func(v interface{}) error {
-						set := v.(bool)
-						files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.yaml", "api/openapi.v1.yaml"}
-
-						if set {
-							return os.RemoveAll("api/openapi.v1.yaml")
-						}
-						return removeAllBut(files, "api/openapi.v1.yaml")
-					},
-				},
-				&SomeOption{
-					name:         "grpcGateway",
-					defaultValue: StaticValue(false),
-					shouldDisplay: DynamicBoolValue(func(vals OptionValues) bool {
-						return vals.Extensions["grpc"]["base"].(bool)
-					}),
-				},
-			},
-		},
-	},
+	}
 }
 
 // removeAllBut removes all files in the toRemove slice except for the exception
@@ -195,22 +244,19 @@ func removeAllBut(toRemove []string, exception string) error {
 	return nil
 }
 
-type RegexValidator string
+func RegexValidator(pattern, description string) ValidatorFunc {
+	return func(value interface{}) error {
+		str := value.(string)
 
-func (v RegexValidator) Validate(i interface{}) error {
-	str, ok := i.(string)
-	if !ok {
-		return ErrTypeMismatch
+		matched, err := regexp.MatchString(string(pattern), str)
+		if err != nil {
+			return err
+		}
+
+		if !matched {
+			return &ErrInvalidPattern{Value: str, Pattern: pattern}
+		}
+
+		return nil
 	}
-
-	matched, err := regexp.MatchString(string(v), str)
-	if err != nil {
-		return err
-	}
-
-	if !matched {
-		return ErrInvalidPattern
-	}
-
-	return nil
 }
