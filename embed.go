@@ -2,12 +2,7 @@ package gotemplate
 
 import "embed"
 
-var (
-	//go:embed _template
-	FS embed.FS
-
-	//go:embed options.yml
-	Options []byte
-)
+//go:embed _template
+var FS embed.FS
 
 const Key = "_template"
