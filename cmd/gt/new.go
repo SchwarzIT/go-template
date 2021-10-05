@@ -47,7 +47,7 @@ To get further information look at the flag's documentation.
 				return err
 			}
 
-			opts.ConfigValues = configValues
+			opts.OptionValues = configValues
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -85,7 +85,7 @@ Can be set to decide where to create the new project folder,
 	return cmd
 }
 
-func getValues(gt *gotemplate.GT, configFile string) (map[string]interface{}, error) {
+func getValues(gt *gotemplate.GT, configFile string) (*gotemplate.OptionValues, error) {
 	if configFile != "" {
 		return gt.LoadConfigValuesFromFile(configFile)
 	}

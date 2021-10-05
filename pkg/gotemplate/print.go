@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
-	"github.com/schwarzit/go-template/pkg/option"
 )
 
 func (gt *GT) printProgressf(format string, a ...interface{}) {
@@ -25,11 +24,11 @@ func (gt *GT) printWarningf(format string, a ...interface{}) {
 	_, _ = fmt.Fprintln(gt.Err)
 }
 
-func (gt *GT) printOption(opts *option.Option) {
+func (gt *GT) printOption(opts *Option, optionValues *OptionValues) {
 	highlight := color.New(color.FgCyan).SprintFunc()
 	underline := color.New(color.FgHiYellow, color.Underline).SprintFunc()
-	gt.printf("%s\n", underline(opts.Description))
-	gt.printf("%s: (%v) ", highlight(opts.Name), opts.Default)
+	gt.printf("%s\n", underline(opts.Description(optionValues)))
+	gt.printf("%s: (%v) ", highlight(opts.Name()), opts.Default(optionValues))
 }
 
 func (gt *GT) printBanner() {

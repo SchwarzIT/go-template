@@ -1,8 +1,10 @@
 package gotemplate
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 
@@ -20,6 +22,7 @@ type ErrInvalidPattern struct {
 	Pattern string
 }
 
+// TODO: add pattern description here
 func (e *ErrInvalidPattern) Error() string {
 	return fmt.Sprintf("%s: invalid pattern (expected %s)", e.Value, e.Pattern)
 }
@@ -56,25 +59,27 @@ type Option struct {
 	shouldDisplay BoolValuer
 	// postHook is some function that will be executed after all options are loaded.
 	// This can for example be used to remove files from the created project folder or initialize tools based on inputs.
-	postHook func(interface{}) error
+	// The passed interface contains the value of the option for convenience (technically also contained in optionValues)
+	// targetDir indicates the working directory of the postHook
+	postHook func(value interface{}, optionValues *OptionValues, targetDir string) error
 }
 
 func (s *Option) Name() string {
 	return s.name
 }
 
-func (s *Option) Description(currentValues OptionValues) string {
+func (s *Option) Description(currentValues *OptionValues) string {
 	return s.description.Value(currentValues)
 }
 
 // Default either returns the default value (possibly calculated with currentValues).
-func (s *Option) Default(currentValues OptionValues) interface{} {
+func (s *Option) Default(currentValues *OptionValues) interface{} {
 	return s.defaultValue.Value(currentValues)
 }
 
 // ShouldDisplay returns a bool value indicating whether the option should be shown or not.
 // If shouldDisplay variable is not set on the option true is returned.
-func (s *Option) ShouldDisplay(currentValues OptionValues) bool {
+func (s *Option) ShouldDisplay(currentValues *OptionValues) bool {
 	if s.shouldDisplay != nil {
 		return s.shouldDisplay.Value(currentValues)
 	}
@@ -92,9 +97,9 @@ func (s *Option) Validate(value interface{}) error {
 }
 
 // PostHook executes the registered postHook if there is any.
-func (s *Option) PostHook(v interface{}) error {
+func (s *Option) PostHook(v interface{}, optionValues *OptionValues, targetDir string) error {
 	if s.postHook != nil {
-		return s.postHook(v)
+		return s.postHook(v, optionValues, targetDir)
 	}
 
 	return nil
@@ -122,8 +127,15 @@ type Options struct {
 // This makes looking up already supplied option values easier than it would
 // be in the Options struct.
 type OptionValues struct {
-	Base       OptionNameToValue
-	Extensions map[string]OptionNameToValue
+	Base       OptionNameToValue            `json:"base"`
+	Extensions map[string]OptionNameToValue `json:"extensions"`
+}
+
+func NewOptionValues() *OptionValues {
+	return &OptionValues{
+		Base:       OptionNameToValue{},
+		Extensions: map[string]OptionNameToValue{},
+	}
 }
 
 type OptionNameToValue map[string]interface{}
@@ -140,7 +152,7 @@ func NewOptions(githubTagLister repos.GithubTagLister) *Options {
 			},
 			{
 				name: "projectSlug",
-				defaultValue: DynamicValue(func(ov OptionValues) interface{} {
+				defaultValue: DynamicValue(func(ov *OptionValues) interface{} {
 					projectName := ov.Base["projectName"].(string)
 					return strings.ReplaceAll(strings.ToLower(projectName), " ", "-")
 				}),
@@ -162,7 +174,7 @@ For example if your project is for some API there could be one app for the serve
 			},
 			{
 				name: "moduleName",
-				defaultValue: DynamicValue(func(vals OptionValues) interface{} {
+				defaultValue: DynamicValue(func(vals *OptionValues) interface{} {
 					projectSlug := vals.Base["projectSlug"].(string)
 					return fmt.Sprintf("github.com/user/%s", projectSlug)
 				}),
@@ -174,7 +186,7 @@ The default points to "github.com" but for devops for example it would look sth.
 			},
 			{
 				name: "golangciVersion",
-				defaultValue: DynamicValue(func(_ OptionValues) interface{} {
+				defaultValue: DynamicValue(func(_ *OptionValues) interface{} {
 					latestTag, err := repos.LatestGithubReleaseTag(githubTagLister, "golangci", "golangci-lint")
 					if err != nil {
 						return "1.42.1"
@@ -196,19 +208,20 @@ The default points to "github.com" but for devops for example it would look sth.
 					{
 						name:         "pipeline",
 						defaultValue: StaticValue(1),
-						validator:    RegexValidator(`^[1-2]$`, "number between 1-2"),
+						validator:    RangeValidator(1, 2),
 						description: StringValue(`Set a pipelining system.
-	Options:
-		1. Github
-		2. Azure Devops`),
-						postHook: func(v interface{}) error {
+Options:
+	1. Github
+	2. Azure Devops`),
+						postHook: func(v interface{}, _ *OptionValues, cwd string) error {
 							val := v.(int)
+							// TODO: replace slice with set to delete it and replace the removeAllBut function
 							dirs := []string{".github", ".azuredevops"}
 							switch val {
 							case 1:
-								return removeAllBut(dirs, ".github")
+								return removeAllBut(cwd, dirs, ".github")
 							case 2:
-								return removeAllBut(dirs, ".azuredevops")
+								return removeAllBut(cwd, dirs, ".azuredevops")
 							}
 							return nil
 						},
@@ -221,20 +234,22 @@ The default points to "github.com" but for devops for example it would look sth.
 					{
 						name:         "base",
 						defaultValue: StaticValue(false),
-						postHook: func(v interface{}) error {
+						description:  StringValue("Base configuration for gRPC"),
+						postHook: func(v interface{}, _ *OptionValues, cwd string) error {
 							set := v.(bool)
 							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.yaml", "api/openapi.v1.yaml"}
 
 							if set {
-								return os.RemoveAll("api/openapi.v1.yaml")
+								return os.RemoveAll(path.Join(cwd, "api/openapi.v1.yaml"))
 							}
-							return removeAllBut(files, "api/openapi.v1.yaml")
+							return removeAllBut(cwd, files, "api/openapi.v1.yaml")
 						},
 					},
 					{
 						name:         "grpcGateway",
 						defaultValue: StaticValue(false),
-						shouldDisplay: DynamicBoolValue(func(vals OptionValues) bool {
+						description:  StringValue("Extend gRPC configuration with grpc-gateway"),
+						shouldDisplay: DynamicBoolValue(func(vals *OptionValues) bool {
 							return vals.Extensions["grpc"]["base"].(bool)
 						}),
 					},
@@ -245,18 +260,31 @@ The default points to "github.com" but for devops for example it would look sth.
 }
 
 // removeAllBut removes all files in the toRemove slice except for the exception.
-func removeAllBut(toRemove []string, exception string) error {
+func removeAllBut(cwd string, toRemove []string, exception string) error {
 	for _, item := range toRemove {
 		if item == exception {
 			continue
 		}
 
-		if err := os.RemoveAll(item); err != nil {
+		if err := os.RemoveAll(path.Join(cwd, item)); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// RangeValidator validates that value is in between or equal to min and max.
+func RangeValidator(min, max int) ValidatorFunc {
+	return func(value interface{}) error {
+		val := value.(int)
+
+		if val < min || val > max {
+			return errors.New("value out of range")
+		}
+
+		return nil
+	}
 }
 
 // RegexValidator returns a ValidatorFunc to validate a given value against a regex pattern.
