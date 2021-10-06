@@ -92,6 +92,7 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (*OptionValues, error) {
 	return &optionValues, nil
 }
 
+// nolint: gocritic // option is passed by value to improve usability when iterating a slice of options
 func validateFileOption(option Option, value interface{}, optionValues OptionValues) error {
 	valType := reflect.TypeOf(value)
 	defaultType := reflect.TypeOf(option.Default(&optionValues))
@@ -119,10 +120,7 @@ func (gt *GT) LoadConfigValuesInteractively() (*OptionValues, error) {
 	optionValues := NewOptionValues()
 
 	for i := range gt.Options.Base {
-		val, err := gt.loadOptionValueInteractively(&gt.Options.Base[i], optionValues)
-		if err != nil {
-			return nil, err
-		}
+		val := gt.loadOptionValueInteractively(&gt.Options.Base[i], optionValues)
 
 		if val == nil {
 			continue
@@ -138,10 +136,7 @@ func (gt *GT) LoadConfigValuesInteractively() (*OptionValues, error) {
 		optionValues.Extensions[category.Name] = OptionNameToValue{}
 
 		for i := range category.Options {
-			val, err := gt.loadOptionValueInteractively(&category.Options[i], optionValues)
-			if err != nil {
-				return nil, err
-			}
+			val := gt.loadOptionValueInteractively(&category.Options[i], optionValues)
 
 			if val == nil {
 				continue
@@ -154,9 +149,9 @@ func (gt *GT) LoadConfigValuesInteractively() (*OptionValues, error) {
 	return optionValues, nil
 }
 
-func (gt *GT) loadOptionValueInteractively(option *Option, optionValues *OptionValues) (interface{}, error) {
+func (gt *GT) loadOptionValueInteractively(option *Option, optionValues *OptionValues) interface{} {
 	if !option.ShouldDisplay(optionValues) {
-		return nil, nil
+		return nil
 	}
 
 	val, err := gt.readOptionValue(option, optionValues)
@@ -165,7 +160,7 @@ func (gt *GT) loadOptionValueInteractively(option *Option, optionValues *OptionV
 		val, err = gt.readOptionValue(option, optionValues)
 	}
 
-	return val, nil
+	return val
 }
 
 func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
@@ -243,7 +238,6 @@ func initRepo(targetDir, moduleName string) error {
 }
 
 func postHook(options *Options, optionValues *OptionValues, targetDir string) error {
-
 	for _, option := range options.Base {
 		optionValue, ok := optionValues.Base[option.Name()]
 		if !ok {

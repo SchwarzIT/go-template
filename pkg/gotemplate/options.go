@@ -1,7 +1,6 @@
 package gotemplate
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -13,6 +12,16 @@ import (
 
 // nolint: lll // official regex for semver patterns that can't be broken up into multiple lines
 const semverRegex = `^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`
+
+type ErrOutOfRange struct {
+	Value int
+	Min   int
+	Max   int
+}
+
+func (e *ErrOutOfRange) Error() string {
+	return fmt.Sprintf("%d: value out of range (min: %d, max: %d)", e.Value, e.Min, e.Max)
+}
 
 // ErrInvalidaPattern indicates that an error occurred while matching
 // a value with a pattern.
@@ -180,7 +189,6 @@ type OptionNameToValue map[string]interface{}
 // nolint: funlen // only returns one Options struct that is used as configuration for go/template.
 func NewOptions(githubTagLister repos.GithubTagLister) *Options {
 	return &Options{
-		// TODO: use constructor here instead of struct literals
 		Base: []Option{
 			{
 				name:         "projectName",
@@ -317,7 +325,11 @@ func RangeValidator(min, max int) ValidatorFunc {
 		val := value.(int)
 
 		if val < min || val > max {
-			return errors.New("value out of range")
+			return &ErrOutOfRange{
+				Value: val,
+				Min:   min,
+				Max:   max,
+			}
 		}
 
 		return nil

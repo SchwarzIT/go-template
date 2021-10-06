@@ -265,7 +265,14 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, gotemplate.OptionNameToValue{optionName: optionValue, templateOptionName: fmt.Sprintf("%s-templated", optionValue)}, optionValues.Base)
+		assert.Equal(
+			t,
+			gotemplate.OptionNameToValue{
+				optionName:         optionValue,
+				templateOptionName: fmt.Sprintf("%s-templated", optionValue),
+			},
+			optionValues.Base,
+		)
 	})
 
 	t.Run("does not display options that have shouldDisplay returning false", func(t *testing.T) {

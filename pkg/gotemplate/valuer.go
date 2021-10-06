@@ -1,6 +1,5 @@
 package gotemplate
 
-// TODO: autogenerate different implementations?
 var (
 	_ Valuer       = &Value{}
 	_ Valuer       = DynamicValue(nil)
