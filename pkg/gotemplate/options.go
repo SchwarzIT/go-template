@@ -186,7 +186,6 @@ func NewOptionValues() *OptionValues {
 type OptionNameToValue map[string]interface{}
 
 // NewOptions returns all of go/template's options.
-// nolint: funlen // only returns one Options struct that is used as configuration for go/template.
 func NewOptions(githubTagLister repos.GithubTagLister) *Options {
 	return &Options{
 		Base: []Option{
@@ -247,32 +246,6 @@ The default points to "github.com" but for devops for example it would look sth.
 			},
 		},
 		Extensions: []Category{
-			{
-				Name: "cicd",
-				Options: []Option{
-					{
-						name:         "pipeline",
-						defaultValue: StaticValue(1),
-						validator:    RangeValidator(1, 2),
-						description: StringValue(`Set a pipelining system.
-Options:
-	1. Github
-	2. Azure Devops`),
-						postHook: func(v interface{}, _ *OptionValues, cwd string) error {
-							val := v.(int)
-							// TODO: replace slice with set to delete it and replace the removeAllBut function
-							dirs := []string{".github", ".azuredevops"}
-							switch val {
-							case 1:
-								return removeAllBut(cwd, dirs, ".github")
-							case 2:
-								return removeAllBut(cwd, dirs, ".azuredevops")
-							}
-							return nil
-						},
-					},
-				},
-			},
 			{
 				Name: "grpc",
 				Options: []Option{

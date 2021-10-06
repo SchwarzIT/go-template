@@ -64,16 +64,17 @@ It should either be a json or a yaml file.
 An example file could look like:
 
 // values.yaml
-parameters:
-    projectName: Some Project
-    projectSlug: some-project
-    projectDescription: Some random project
+base:
+	projectName: Some Project
+	projectSlug: some-project
+	projectDescription: Some random project
     appName: somecli
     moduleName: github.com/some-user/some-project
-    golangciVersion: 1.42.1
-integrations:
-    grpcEnabled: true
-    grpcGatewayEnabled: false`,
+	golangciVersion: 1.42.1
+extensions:
+	grpc:
+		base: false
+		grpcGateway: false`,
 	)
 
 	cmd.Flags().StringVar(
