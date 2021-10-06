@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"reflect"
 	"strconv"
 	"strings"
 	"text/template"
@@ -21,7 +22,17 @@ var (
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrParameterNotSet = errors.New("parameter not set")
 	ErrMalformedInput  = errors.New("malformed input")
+	ErrParameterSet    = errors.New("parameter set but preconditions are not met")
 )
+
+type ErrTypeMismatch struct {
+	Expected string
+	Actual   string
+}
+
+func (e *ErrTypeMismatch) Error() string {
+	return fmt.Sprintf("type mismatch, got %s, expected %s", e.Actual, e.Expected)
+}
 
 type NewRepositoryOptions struct {
 	CWD          string
@@ -50,13 +61,57 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (*OptionValues, error) {
 
 	var optionValues OptionValues
 
-	if err := yaml.Unmarshal(fileBytes, &optionValues); err != nil {
+	if err := yaml.UnmarshalStrict(fileBytes, &optionValues); err != nil {
 		return nil, err
 	}
 
-	// TODO: validate optionValues
+	for _, option := range gt.Options.Base {
+		val, ok := optionValues.Base[option.Name()]
+		if !ok || reflect.ValueOf(val).IsZero() {
+			return nil, errors.Wrap(ErrParameterNotSet, option.Name())
+		}
+
+		if err := validateFileOption(option, val, optionValues); err != nil {
+			return nil, err
+		}
+	}
+
+	for _, category := range gt.Options.Extensions {
+		for _, option := range category.Options {
+			val, ok := optionValues.Base[option.Name()]
+			if !ok {
+				continue
+			}
+
+			if err := validateFileOption(option, val, optionValues); err != nil {
+				return nil, err
+			}
+		}
+	}
 
 	return &optionValues, nil
+}
+
+func validateFileOption(option Option, value interface{}, optionValues OptionValues) error {
+	valType := reflect.TypeOf(value)
+	defaultType := reflect.TypeOf(option.Default(&optionValues))
+	if valType != defaultType {
+		return &ErrTypeMismatch{
+			Expected: defaultType.Name(),
+			Actual:   valType.Name(),
+		}
+	}
+
+	if err := option.Validate(value); err != nil {
+		return errors.Wrap(ErrMalformedInput, fmt.Sprintf("%s: %s", option.Name(), err.Error()))
+	}
+
+	// if it is set with shouldDisplay not set it means preconditions are not met
+	if !option.ShouldDisplay(&optionValues) {
+		return errors.Wrap(ErrParameterSet, option.Name())
+	}
+
+	return nil
 }
 
 func (gt *GT) LoadConfigValuesInteractively() (*OptionValues, error) {

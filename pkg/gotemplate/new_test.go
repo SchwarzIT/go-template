@@ -54,32 +54,51 @@ func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 		},
 	}
 
-	t.Run("reads values from file", func(t *testing.T) {
-		dir := t.TempDir()
-		testFile := path.Join(dir, "test.yml")
+	t.Run("reads values (base and extensions) from file", func(t *testing.T) {
 		optionValue := "someOtherValue"
-		testFileContent := fmt.Sprintf(`---
+		categoryName := "grpc"
+		categoryOptionName := "base"
+
+		gt.Options.Extensions = []gotemplate.Category{
+			{
+				Name: categoryName,
+				Options: []gotemplate.Option{
+					gotemplate.NewOption(
+						categoryOptionName,
+						gotemplate.StringValue("desc"),
+						gotemplate.StaticValue(false),
+					),
+				},
+			},
+		}
+
+		optionValues, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
 base:
     %s: %s
-`, optionName, optionValue)
-		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
-		assert.NoError(t, err)
+extensions:
+    %s:
+        %s: true`, optionName, optionValue, categoryName, categoryOptionName))
 
-		optionValues, err := gt.LoadConfigValuesFromFile(testFile)
 		assert.NoError(t, err)
-		assert.Equal(t, gotemplate.OptionNameToValue{optionName: optionValue}, optionValues.Base)
+		assert.Equal(
+			t,
+			&gotemplate.OptionValues{
+				Base: gotemplate.OptionNameToValue{optionName: optionValue},
+				Extensions: map[string]gotemplate.OptionNameToValue{
+					categoryName: {
+						categoryOptionName: true,
+					},
+				},
+			},
+			optionValues,
+		)
 	})
 
 	t.Run("validates that parameters are not empty", func(t *testing.T) {
-		dir := t.TempDir()
-		testFile := path.Join(dir, "test.yml")
-		testFileContent := fmt.Sprintf(`---
+		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
 base:
-    %s: ""`, optionName)
-		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
-		assert.NoError(t, err)
+    %s: ""`, optionName))
 
-		_, err = gt.LoadConfigValuesFromFile(testFile)
 		assert.ErrorIs(t, err, gotemplate.ErrParameterNotSet)
 	})
 
@@ -94,17 +113,51 @@ base:
 			)),
 		)
 
-		dir := t.TempDir()
-		testFile := path.Join(dir, "test.yml")
-		testFileContent := fmt.Sprintf(`---
+		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
 base:
-    %s: "NOT_A_VALID_VALUE"`, optionName)
-		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
-		assert.NoError(t, err)
+    %s: "NOT_A_VALID_VALUE"`, optionName))
 
-		_, err = gt.LoadConfigValuesFromFile(testFile)
 		assert.ErrorIs(t, err, gotemplate.ErrMalformedInput)
 	})
+
+	t.Run("error on type mismatch", func(t *testing.T) {
+		gt.Options.Base[0] = gotemplate.NewOption(
+			optionName,
+			gotemplate.StringValue("description"),
+			gotemplate.StaticValue(false),
+		)
+
+		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+base:
+    %s: "not a bool"`, optionName))
+
+		var errTypeMismatch *gotemplate.ErrTypeMismatch
+		assert.ErrorAs(t, err, &errTypeMismatch)
+	})
+
+	t.Run("error if option is set but shouldDisplay returns false", func(t *testing.T) {
+		gt.Options.Base[0] = gotemplate.NewOption(
+			optionName,
+			gotemplate.StringValue("description"),
+			gotemplate.StaticValue(true),
+			gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
+		)
+
+		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+base:
+    %s: true`, optionName))
+
+		assert.ErrorIs(t, err, gotemplate.ErrParameterSet)
+	})
+}
+
+func loadValueFromTestFile(t *testing.T, gt gotemplate.GT, contents string) (*gotemplate.OptionValues, error) {
+	dir := t.TempDir()
+	testFile := path.Join(dir, "test.yml")
+	err := os.WriteFile(testFile, []byte(contents), os.ModePerm)
+	assert.NoError(t, err)
+
+	return gt.LoadConfigValuesFromFile(testFile)
 }
 
 func TestGT_LoadConfigValuesInteractively(t *testing.T) {
