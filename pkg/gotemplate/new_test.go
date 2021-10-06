@@ -410,7 +410,46 @@ func TestGT_InitNewProject(t *testing.T) {
 		assert.ErrorIs(t, err, os.ErrNotExist)
 	})
 
-	// TODO: test all new options like posthook
+	t.Run("postHook not executed if value not set", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		opts.CWD = tmpDir
+
+		postHookTriggered := false
+		gt.Options.Base = append(gt.Options.Base, gotemplate.NewOption(
+			"testOption",
+			gotemplate.StringValue("desc"),
+			gotemplate.StaticValue(true),
+			gotemplate.WithPosthook(func(value interface{}, optionValues *gotemplate.OptionValues, targetDir string) error {
+				postHookTriggered = true
+				return nil
+			}),
+		))
+
+		err := gt.InitNewProject(opts)
+		assert.NoError(t, err)
+		assert.False(t, postHookTriggered, "postHook should not be triggered")
+	})
+
+	t.Run("postHook is executed if value is set", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		opts.CWD = tmpDir
+		opts.OptionValues.Base["testOption"] = true
+
+		postHookTriggered := false
+		gt.Options.Base = append(gt.Options.Base, gotemplate.NewOption(
+			"testOption",
+			gotemplate.StringValue("desc"),
+			gotemplate.StaticValue(false),
+			gotemplate.WithPosthook(func(value interface{}, optionValues *gotemplate.OptionValues, targetDir string) error {
+				postHookTriggered = true
+				return nil
+			}),
+		))
+
+		err := gt.InitNewProject(opts)
+		assert.NoError(t, err)
+		assert.True(t, postHookTriggered, "postHook should be triggered")
+	})
 }
 
 func getTargetDir(dir string, opts *gotemplate.NewRepositoryOptions) string {

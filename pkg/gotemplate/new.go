@@ -243,20 +243,14 @@ func initRepo(targetDir, moduleName string) error {
 }
 
 func postHook(options *Options, optionValues *OptionValues, targetDir string) error {
-	return iterateOptions(options, optionValues, func(option Option, optionValue interface{}, ok bool) error {
+
+	for _, option := range options.Base {
+		optionValue, ok := optionValues.Base[option.Name()]
 		if !ok {
 			return nil
 		}
 
-		return option.PostHook(optionValue, optionValues, targetDir)
-	})
-}
-
-func iterateOptions(options *Options, optionValues *OptionValues, fn func(option Option, optionValue interface{}, ok bool) error) error {
-	for _, option := range options.Base {
-		optionValue, ok := optionValues.Base[option.Name()]
-
-		if err := fn(option, optionValue, ok); err != nil {
+		if err := option.PostHook(optionValue, optionValues, targetDir); err != nil {
 			return err
 		}
 	}
@@ -264,7 +258,11 @@ func iterateOptions(options *Options, optionValues *OptionValues, fn func(option
 	for _, category := range options.Extensions {
 		for _, option := range category.Options {
 			optionValue, ok := optionValues.Extensions[category.Name][option.Name()]
-			if err := fn(option, optionValue, ok); err != nil {
+			if !ok {
+				return nil
+			}
+
+			if err := option.PostHook(optionValue, optionValues, targetDir); err != nil {
 				return err
 			}
 		}
@@ -326,17 +324,6 @@ func (gt *GT) readStdin() (string, error) {
 	}
 
 	return strings.TrimSpace(gt.InScanner.Text()), nil
-}
-
-// applyTemplate executes a the template in the defaultValue with the valueMap as data.
-// If the defaultValue is not a string, the input defaultValue will be returned.
-func (gt *GT) applyTemplate(defaultValue interface{}, optionValues *OptionValues) (interface{}, error) {
-	defaultStr, ok := defaultValue.(string)
-	if !ok {
-		return defaultValue, nil
-	}
-
-	return gt.executeTemplateString(defaultStr, optionValues)
 }
 
 // executeTemplateString executes the template in input str with the default p.FuncMap and valueMap as data.
