@@ -61,7 +61,43 @@ type Option struct {
 	// This can for example be used to remove files from the created project folder or initialize tools based on inputs.
 	// The passed interface contains the value of the option for convenience (technically also contained in optionValues)
 	// targetDir indicates the working directory of the postHook
-	postHook func(value interface{}, optionValues *OptionValues, targetDir string) error
+	postHook PostHookFunc
+}
+
+type PostHookFunc func(value interface{}, optionValues *OptionValues, targetDir string) error
+
+func NewOption(name string, description StringValuer, defaultValue Valuer, opts ...NewOptionOption) Option {
+	option := Option{
+		name:         name,
+		description:  description,
+		defaultValue: defaultValue,
+	}
+
+	for _, opt := range opts {
+		opt(&option)
+	}
+
+	return option
+}
+
+type NewOptionOption func(*Option)
+
+func WithValidator(validator Validator) NewOptionOption {
+	return func(o *Option) {
+		o.validator = validator
+	}
+}
+
+func WithShouldDisplay(shouldDisplay BoolValuer) NewOptionOption {
+	return func(o *Option) {
+		o.shouldDisplay = shouldDisplay
+	}
+}
+
+func WithPosthook(postHook PostHookFunc) NewOptionOption {
+	return func(o *Option) {
+		o.postHook = postHook
+	}
 }
 
 func (s *Option) Name() string {
@@ -144,6 +180,7 @@ type OptionNameToValue map[string]interface{}
 // nolint: funlen // only returns one Options struct that is used as configuration for go/template.
 func NewOptions(githubTagLister repos.GithubTagLister) *Options {
 	return &Options{
+		// TODO: use constructor here instead of struct literals
 		Base: []Option{
 			{
 				name:         "projectName",
