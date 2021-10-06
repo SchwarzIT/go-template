@@ -16,15 +16,15 @@ const semverRegex = `^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|
 
 // ErrInvalidaPattern indicates that an error occurred while matching
 // a value with a pattern.
-// The pattern is included in the error message.
+// The pattern as well as a description for the pattern is included in the error message.
 type ErrInvalidPattern struct {
-	Value   string
-	Pattern string
+	Value       string
+	Pattern     string
+	Description string
 }
 
-// TODO: add pattern description here
 func (e *ErrInvalidPattern) Error() string {
-	return fmt.Sprintf("%s: invalid pattern (expected %s)", e.Value, e.Pattern)
+	return fmt.Sprintf("%s: invalid pattern (expected %s (pattern: %s))", e.Value, e.Description, e.Pattern)
 }
 
 // Validator is a single method interface that validates that a given value is valid.
@@ -336,7 +336,7 @@ func RegexValidator(pattern, description string) ValidatorFunc {
 		}
 
 		if !matched {
-			return &ErrInvalidPattern{Value: str, Pattern: pattern}
+			return &ErrInvalidPattern{Value: str, Pattern: pattern, Description: description}
 		}
 
 		return nil
