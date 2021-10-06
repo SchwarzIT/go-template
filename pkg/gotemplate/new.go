@@ -12,7 +12,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/fatih/color"
 	"github.com/pkg/errors"
 	gotemplate "github.com/schwarzit/go-template"
 	"sigs.k8s.io/yaml"
@@ -129,10 +128,9 @@ func (gt *GT) LoadConfigValuesInteractively() (*OptionValues, error) {
 		optionValues.Base[gt.Options.Base[i].Name()] = val
 	}
 
-	gt.printf("After loading the base parameters you now have the options to enable additional extensions.\n")
+	gt.printProgressf("\nAfter loading the base parameters you now have the option to enable additional extensions organized in different categories...\n\n")
 	for _, category := range gt.Options.Extensions {
-		// TODO: add question on whether category should be enabled/ asked
-		gt.printf("%s: %q\n", color.New(color.Underline).Sprint("CATEGORY"), category.Name)
+		gt.printCategory(category.Name)
 		optionValues.Extensions[category.Name] = OptionNameToValue{}
 
 		for i := range category.Options {

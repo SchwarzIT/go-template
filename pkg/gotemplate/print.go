@@ -2,6 +2,7 @@ package gotemplate
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
 )
@@ -37,4 +38,10 @@ func (gt *GT) printBanner() {
 	gt.printf("This command will walk you through creating a new project.\n\n")
 	gt.printf("Enter a value or leave blank to accept the (default), and press %s.\n", highlight("<ENTER>"))
 	gt.printf("Press %s at any time to quit.\n\n", highlight("^C"))
+}
+
+func (gt *GT) printCategory(category string) {
+	gt.printf(" --\n")
+	gt.printf("| CATEGORY: %q\n", strings.ToUpper(category))
+	gt.printf(" --\n")
 }
