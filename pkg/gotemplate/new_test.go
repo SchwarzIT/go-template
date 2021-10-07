@@ -167,9 +167,15 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 	}
 
 	optionValue := "someValue with spaces"
-	t.Run("reads values from stdin", func(t *testing.T) {
+	t.Run("reads values (base and extensions) from stdin", func(t *testing.T) {
+		optionValue := "someOtherValue"
+		categoryName := "grpc"
+		categoryOptionName := "base"
+		out := &bytes.Buffer{}
+
 		// simulate writing the value to stdin
-		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "\n"))
+		gt.InScanner = bufio.NewScanner(strings.NewReader(fmt.Sprintf("%s\n true\n", optionValue)))
+		gt.Out = out
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				optionName,
@@ -177,10 +183,34 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 				gotemplate.StaticValue("theDefault"),
 			),
 		}
+		gt.Options.Extensions = []gotemplate.Category{
+			{
+				Name: categoryName,
+				Options: []gotemplate.Option{
+					gotemplate.NewOption(
+						categoryOptionName,
+						gotemplate.StringValue("desc"),
+						gotemplate.StaticValue(false),
+					),
+				},
+			},
+		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, gotemplate.OptionNameToValue{optionName: optionValue}, optionValues.Base)
+		assert.Equal(
+			t,
+			&gotemplate.OptionValues{
+				Base: gotemplate.OptionNameToValue{optionName: optionValue},
+				Extensions: map[string]gotemplate.OptionNameToValue{
+					categoryName: {
+						categoryOptionName: true,
+					},
+				},
+			},
+			optionValues,
+		)
+		assert.Contains(t, out.String(), "CATEGORY")
 	})
 
 	t.Run("checks regex if it is set and retry if no match", func(t *testing.T) {
