@@ -20,7 +20,7 @@
   
 ## Options
 
-To get an overview of all options that can be set for the template you can take a look at the [options definition file](options.yml).
+To get an overview of all options that can be set for the template you can take a look at the [options definition file](pkg/gotemplate/options.go).
 
 ## Usage
 

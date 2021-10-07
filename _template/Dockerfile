@@ -2,7 +2,7 @@
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY out/bin/{{.appName}} .
+COPY out/bin/{{.Base.appName}} .
 USER nonroot:nonroot
 
-ENTRYPOINT ["/{{.appName}}"]
+ENTRYPOINT ["/{{.Base.appName}}"]

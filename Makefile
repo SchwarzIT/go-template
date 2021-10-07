@@ -48,6 +48,12 @@ out/lint.xml: $(GOLANGCI_LINT) out download
 test: ## Runs all tests
 	go test ./...
 
+coverage: out/report.json ## Displays coverage per func on cli
+	go tool cover -func=out/cover.out
+
+html-coverage: out/report.json ## Displays the coverage results in the browser
+	go tool cover -html=out/cover.out
+
 test-reports: out/report.json
 
 .PHONY: out/report.json

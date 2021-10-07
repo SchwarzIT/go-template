@@ -1,8 +1,11 @@
-projectName: Testing Project
-projectSlug: testing-project
-projectDescription: Some project used for testing
-appName: testing
-moduleName: github.com/fake/testing
-golangciVersion: v1.42.1
-grpcEnabled: false
-grpcGatewayEnabled: false
+base:
+  projectName: Testing Project
+  projectSlug: testing-project
+  projectDescription: Some project used for testing
+  appName: testing
+  moduleName: github.com/fake/testing
+  golangciVersion: 1.42.1
+extensions:
+  grpc:
+    base: false
+    grpcGateway: false

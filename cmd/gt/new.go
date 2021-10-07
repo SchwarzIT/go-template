@@ -47,7 +47,7 @@ To get further information look at the flag's documentation.
 				return err
 			}
 
-			opts.ConfigValues = configValues
+			opts.OptionValues = configValues
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -64,28 +64,29 @@ It should either be a json or a yaml file.
 An example file could look like:
 
 // values.yaml
-parameters:
-    projectName: Some Project
-    projectSlug: some-project
-    projectDescription: Some random project
-    appName: somecli
-    moduleName: github.com/some-user/some-project
-    golangciVersion: 1.42.1
-integrations:
-    grpcEnabled: true
-    grpcGatewayEnabled: false`,
+base:
+  projectName: Some Project
+  projectSlug: some-project
+  projectDescription: Some random project
+  appName: somecli
+  moduleName: github.com/some-user/some-project
+  golangciVersion: 1.42.1
+extensions:
+  grpc:
+    base: true
+    grpcGateway: false`,
 	)
 
-	cmd.Flags().StringVar(
-		&opts.CWD, "cwd", "./",
-		`Current working directory.
-Can be set to decide where to create the new project folder,
+	cmd.Flags().StringVarP(
+		&opts.OutputDir,
+		"outputDir", "o", "./",
+		`Output directory for the newly created project folder.
 `)
 
 	return cmd
 }
 
-func getValues(gt *gotemplate.GT, configFile string) (map[string]interface{}, error) {
+func getValues(gt *gotemplate.GT, configFile string) (*gotemplate.OptionValues, error) {
 	if configFile != "" {
 		return gt.LoadConfigValuesFromFile(configFile)
 	}

@@ -2,9 +2,9 @@ package gotemplate
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
-	"github.com/schwarzit/go-template/pkg/option"
 )
 
 func (gt *GT) printProgressf(format string, a ...interface{}) {
@@ -25,17 +25,25 @@ func (gt *GT) printWarningf(format string, a ...interface{}) {
 	_, _ = fmt.Fprintln(gt.Err)
 }
 
-func (gt *GT) printOption(opts *option.Option) {
+func (gt *GT) printOption(opts *Option, optionValues *OptionValues) {
 	highlight := color.New(color.FgCyan).SprintFunc()
 	underline := color.New(color.FgHiYellow, color.Underline).SprintFunc()
-	gt.printf("%s\n", underline(opts.Description))
-	gt.printf("%s: (%v) ", highlight(opts.Name), opts.Default)
+	gt.printf("%s\n", underline(opts.Description(optionValues)))
+	gt.printf("%s: (%v) ", highlight(opts.Name()), opts.Default(optionValues))
 }
 
 func (gt *GT) printBanner() {
 	highlight := color.New(color.FgCyan).SprintFunc()
 	gt.printf("Hi! Welcome to the %s cli.\n", highlight("go/template"))
-	gt.printf("This command will walk you through creating a new project.\n\n")
+	gt.printf("This command will walk you through creating a new project.\n")
+	gt.printf("You will first be asked to set values for the base paremeters that are needed for the minimal setup.\n")
+	gt.printf("Afterwards you will get the opportunity to enable several extensions to extend the template's functionality.\n\n")
 	gt.printf("Enter a value or leave blank to accept the (default), and press %s.\n", highlight("<ENTER>"))
 	gt.printf("Press %s at any time to quit.\n\n", highlight("^C"))
+}
+
+func (gt *GT) printCategory(category string) {
+	gt.printf(" --\n")
+	gt.printf("| CATEGORY: %q\n", strings.ToUpper(category))
+	gt.printf(" --\n")
 }

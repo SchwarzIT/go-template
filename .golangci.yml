@@ -115,6 +115,10 @@ issues:
     - path: config/|embed\.go
       linters:
         - gochecknoglobals
+    - path: pkg/gotemplate/options\.go
+      linters:
+        # numbers used for options that support multiple options
+        - gomnd
     - path: _test\.go
       linters:
         - gomnd

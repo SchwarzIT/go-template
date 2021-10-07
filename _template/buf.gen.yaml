@@ -6,7 +6,7 @@ plugins:
   - name: go-grpc
     out: internal/pkg/api/pb
     opt: paths=source_relative,require_unimplemented_servers=true
-{{if .grpcGatewayEnabled}}
+{{if .Extensions.grpc.grpcGateway}}
   - name: grpc-gateway
     out: internal/pkg/api/pb
     opt: paths=source_relative

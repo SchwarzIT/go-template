@@ -12,7 +12,6 @@ import (
 	"testing"
 
 	"github.com/schwarzit/go-template/pkg/gotemplate"
-	"github.com/schwarzit/go-template/pkg/option"
 	"github.com/stretchr/testify/assert"
 	"sigs.k8s.io/yaml"
 )
@@ -23,23 +22,23 @@ const (
 )
 
 func TestNewRepositoryOptions_Validate(t *testing.T) {
-	t.Run("CWD does not exist", func(t *testing.T) {
+	t.Run("OutputDir does not exist", func(t *testing.T) {
 		opts := gotemplate.NewRepositoryOptions{
-			CWD: "random-dir-that-does-not-exist",
+			OutputDir: "random-dir-that-does-not-exist",
 		}
 
 		assert.Error(t, opts.Validate())
 	})
 
-	t.Run("CWD is not set", func(t *testing.T) {
+	t.Run("OutputDir is not set", func(t *testing.T) {
 		opts := gotemplate.NewRepositoryOptions{}
 
 		assert.NoError(t, opts.Validate())
 	})
 
-	t.Run("CWD set to valid dir", func(t *testing.T) {
+	t.Run("OutputDir set to valid dir", func(t *testing.T) {
 		opts := gotemplate.NewRepositoryOptions{
-			CWD: t.TempDir(),
+			OutputDir: t.TempDir(),
 		}
 
 		assert.NoError(t, opts.Validate())
@@ -48,85 +47,170 @@ func TestNewRepositoryOptions_Validate(t *testing.T) {
 
 func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 	gt := gotemplate.GT{
-		Configs: option.Configuration{
-			Parameters: []option.Option{
-				{
-					Name:    optionName,
-					Default: "theDefault",
-				},
+		Options: &gotemplate.Options{
+			Base: []gotemplate.Option{
+				gotemplate.NewOption(optionName, gotemplate.StringValue("description"), gotemplate.StaticValue("theDefault")),
 			},
 		},
 	}
 
-	t.Run("reads values from file", func(t *testing.T) {
-		dir := t.TempDir()
-		testFile := path.Join(dir, "test.yml")
-		optionValue := "someOtherValue"
-		testFileContent := fmt.Sprintf(`---
-parameters:
-    %s: %s
-`, optionName, optionValue)
-		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
-		assert.NoError(t, err)
+	t.Run("reads values (base and extensions) from file", func(t *testing.T) {
+		optionValue := "someValue"
+		categoryName := "someCategory"
+		categoryOptionName := "someCategoryOptionName"
 
-		values, err := gt.LoadConfigValuesFromFile(testFile)
+		gt.Options.Extensions = []gotemplate.Category{
+			{
+				Name: categoryName,
+				Options: []gotemplate.Option{
+					gotemplate.NewOption(
+						categoryOptionName,
+						gotemplate.StringValue("desc"),
+						gotemplate.StaticValue(false),
+					),
+				},
+			},
+		}
+
+		optionValues, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+base:
+    %s: %s
+extensions:
+    %s:
+        %s: true`, optionName, optionValue, categoryName, categoryOptionName))
+
 		assert.NoError(t, err)
-		assert.Equal(t, map[string]interface{}{optionName: optionValue}, values)
+		assert.Equal(
+			t,
+			&gotemplate.OptionValues{
+				Base: gotemplate.OptionNameToValue{optionName: optionValue},
+				Extensions: map[string]gotemplate.OptionNameToValue{
+					categoryName: {
+						categoryOptionName: true,
+					},
+				},
+			},
+			optionValues,
+		)
 	})
 
 	t.Run("validates that parameters are not empty", func(t *testing.T) {
-		dir := t.TempDir()
-		testFile := path.Join(dir, "test.yml")
-		testFileContent := fmt.Sprintf(`---
-parameters:
-    %s: ""
-`, optionName)
-		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
-		assert.NoError(t, err)
+		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+base:
+    %s: ""`, optionName))
 
-		_, err = gt.LoadConfigValuesFromFile(testFile)
 		assert.ErrorIs(t, err, gotemplate.ErrParameterNotSet)
 	})
 
-	t.Run("validates regex if set", func(t *testing.T) {
-		gt.Configs.Parameters[0].Regex = option.Regex{
-			Pattern:     `[a-z1-9]+(-[a-z1-9]+)*$`,
-			Description: "only lowercase letters and dashes",
-		}
+	t.Run("validates validator if set", func(t *testing.T) {
+		gt.Options.Base[0] = gotemplate.NewOption(
+			optionName,
+			gotemplate.StringValue("description"),
+			gotemplate.StaticValue("theDefault"),
+			gotemplate.WithValidator(gotemplate.RegexValidator(
+				`[a-z1-9]+(-[a-z1-9]+)*$`,
+				"only lowercase letters and dashes",
+			)),
+		)
 
-		dir := t.TempDir()
-		testFile := path.Join(dir, "test.yml")
-		testFileContent := fmt.Sprintf(`---
-parameters:
-    %s: "NOT_A_VALID_VALUE"
-`, optionName)
-		err := os.WriteFile(testFile, []byte(testFileContent), os.ModePerm)
-		assert.NoError(t, err)
+		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+base:
+    %s: "NOT_A_VALID_VALUE"`, optionName))
 
-		_, err = gt.LoadConfigValuesFromFile(testFile)
 		assert.ErrorIs(t, err, gotemplate.ErrMalformedInput)
 	})
+
+	t.Run("error on type mismatch", func(t *testing.T) {
+		gt.Options.Base[0] = gotemplate.NewOption(
+			optionName,
+			gotemplate.StringValue("description"),
+			gotemplate.StaticValue(false),
+		)
+
+		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+base:
+    %s: "not a bool"`, optionName))
+
+		var errTypeMismatch *gotemplate.ErrTypeMismatch
+		assert.ErrorAs(t, err, &errTypeMismatch)
+	})
+
+	t.Run("error if option is set but shouldDisplay returns false", func(t *testing.T) {
+		gt.Options.Base[0] = gotemplate.NewOption(
+			optionName,
+			gotemplate.StringValue("description"),
+			gotemplate.StaticValue(true),
+			gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
+		)
+
+		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+base:
+    %s: true`, optionName))
+
+		assert.ErrorIs(t, err, gotemplate.ErrParameterSet)
+	})
+}
+
+func loadValueFromTestFile(t *testing.T, gt gotemplate.GT, contents string) (*gotemplate.OptionValues, error) {
+	dir := t.TempDir()
+	testFile := path.Join(dir, "test.yml")
+	err := os.WriteFile(testFile, []byte(contents), os.ModePerm)
+	assert.NoError(t, err)
+
+	return gt.LoadConfigValuesFromFile(testFile)
 }
 
 func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 	gt := gotemplate.GT{
 		Streams: gotemplate.Streams{Out: &bytes.Buffer{}},
+		Options: &gotemplate.Options{},
 	}
 
 	optionValue := "someValue with spaces"
-	t.Run("reads values from stdin", func(t *testing.T) {
+	t.Run("reads values (base and extensions) from stdin", func(t *testing.T) {
+		optionValue := "someOtherValue"
+		categoryName := "grpc"
+		categoryOptionName := "base"
+		out := &bytes.Buffer{}
+
 		// simulate writing the value to stdin
-		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "\n"))
-		gt.Configs.Parameters = []option.Option{
+		gt.InScanner = bufio.NewScanner(strings.NewReader(fmt.Sprintf("%s\n true\n", optionValue)))
+		gt.Out = out
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(
+				optionName,
+				gotemplate.StringValue("desc"),
+				gotemplate.StaticValue("theDefault"),
+			),
+		}
+		gt.Options.Extensions = []gotemplate.Category{
 			{
-				Name:    optionName,
-				Default: "theDefault",
+				Name: categoryName,
+				Options: []gotemplate.Option{
+					gotemplate.NewOption(
+						categoryOptionName,
+						gotemplate.StringValue("desc"),
+						gotemplate.StaticValue(false),
+					),
+				},
 			},
 		}
 
-		values, err := gt.LoadConfigValuesInteractively()
+		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, map[string]interface{}{optionName: optionValue}, values)
+		assert.Equal(
+			t,
+			&gotemplate.OptionValues{
+				Base: gotemplate.OptionNameToValue{optionName: optionValue},
+				Extensions: map[string]gotemplate.OptionNameToValue{
+					categoryName: {
+						categoryOptionName: true,
+					},
+				},
+			},
+			optionValues,
+		)
+		assert.Contains(t, out.String(), "CATEGORY")
 	})
 
 	t.Run("checks regex if it is set and retry if no match", func(t *testing.T) {
@@ -134,22 +218,23 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		out := &bytes.Buffer{}
 		gt.Err = out
 		gt.InScanner = bufio.NewScanner(strings.NewReader("DOES_NOT_MATCH\n matches-the-regex\n"))
-		gt.Configs.Parameters = []option.Option{
-			{
-				Name:    optionName,
-				Default: "theDefault",
-				Regex: option.Regex{
-					Pattern:     `[a-z1-9]+(-[a-z1-9]+)*$`,
-					Description: "only lowercase letters and dashes",
-				},
-			},
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(
+				optionName,
+				gotemplate.StringValue("desc"),
+				gotemplate.StaticValue("DOES_NOT_MATCH"),
+				gotemplate.WithValidator(gotemplate.RegexValidator(
+					`[a-z1-9]+(-[a-z1-9]+)*$`,
+					"only lowercase letters and dashes",
+				)),
+			),
 		}
 
-		values, err := gt.LoadConfigValuesInteractively()
+		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, map[string]interface{}{optionName: "matches-the-regex"}, values)
+		assert.Equal(t, gotemplate.OptionNameToValue{optionName: "matches-the-regex"}, optionValues.Base)
 		assert.Contains(t, out.String(), "WARNING")
-		assert.Contains(t, out.String(), "only lowercase letters and dashes", "should include regex description in warning message")
+		assert.Contains(t, out.String(), "invalid pattern", "should include regex description in warning message")
 	})
 
 	t.Run("checks regex on defaults as well", func(t *testing.T) {
@@ -157,20 +242,21 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		out := &bytes.Buffer{}
 		gt.Err = out
 		gt.InScanner = bufio.NewScanner(strings.NewReader("\nmatches-the-regex"))
-		gt.Configs.Parameters = []option.Option{
-			{
-				Name:    optionName,
-				Default: "DOES_NOT_MATCH",
-				Regex: option.Regex{
-					Pattern:     `[a-z1-9]+(-[a-z1-9]+)*$`,
-					Description: "only lowercase letters and dashes",
-				},
-			},
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(
+				optionName,
+				gotemplate.StringValue("desc"),
+				gotemplate.StaticValue("DOES_NOT_MATCH"),
+				gotemplate.WithValidator(gotemplate.RegexValidator(
+					`[a-z1-9]+(-[a-z1-9]+)*$`,
+					"only lowercase letters and dashes",
+				)),
+			),
 		}
 
-		values, err := gt.LoadConfigValuesInteractively()
+		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, map[string]interface{}{optionName: "matches-the-regex"}, values)
+		assert.Equal(t, gotemplate.OptionNameToValue{optionName: "matches-the-regex"}, optionValues.Base)
 		assert.Contains(t, out.String(), "WARNING")
 	})
 
@@ -178,41 +264,48 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		out := &bytes.Buffer{}
 		gt.Err = out
 		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "not a bool\ntrue\n"))
-		gt.Configs.Parameters = []option.Option{
-			{
-				Name:    optionName,
-				Default: false,
-			},
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(optionName, gotemplate.StringValue("desc"), gotemplate.StaticValue(false)),
 		}
 
-		values, err := gt.LoadConfigValuesInteractively()
+		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, map[string]interface{}{optionName: true}, values)
+		assert.Equal(t, gotemplate.OptionNameToValue{optionName: true}, optionValues.Base)
 		assert.Contains(t, out.String(), "WARNING")
 	})
 
-	t.Run("applies templates from earlier options and uses default if not set", func(t *testing.T) {
+	t.Run("renders dynamic values correctly", func(t *testing.T) {
 		templateOptionName := "templatedOption"
-		templatedOptionDefault := fmt.Sprintf(`{{.%s}}-templated`, optionName)
 		// simulate setting a value for first option and use default for next
 		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "\n\n"))
-		gt.Configs.Parameters = []option.Option{
-			{
-				Name:    optionName,
-				Default: "theDefault",
-			},
-			{
-				Name:    templateOptionName,
-				Default: templatedOptionDefault,
-			},
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(
+				optionName,
+				gotemplate.StringValue("desc"),
+				gotemplate.StaticValue("theDefault"),
+			),
+			gotemplate.NewOption(
+				templateOptionName,
+				gotemplate.StringValue("desc"),
+				gotemplate.DynamicValue(func(vals *gotemplate.OptionValues) interface{} {
+					return vals.Base[optionName].(string) + "-templated"
+				}),
+			),
 		}
 
-		values, err := gt.LoadConfigValuesInteractively()
+		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, map[string]interface{}{optionName: optionValue, templateOptionName: fmt.Sprintf("%s-templated", optionValue)}, values)
+		assert.Equal(
+			t,
+			gotemplate.OptionNameToValue{
+				optionName:         optionValue,
+				templateOptionName: fmt.Sprintf("%s-templated", optionValue),
+			},
+			optionValues.Base,
+		)
 	})
 
-	t.Run("does not display options that have dependencies that are not met", func(t *testing.T) {
+	t.Run("does not display options that have shouldDisplay returning false", func(t *testing.T) {
 		dependentOptionName := "dependentOption"
 		// simulate accepting the defaults
 		gt.InScanner = bufio.NewScanner(strings.NewReader("\n\n"))
@@ -220,49 +313,65 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		out := &bytes.Buffer{}
 		gt.Out = out
 
-		gt.Configs.Parameters = []option.Option{
-			{
-				Name:    optionName,
-				Default: false,
-			},
-			{
-				Name:      dependentOptionName,
-				Default:   false,
-				DependsOn: []string{optionName},
-			},
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(
+				dependentOptionName,
+				gotemplate.StringValue("desc"),
+				gotemplate.StaticValue(false),
+				gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
+			),
 		}
 
-		values, err := gt.LoadConfigValuesInteractively()
+		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, len(values), 1)
-		assert.Contains(t, out.String(), optionName)
+		assert.Equal(t, len(optionValues.Base), 0)
 		assert.NotContains(t, out.String(), dependentOptionName)
 	})
 
 	t.Run("parses non string values", func(t *testing.T) {
 		intOptionName := "intOption"
-		// simulate accepting the defaults
 		gt.InScanner = bufio.NewScanner(strings.NewReader("false\n4\n"))
 
 		out := &bytes.Buffer{}
 		gt.Out = out
 
-		gt.Configs.Parameters = []option.Option{
-			{
-				Name:    optionName,
-				Default: true,
-			},
-			{
-				Name:    intOptionName,
-				Default: 3,
-			},
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(
+				optionName,
+				gotemplate.StringValue("desc"),
+				gotemplate.StaticValue(true),
+			),
+			gotemplate.NewOption(
+				intOptionName,
+				gotemplate.StringValue("desc"),
+				gotemplate.StaticValue(3),
+			),
 		}
 
-		values, err := gt.LoadConfigValuesInteractively()
+		optionValues, err := gt.LoadConfigValuesInteractively()
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(values))
-		assert.Equal(t, false, values[optionName])
-		assert.Equal(t, 4, values[intOptionName])
+		assert.Equal(t, 2, len(optionValues.Base))
+		assert.Equal(t, false, optionValues.Base[optionName])
+		assert.Equal(t, 4, optionValues.Base[intOptionName])
+	})
+	t.Run("panics if default type is not supported", func(t *testing.T) {
+		gt.InScanner = bufio.NewScanner(strings.NewReader("3.0\n"))
+
+		out := &bytes.Buffer{}
+		gt.Out = out
+
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(
+				optionName,
+				gotemplate.StringValue("desc"),
+				// currently float is not supported
+				gotemplate.StaticValue(2.0),
+			),
+		}
+
+		assert.PanicsWithValue(t, "unsupported type", func() {
+			gt.LoadConfigValuesInteractively()
+		})
 	})
 }
 
@@ -274,14 +383,14 @@ func TestGT_InitNewProject(t *testing.T) {
 	testValuesBytes, err := os.ReadFile("./testdata/values.yml")
 	assert.NoError(t, err)
 
-	var values map[string]interface{}
-	err = yaml.Unmarshal(testValuesBytes, &values)
+	var optionValues gotemplate.OptionValues
+	err = yaml.Unmarshal(testValuesBytes, &optionValues)
 	assert.NoError(t, err)
 
-	opts := &gotemplate.NewRepositoryOptions{ConfigValues: values}
+	opts := &gotemplate.NewRepositoryOptions{OptionValues: &optionValues}
 	t.Run("generates folder in target dir and initializes it with go.mod and .git", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		opts.CWD = tmpDir
+		opts.OutputDir = tmpDir
 
 		err = gt.InitNewProject(opts)
 		assert.NoError(t, err)
@@ -295,7 +404,7 @@ func TestGT_InitNewProject(t *testing.T) {
 
 	t.Run("all templates should be resolved (in files and fileNames)", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		opts.CWD = tmpDir
+		opts.OutputDir = tmpDir
 
 		err := gt.InitNewProject(opts)
 		assert.NoError(t, err)
@@ -329,7 +438,7 @@ func TestGT_InitNewProject(t *testing.T) {
 
 	t.Run("error if target dir already exists", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		opts.CWD = tmpDir
+		opts.OutputDir = tmpDir
 
 		err := os.MkdirAll(getTargetDir(tmpDir, opts), os.ModePerm)
 		assert.NoError(t, err)
@@ -342,9 +451,13 @@ func TestGT_InitNewProject(t *testing.T) {
 		tmpDir := t.TempDir()
 		// force error with empty values
 		err = gt.InitNewProject(
-			&gotemplate.NewRepositoryOptions{CWD: tmpDir, ConfigValues: map[string]interface{}{
-				targetDirOptionName: "testingDir",
-			}},
+			&gotemplate.NewRepositoryOptions{
+				OutputDir: tmpDir,
+				OptionValues: &gotemplate.OptionValues{
+					Base: gotemplate.OptionNameToValue{
+						targetDirOptionName: "testingDir",
+					},
+				}},
 		)
 		assert.Error(t, err)
 
@@ -352,44 +465,48 @@ func TestGT_InitNewProject(t *testing.T) {
 		assert.ErrorIs(t, err, os.ErrNotExist)
 	})
 
-	t.Run("files for integrations are properly deleted or added", func(t *testing.T) {
-		for _, opt := range gt.Configs.Parameters {
-			if _, ok := opt.Default.(bool); !ok {
-				continue
-			}
+	t.Run("postHook not executed if value not set", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		opts.OutputDir = tmpDir
 
-			for _, enabled := range []bool{true, false} {
-				t.Run(fmt.Sprintf("%s: %t", opt.Name, enabled), func(t *testing.T) {
-					tmpDir := t.TempDir()
-					values[opt.Name] = enabled
+		postHookTriggered := false
+		gt.Options.Base = append(gt.Options.Base, gotemplate.NewOption(
+			"testOption",
+			gotemplate.StringValue("desc"),
+			gotemplate.StaticValue(true),
+			gotemplate.WithPosthook(func(value interface{}, optionValues *gotemplate.OptionValues, targetDir string) error {
+				postHookTriggered = true
+				return nil
+			}),
+		))
 
-					opts := &gotemplate.NewRepositoryOptions{CWD: tmpDir, ConfigValues: values}
-					err := gt.InitNewProject(opts)
-					assert.NoError(t, err)
+		err := gt.InitNewProject(opts)
+		assert.NoError(t, err)
+		assert.False(t, postHookTriggered, "postHook should not be triggered")
+	})
 
-					for _, file := range opt.Files.Add {
-						_, err := os.Stat(path.Join(getTargetDir(tmpDir, opts), file))
-						if enabled {
-							assert.NoErrorf(t, err, "file %s should exist", file)
-						} else {
-							assert.ErrorIsf(t, err, os.ErrNotExist, "file %s should be gone", file)
-						}
-					}
+	t.Run("postHook is executed if value is set", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		opts.OutputDir = tmpDir
+		opts.OptionValues.Base["testOption"] = true
 
-					for _, file := range opt.Files.Remove {
-						_, err := os.Stat(path.Join(getTargetDir(tmpDir, opts), file))
-						if enabled {
-							assert.ErrorIsf(t, err, os.ErrNotExist, "file %s should be gone", file)
-						} else {
-							assert.NoErrorf(t, err, "file %s should exist", file)
-						}
-					}
-				})
-			}
-		}
+		postHookTriggered := false
+		gt.Options.Base = append(gt.Options.Base, gotemplate.NewOption(
+			"testOption",
+			gotemplate.StringValue("desc"),
+			gotemplate.StaticValue(false),
+			gotemplate.WithPosthook(func(value interface{}, optionValues *gotemplate.OptionValues, targetDir string) error {
+				postHookTriggered = true
+				return nil
+			}),
+		))
+
+		err := gt.InitNewProject(opts)
+		assert.NoError(t, err)
+		assert.True(t, postHookTriggered, "postHook should be triggered")
 	})
 }
 
 func getTargetDir(dir string, opts *gotemplate.NewRepositoryOptions) string {
-	return path.Join(dir, opts.ConfigValues[targetDirOptionName].(string))
+	return path.Join(dir, opts.OptionValues.Base[targetDirOptionName].(string))
 }
