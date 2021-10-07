@@ -330,7 +330,6 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 
 	t.Run("parses non string values", func(t *testing.T) {
 		intOptionName := "intOption"
-		// simulate accepting the defaults
 		gt.InScanner = bufio.NewScanner(strings.NewReader("false\n4\n"))
 
 		out := &bytes.Buffer{}
@@ -354,6 +353,25 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		assert.Equal(t, 2, len(optionValues.Base))
 		assert.Equal(t, false, optionValues.Base[optionName])
 		assert.Equal(t, 4, optionValues.Base[intOptionName])
+	})
+	t.Run("panics if default type is not supported", func(t *testing.T) {
+		gt.InScanner = bufio.NewScanner(strings.NewReader("3.0\n"))
+
+		out := &bytes.Buffer{}
+		gt.Out = out
+
+		gt.Options.Base = []gotemplate.Option{
+			gotemplate.NewOption(
+				optionName,
+				gotemplate.StringValue("desc"),
+				// currently float is not supported
+				gotemplate.StaticValue(2.0),
+			),
+		}
+
+		assert.PanicsWithValue(t, "unsupported type", func() {
+			gt.LoadConfigValuesInteractively()
+		})
 	})
 }
 
