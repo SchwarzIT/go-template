@@ -232,7 +232,14 @@ func initRepo(targetDir, moduleName string) error {
 	goModInit := exec.Command("go", "mod", "init", moduleName)
 	goModInit.Dir = targetDir
 
-	return goModInit.Run()
+	if err := goModInit.Run(); err != nil {
+		return err
+	}
+
+	goModTidy := exec.Command("go", "mod", "tidy")
+	goModTidy.Dir = targetDir
+
+	return goModTidy.Run()
 }
 
 func postHook(options *Options, optionValues *OptionValues, targetDir string) error {
