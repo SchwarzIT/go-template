@@ -22,23 +22,23 @@ const (
 )
 
 func TestNewRepositoryOptions_Validate(t *testing.T) {
-	t.Run("CWD does not exist", func(t *testing.T) {
+	t.Run("OutputDir does not exist", func(t *testing.T) {
 		opts := gotemplate.NewRepositoryOptions{
-			CWD: "random-dir-that-does-not-exist",
+			OutputDir: "random-dir-that-does-not-exist",
 		}
 
 		assert.Error(t, opts.Validate())
 	})
 
-	t.Run("CWD is not set", func(t *testing.T) {
+	t.Run("OutputDir is not set", func(t *testing.T) {
 		opts := gotemplate.NewRepositoryOptions{}
 
 		assert.NoError(t, opts.Validate())
 	})
 
-	t.Run("CWD set to valid dir", func(t *testing.T) {
+	t.Run("OutputDir set to valid dir", func(t *testing.T) {
 		opts := gotemplate.NewRepositoryOptions{
-			CWD: t.TempDir(),
+			OutputDir: t.TempDir(),
 		}
 
 		assert.NoError(t, opts.Validate())
@@ -55,9 +55,9 @@ func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 	}
 
 	t.Run("reads values (base and extensions) from file", func(t *testing.T) {
-		optionValue := "someOtherValue"
-		categoryName := "grpc"
-		categoryOptionName := "base"
+		optionValue := "someValue"
+		categoryName := "someCategory"
+		categoryOptionName := "someCategoryOptionName"
 
 		gt.Options.Extensions = []gotemplate.Category{
 			{
@@ -390,7 +390,7 @@ func TestGT_InitNewProject(t *testing.T) {
 	opts := &gotemplate.NewRepositoryOptions{OptionValues: &optionValues}
 	t.Run("generates folder in target dir and initializes it with go.mod and .git", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		opts.CWD = tmpDir
+		opts.OutputDir = tmpDir
 
 		err = gt.InitNewProject(opts)
 		assert.NoError(t, err)
@@ -404,7 +404,7 @@ func TestGT_InitNewProject(t *testing.T) {
 
 	t.Run("all templates should be resolved (in files and fileNames)", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		opts.CWD = tmpDir
+		opts.OutputDir = tmpDir
 
 		err := gt.InitNewProject(opts)
 		assert.NoError(t, err)
@@ -438,7 +438,7 @@ func TestGT_InitNewProject(t *testing.T) {
 
 	t.Run("error if target dir already exists", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		opts.CWD = tmpDir
+		opts.OutputDir = tmpDir
 
 		err := os.MkdirAll(getTargetDir(tmpDir, opts), os.ModePerm)
 		assert.NoError(t, err)
@@ -452,7 +452,7 @@ func TestGT_InitNewProject(t *testing.T) {
 		// force error with empty values
 		err = gt.InitNewProject(
 			&gotemplate.NewRepositoryOptions{
-				CWD: tmpDir,
+				OutputDir: tmpDir,
 				OptionValues: &gotemplate.OptionValues{
 					Base: gotemplate.OptionNameToValue{
 						targetDirOptionName: "testingDir",
@@ -467,7 +467,7 @@ func TestGT_InitNewProject(t *testing.T) {
 
 	t.Run("postHook not executed if value not set", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		opts.CWD = tmpDir
+		opts.OutputDir = tmpDir
 
 		postHookTriggered := false
 		gt.Options.Base = append(gt.Options.Base, gotemplate.NewOption(
@@ -487,7 +487,7 @@ func TestGT_InitNewProject(t *testing.T) {
 
 	t.Run("postHook is executed if value is set", func(t *testing.T) {
 		tmpDir := t.TempDir()
-		opts.CWD = tmpDir
+		opts.OutputDir = tmpDir
 		opts.OptionValues.Base["testOption"] = true
 
 		postHookTriggered := false

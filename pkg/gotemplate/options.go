@@ -253,14 +253,14 @@ The default points to "github.com" but for devops for example it would look sth.
 						name:         "base",
 						defaultValue: StaticValue(false),
 						description:  StringValue("Base configuration for gRPC"),
-						postHook: func(v interface{}, _ *OptionValues, cwd string) error {
+						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							set := v.(bool)
 							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.yaml", "api/openapi.v1.yaml"}
 
 							if set {
-								return os.RemoveAll(path.Join(cwd, "api/openapi.v1.yaml"))
+								return os.RemoveAll(path.Join(targetDir, "api/openapi.v1.yaml"))
 							}
-							return removeAllBut(cwd, files, "api/openapi.v1.yaml")
+							return removeAllBut(targetDir, files, "api/openapi.v1.yaml")
 						},
 					},
 					{
@@ -278,13 +278,13 @@ The default points to "github.com" but for devops for example it would look sth.
 }
 
 // removeAllBut removes all files in the toRemove slice except for the exception.
-func removeAllBut(cwd string, toRemove []string, exception string) error {
+func removeAllBut(targetDir string, toRemove []string, exception string) error {
 	for _, item := range toRemove {
 		if item == exception {
 			continue
 		}
 
-		if err := os.RemoveAll(path.Join(cwd, item)); err != nil {
+		if err := os.RemoveAll(path.Join(targetDir, item)); err != nil {
 			return err
 		}
 	}

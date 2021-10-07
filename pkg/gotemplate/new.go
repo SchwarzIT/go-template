@@ -34,17 +34,17 @@ func (e *ErrTypeMismatch) Error() string {
 }
 
 type NewRepositoryOptions struct {
-	CWD          string
+	OutputDir    string
 	OptionValues *OptionValues
 }
 
 // Validate validates all properties of NewRepositoryOptions except the ConfigValues, since those are validated by the Load functions.
 func (opts NewRepositoryOptions) Validate() error {
-	if opts.CWD == "" {
+	if opts.OutputDir == "" {
 		return nil
 	}
 
-	if _, err := os.Stat(opts.CWD); err != nil {
+	if _, err := os.Stat(opts.OutputDir); err != nil {
 		return err
 	}
 
@@ -128,7 +128,7 @@ func (gt *GT) LoadConfigValuesInteractively() (*OptionValues, error) {
 		optionValues.Base[gt.Options.Base[i].Name()] = val
 	}
 
-	gt.printProgressf("\nAfter loading the base parameters you now have the option to enable additional extensions organized in different categories...\n\n")
+	gt.printProgressf("\nYou now have the option to enable additional extensions (organized in different categories)...\n\n")
 	for _, category := range gt.Options.Extensions {
 		gt.printCategory(category.Name)
 		optionValues.Extensions[category.Name] = OptionNameToValue{}
@@ -164,7 +164,7 @@ func (gt *GT) loadOptionValueInteractively(option *Option, optionValues *OptionV
 func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 	gt.printProgressf("Generating repo folder...")
 
-	targetDir := path.Join(opts.CWD, opts.OptionValues.Base["projectSlug"].(string))
+	targetDir := path.Join(opts.OutputDir, opts.OptionValues.Base["projectSlug"].(string))
 	gt.printProgressf("Writing to %s...", targetDir)
 
 	if _, err := os.Stat(targetDir); !os.IsNotExist(err) {

@@ -65,22 +65,22 @@ An example file could look like:
 
 // values.yaml
 base:
-	projectName: Some Project
-	projectSlug: some-project
-	projectDescription: Some random project
-    appName: somecli
-    moduleName: github.com/some-user/some-project
-	golangciVersion: 1.42.1
+  projectName: Some Project
+  projectSlug: some-project
+  projectDescription: Some random project
+  appName: somecli
+  moduleName: github.com/some-user/some-project
+  golangciVersion: 1.42.1
 extensions:
-	grpc:
-		base: false
-		grpcGateway: false`,
+  grpc:
+    base: true
+    grpcGateway: false`,
 	)
 
-	cmd.Flags().StringVar(
-		&opts.CWD, "cwd", "./",
-		`Current working directory.
-Can be set to decide where to create the new project folder,
+	cmd.Flags().StringVarP(
+		&opts.OutputDir,
+		"outputDir", "o", "./",
+		`Output directory for the newly created project folder.
 `)
 
 	return cmd

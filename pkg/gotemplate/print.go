@@ -35,7 +35,9 @@ func (gt *GT) printOption(opts *Option, optionValues *OptionValues) {
 func (gt *GT) printBanner() {
 	highlight := color.New(color.FgCyan).SprintFunc()
 	gt.printf("Hi! Welcome to the %s cli.\n", highlight("go/template"))
-	gt.printf("This command will walk you through creating a new project.\n\n")
+	gt.printf("This command will walk you through creating a new project.\n")
+	gt.printf("You will first be asked to set values for the base paremeters that are needed for the minimal setup.\n")
+	gt.printf("Afterwards you will get the opportunity to enable several extensions to extend the template's functionality.\n\n")
 	gt.printf("Enter a value or leave blank to accept the (default), and press %s.\n", highlight("<ENTER>"))
 	gt.printf("Press %s at any time to quit.\n\n", highlight("^C"))
 }
