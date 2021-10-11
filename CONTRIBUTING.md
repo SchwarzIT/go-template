@@ -19,7 +19,10 @@ To contribute any code to this repository just do the following:
    > Please follow the [seven rules of greate Git commit messages](https://chris.beams.io/posts/git-commit/#seven-rules)
    > and make sure to keep your commits clean and atomic.
    > Your PR won't be squashed before merging so the commits should tell a story.
-   > 
+   >
+   > Sign-off on all Git commits by running `git commit -s`.
+   > Take a look at the [Gihub Docs](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits) for further information.
+   >
    > Add documentation and tests for your addition if needed.
 5. Run `make lint test` to ensure your code is ready to be merged
    > If any linting issues occur please fix them.
