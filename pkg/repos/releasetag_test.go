@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/pkg/errors"
 	"github.com/schwarzit/go-template/pkg/repos"
 	"github.com/stretchr/testify/assert"
