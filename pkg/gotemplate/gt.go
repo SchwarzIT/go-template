@@ -8,7 +8,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/Masterminds/sprig"
+	"github.com/Masterminds/sprig/v3"
 	"github.com/google/go-github/v39/github"
 	"github.com/schwarzit/go-template/pkg/repos"
 )
