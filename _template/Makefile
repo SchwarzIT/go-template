@@ -6,7 +6,7 @@ GOLANGCI_VERSION = {{.Base.golangciVersion}}
 DOCKER_REPO = {{.Base.appName}}
 DOCKER_TAG = latest
 
-all: git-hooks {{if .Extensions.grpc.base}}generate{{end}} tidy ## Initializes all tools
+all: git-hooks {{if .Extensions.grpc.base }}generate{{end}} tidy ## Initializes all tools
 
 out:
 	@mkdir -p out
@@ -71,7 +71,7 @@ clean: ## Cleans up everything
 docker: ## Builds docker image
 	docker buildx build -t $(DOCKER_REPO):$(DOCKER_TAG) .
 
-{{if .Extensions.grpc.base}}
+{{- if .Extensions.grpc.base }}
 # Go dependencies versioned through tools.go
 GO_DEPENDENCIES = google.golang.org/protobuf/cmd/protoc-gen-go \
 				google.golang.org/grpc/cmd/protoc-gen-go-grpc \
@@ -79,11 +79,12 @@ GO_DEPENDENCIES = google.golang.org/protobuf/cmd/protoc-gen-go \
 				github.com/bufbuild/buf/cmd/buf \
                 github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking \
                 github.com/bufbuild/buf/cmd/protoc-gen-buf-lint
-{{if .Extensions.grpc.grpcGateway}}
+
+{{- if .Extensions.grpc.grpcGateway }}
 # additional dependencies for grpc-gateway
 GO_DEPENDENCIES += github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
 				github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-{{end}}
+{{- end }}
 
 define make-go-dependency
   # target template for go tools, can be referenced e.g. via /bin/<tool>
@@ -104,12 +105,12 @@ api/proto/validate:
 	@mkdir -p api/proto/validate
 	curl -s https://raw.githubusercontent.com/envoyproxy/protoc-gen-validate/main/validate/validate.proto -o api/proto/validate/validate.proto
 
-{{if .Extensions.grpc.grpcGateway}}
+{{- if .Extensions.grpc.grpcGateway }}
 api/proto/protoc-gen-openapiv2:
 	@mkdir -p api/proto/protoc-gen-openapiv2/options
 	curl -s https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/master/protoc-gen-openapiv2/options/openapiv2.proto -o api/proto/protoc-gen-openapiv2/options/openapiv2.proto
 	curl -s https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/master/protoc-gen-openapiv2/options/annotations.proto -o api/proto/protoc-gen-openapiv2/options/annotations.proto
-{{end}}
+{{- end }}
 
 protolint: bin/buf bin/protoc-gen-buf-lint ## Lints your protobuf files
 	bin/buf lint
@@ -120,7 +121,7 @@ protobreaking: bin/buf bin/protoc-gen-buf-breaking ## Compares your current prot
 generate: ## Generates code from protobuf files
 generate: api/proto/google api/proto/validate {{if .Extensions.grpc.grpcGateway}}api/proto/protoc-gen-openapiv2 bin/protoc-gen-grpc-gateway bin/protoc-gen-openapiv2{{end}} bin/buf bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
 	PATH=$(PWD)/bin:$$PATH buf generate --path api/proto/{{.Base.appName}}/v1/{{.Base.appName}}.proto
-{{end}}
+{{- end }}
 
 ci: lint-reports test-reports ## Executes lint and test and generates reports
 

@@ -6,13 +6,13 @@ plugins:
   - name: go-grpc
     out: internal/pkg/api/pb
     opt: paths=source_relative,require_unimplemented_servers=true
-{{if .Extensions.grpc.grpcGateway}}
+{{- if .Extensions.grpc.grpcGateway }}
   - name: grpc-gateway
     out: internal/pkg/api/pb
     opt: paths=source_relative
   - name: openapiv2
     out: api/openapi
-{{end}}
+{{- end }}
   - name: validate
     out: internal/pkg/api/pb
     opt: paths=source_relative,lang=go

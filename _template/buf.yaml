@@ -8,9 +8,9 @@ lint:
   ignore:
     - google
     - validate
-{{if .Extensions.grpc.grpcGateway}}
+{{- if .Extensions.grpc.grpcGateway }}
     - protoc-gen-openapiv2
-{{end}}
+{{- end }}
   except:
     - RPC_RESPONSE_STANDARD_NAME
     - RPC_REQUEST_RESPONSE_UNIQUE
