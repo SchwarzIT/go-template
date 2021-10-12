@@ -6,6 +6,10 @@
 
 `go/template` is a tool for jumpstarting production-ready Go projects quickly.
 
+![go/template logo](docs/gotemplate.png)
+> Credit to Renée French for the [Go Gopher logo](https://go.dev/blog/gopher)  
+> Credit to Go Authors for the [official Go logo](https://go.dev/blog/go-brand)
+
 ## Batteries included
 
 - Makefile for most common tasks
