@@ -1,6 +1,3 @@
-# TODO: add goreleaser
-# TODO: ginkgo support?
-
 SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
@@ -9,104 +6,70 @@ GOLANGCI_VERSION = {{.Base.golangciVersion}}
 DOCKER_REPO = {{.Base.appName}}
 DOCKER_TAG = latest
 
-bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
-	@ln -sf golangci-lint-$(GOLANGCI_VERSION) $@
-
-bin/golangci-lint-$(GOLANGCI_VERSION):
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b bin v$(GOLANGCI_VERSION)
-	@mv bin/golangci-lint $@
+all: git-hooks {{if .Extensions.grpc.base}}generate{{end}} tidy ## Initializes all tools
 
 out:
 	@mkdir -p out
 
-out/bin:
-	@mkdir -p out/bin
-
-.PHONY: git-hooks
-git-hooks: ## Binds the defined hooks from local .githooks directory to git config
+git-hooks:
 	@git config --local core.hooksPath .githooks/
 
-.PHONY: all
-all: git-hooks tidy {{if .Extensions.grpc.base}}generate{{end}} ## Initializes all tools
-	@go mod tidy # hack to run tidy again after generating
-
-.PHONY: env-%
-env-%:
-	@if [ "${${*}}" = "" ]; then \
-		echo "Environment variable $* not set"; \
-		exit 1; \
-	fi
-
-.PHONY: download
 download: ## Downloads the dependencies
-	go mod download
+	@go mod download
 
-.PHONY: tidy
 tidy: ## Cleans up go.mod and go.sum
-	go mod tidy
+	@go mod tidy
 
-.PHONY: vendor
-vendor: ## Vendors the packages to ./vendor
-	go mod vendor
-
-.PHONY: test-build
-test-build: download ## Tests whether the code compiles
-	go build -o /dev/null ./...
-
-.PHONY: build
-build: download out/bin ## Builds all binaries
-	CGO_ENABLED=0 go build -ldflags="-w -s" -o out/bin ./...
-
-.PHONY: build-linux
-build-linux: download out/bin ## Builds all binaries for linux
-	CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags="-w -s" -o out/bin ./...
-
-.PHONY: fmt
 fmt: ## Formats all code with go fmt
 	@go fmt ./...
 
-.PHONY: release
-release:
-	# TODO: goreleaser
+run: fmt ## Run the app
+	@go run ./cmd/{{.Base.appName}}/main.go
 
-.PHONY: lint
-lint: bin/golangci-lint download ## Lints all code with golangci-lint
-	bin/golangci-lint run
+test-build: ## Tests whether the code compiles
+	@go build -o /dev/null ./...
 
-.PHONY: lint-reports
-lint-reports: bin/golangci-lint out download ## Lints all code with golangci-lint and generates report
-	bin/golangci-lint run ./... --out-format checkstyle > out/lint.xml
+build: out/bin ## Builds all binaries
 
-.PHONY: fix
-fix: bin/golangci-lint ## Fix lint violations
-	bin/golangci-lint run --fix
+GO_BUILD = mkdir -pv "$(@)" && go build -ldflags="-w -s" -o "$(@)" ./...
+.PHONY: out/bin
+out/bin:
+	$(GO_BUILD)
 
-.PHONY: test
-test: download ## Runs all tests
-	go test ./...
+GOLANGCI_LINT = bin/golangci-lint-$(GOLANGCI_VERSION)
+$(GOLANGCI_LINT):
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b bin v$(GOLANGCI_VERSION)
+	@mv bin/golangci-lint "$(@)"
 
-.PHONY: test-reports
-test-reports: out download ## Runs all tests and generates reports
-	go test ./... -coverprofile=out/cover.out --json |tee out/report.json
+lint: fmt $(GOLANGCI_LINT) download ## Lints all code with golangci-lint
+	@$(GOLANGCI_LINT) run
 
-.PHONY: clean-bin
-clean-bin: ## Cleans local binary folders
-	@rm -rf bin testbin
+lint-reports: out/lint.xml
 
-.PHONY: clean-outputs
-clean-outputs: ## Cleans output folders out, vendor
-	@rm -rf out vendor api/proto/google api/proto/validate {{if .Extensions.grpc.grpcGateway}}api/proto/protoc-gen-openapiv2{{end}}
+.PHONY: out/lint.xml
+out/lint.xml: $(GOLANGCI_LINT) out download
+	@$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
 
-.PHONY: clean-go
-clean-go: ## Cleans module file
-	@go mod tidy
+test: ## Runs all tests
+	@go test $(ARGS) ./...
 
-.PHONY: clean
-clean: clean-bin clean-outputs clean-go ## Cleans everything up
+coverage: out/report.json ## Displays coverage per func on cli
+	go tool cover -func=out/cover.out
 
-.PHONY: docker
-docker: build-linux ## Builds docker image
-	docker build -t $(DOCKER_REPO):$(DOCKER_TAG) .
+html-coverage: out/report.json ## Displays the coverage results in the browser
+	go tool cover -html=out/cover.out
+
+test-reports: out/report.json
+
+.PHONY: out/report.json
+out/report.json: out
+	@go test -count 1 ./... -coverprofile=out/cover.out --json | tee "$(@)"
+
+clean: ## Cleans up everything
+	@rm -rf bin out {{if .Extensions.grpc.base}}protodeps{{end}}
+
+docker: ## Builds docker image
+	docker buildx build -t $(DOCKER_REPO):$(DOCKER_TAG) .
 
 {{if .Extensions.grpc.base}}
 # Go dependencies versioned through tools.go
@@ -148,24 +111,19 @@ api/proto/protoc-gen-openapiv2:
 	curl -s https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/master/protoc-gen-openapiv2/options/annotations.proto -o api/proto/protoc-gen-openapiv2/options/annotations.proto
 {{end}}
 
-.PHONY: protolint
 protolint: bin/buf bin/protoc-gen-buf-lint ## Lints your protobuf files
 	bin/buf lint
 
-.PHONY: protobreaking
 protobreaking: bin/buf bin/protoc-gen-buf-breaking ## Compares your current protobuf with the version on master to find breaking changes
 	bin/buf breaking --against '.git#branch=master'
 
-.PHONY: generate
 generate: ## Generates code from protobuf files
 generate: api/proto/google api/proto/validate {{if .Extensions.grpc.grpcGateway}}api/proto/protoc-gen-openapiv2 bin/protoc-gen-grpc-gateway bin/protoc-gen-openapiv2{{end}} bin/buf bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
 	PATH=$(PWD)/bin:$$PATH buf generate --path api/proto/{{.Base.appName}}/v1/{{.Base.appName}}.proto
 {{end}}
 
-.PHONY: ci
 ci: lint-reports test-reports ## Executes lint and test and generates reports
 
-.PHONY: help
 help: ## Shows the help
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'
 	@echo ''
