@@ -4,7 +4,7 @@
 [![CI](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml)
 [![Semgrep](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml)
 
-`go/template` is a tool for jumpstarting production-ready Go projects quickly.
+`go/template` provides a **blueprint** for production-ready Go project layouts.
 
 ![go/template logo](docs/gotemplate.png)
 > Credit to Renée French for the [Go Gopher logo](https://go.dev/blog/gopher)  
