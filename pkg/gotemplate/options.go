@@ -255,12 +255,12 @@ The default points to "github.com" but for devops for example it would look sth.
 						description:  StringValue("Base configuration for gRPC"),
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							set := v.(bool)
-							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.yaml", "api/openapi.v1.yaml"}
+							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.yaml", "api/openapi.v1.yml"}
 
 							if set {
-								return os.RemoveAll(path.Join(targetDir, "api/openapi.v1.yaml"))
+								return os.RemoveAll(path.Join(targetDir, "api/openapi.v1.yml"))
 							}
-							return removeAllBut(targetDir, files, "api/openapi.v1.yaml")
+							return removeAllBut(targetDir, files, "api/openapi.v1.yml")
 						},
 					},
 					{
