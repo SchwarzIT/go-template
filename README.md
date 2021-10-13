@@ -4,7 +4,7 @@
 [![CI](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml)
 [![Semgrep](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml)
 
-`go/template` is a tool for jumpstarting production-ready Golang projects quickly.
+`go/template` is a tool for jumpstarting production-ready Go projects quickly.
 
 ## Batteries included
 
@@ -20,7 +20,7 @@
   
 ## Options
 
-To get an overview of all options that can be set for the template you can take a look at the [options definition file](pkg/gotemplate/options.go).
+To get an overview of all options that can be set for the template you can take a look at the [options definition file](pkg/gotemplate/options.go), run the CLI or check out the [testing example values file](pkg/gotemplate/testdata/values.yml).
 
 ## Usage
 
@@ -32,7 +32,7 @@ go install github.com/schwarzit/go-template/cmd/gt@latest
 
 ### Initialize your repo from the template
 
-Use the template the generate your repo:
+Use the template to generate your repo:
 
 ```bash
 gt new
@@ -52,9 +52,3 @@ make all
 | [@brumhard](https://github.com/brumhard)       | tobias.brumhard@mail.schwarz |
 | [@linuxluigi](https://github.com/linuxluigi)   | steffen.exler@mail.schwarz   |
 | [@danielzwink](https://github.com/danielzwink) | daniel.zwink@mail.schwarz    |
-
-## Contribution
-
-Contributions are very much appreciated.  
-If you have anything to add to the template you are welcome to open a PR.
-If your idea contains some major changes please open an issue to discuss first.
