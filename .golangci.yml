@@ -112,9 +112,10 @@ issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
     # config folder and embed.go only contain globals
-    - path: config/|embed\.go
+    - path: config/|embed(_gen)?\.go
       linters:
         - gochecknoglobals
+        - lll
     - path: pkg/gotemplate/options\.go
       linters:
         # numbers used for options that support multiple options
@@ -127,6 +128,10 @@ issues:
         - noctx
         - goerr113
         - funlen
+    - path: dotembed/main\.go
+      linters:
+        - gochecknoglobals
+        - goerr113
 
     # https://github.com/go-critic/go-critic/issues/926
     - linters:

@@ -402,6 +402,20 @@ func TestGT_InitNewProject(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	t.Run("copies hidden files (e.g. .gitignore)", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		opts.OutputDir = tmpDir
+
+		err = gt.InitNewProject(opts)
+		assert.NoError(t, err)
+
+		testItems := []string{".gitignore", "pkg", "internal", ".golangci.yml"}
+		for _, item := range testItems {
+			_, err = os.Stat(path.Join(getTargetDir(tmpDir, opts), item))
+			assert.NoError(t, err)
+		}
+	})
+
 	t.Run("all templates should be resolved (in files and fileNames)", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		opts.OutputDir = tmpDir
