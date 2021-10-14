@@ -22,6 +22,6 @@ deployments/
 .golangci.yml
 Makefile
 tools.go
-{{- if Extensions.grpc.base }}
+{{- if .Extensions.grpc.base }}
 buf.*
 {{- end }}
