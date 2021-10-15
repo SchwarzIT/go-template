@@ -32,6 +32,8 @@ go install github.com/schwarzit/go-template/cmd/gt@latest
 
 ### Initialize your repo from the template
 
+[![asciicast](https://asciinema.org/a/441624.svg)](https://asciinema.org/a/441624?autoplay=1&speed=2&size=medium)
+
 Use the template to generate your repo:
 
 ```bash
