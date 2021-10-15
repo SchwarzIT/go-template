@@ -63,10 +63,19 @@ test-reports: out/report.json
 out/report.json: out
 	go test ./... -coverprofile=out/cover.out --json | tee "$(@)"
 
-clean: ## Cleans up everything
+clean-test-project: ## Removes test-project
+	@rm -rf testing-project
+
+clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
 
 ci: lint-reports test-reports
+
+create-test-project: clean-test-project testing-project ## Creates a testing-project from the template
+
+.PHONY: testing-project
+testing-project:
+	go run cmd/gt/*.go new -c pkg/gotemplate/testdata/values.yml
 
 help:
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

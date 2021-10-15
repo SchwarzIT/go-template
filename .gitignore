@@ -6,6 +6,10 @@
 bin/
 out/
 
+# test projects
+/awesome-project
+/testing-project
+
 ##########
 # Golang #
 ##########
