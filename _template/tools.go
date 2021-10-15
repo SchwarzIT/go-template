@@ -9,8 +9,8 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate"
 	_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
 	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
-	{{if .Extensions.grpc.grpcGateway}}
+	{{- if .Extensions.grpc.grpcGateway }}
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
-	{{end}}
+	{{- end }}
 )
