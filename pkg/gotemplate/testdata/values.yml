@@ -6,6 +6,9 @@ base:
   moduleName: github.com/fake/testing
   golangciVersion: 1.42.1
 extensions:
+  openSource:
+    author: "Marty Mc Fly"
+    codeowner: "Marty.Mc.Fly@future.back"
   grpc:
     base: false
     grpcGateway: false

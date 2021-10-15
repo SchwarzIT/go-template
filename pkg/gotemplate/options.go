@@ -1,8 +1,10 @@
 package gotemplate
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 	"regexp"
 	"strings"
@@ -246,6 +248,66 @@ The default points to "github.com" but for devops for example it would look sth.
 			},
 		},
 		Extensions: []Category{
+			{
+				Name: "openSource",
+				Options: []Option{
+					{
+						name:         "license",
+						defaultValue: StaticValue(1),
+						description: StringValue(`Set an OpenSource license.
+Unsure which to pick? Checkout Github's https://choosealicense.com/
+Options:
+	1: MIT License
+	2: Apache License 2.0
+	3: GNU AGPLv3
+	4: GNU GPLv3
+	5: GNU LGPLv3
+	6: Mozilla Public License 2.0
+	7: Boost Software License 1.0
+	8: The Unlicense
+	9: Add no license`),
+						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
+							if v.(int) == 9 {
+								return os.RemoveAll(path.Join(targetDir, "LICENSE"))
+							}
+							return nil
+						},
+					},
+					{
+						name: "author",
+						defaultValue: DynamicValue(func(vals *OptionValues) interface{} {
+							buffer := &bytes.Buffer{}
+							gitName := exec.Command("git", "config", "--get", "user.name")
+							gitName.Stdout = buffer
+							if err := gitName.Run(); err != nil || len(buffer.Bytes()) == 0 {
+								return "Marty Mc Fly"
+							}
+							return strings.TrimSpace(buffer.String())
+						}),
+						description: StringValue(`License author`),
+						shouldDisplay: DynamicBoolValue(func(vals *OptionValues) bool {
+							switch vals.Extensions["openSource"]["license"].(int) {
+							case 1, 2:
+								return true
+							}
+							return false
+						}),
+					},
+					{
+						name: "codeowner",
+						defaultValue: DynamicValue(func(vals *OptionValues) interface{} {
+							buffer := &bytes.Buffer{}
+							gitMail := exec.Command("git", "config", "--get", "user.email")
+							gitMail.Stdout = buffer
+							if err := gitMail.Run(); err != nil || len(buffer.Bytes()) == 0 {
+								return "Marty.Mc.Fly@future.back"
+							}
+							return strings.TrimSpace(buffer.String())
+						}),
+						description: StringValue("Set the codeowner of the project"),
+					},
+				},
+			},
 			{
 				Name: "grpc",
 				Options: []Option{
