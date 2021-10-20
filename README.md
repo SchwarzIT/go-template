@@ -26,9 +26,15 @@
 
 ### Install
 
+If you have Go 1.16+, you can directly install by running:
+
 ```bash
 go install github.com/schwarzit/go-template/cmd/gt@latest
 ```
+
+#### Install from the released binaries
+Download the desired version for your operating system and processor architecture from the [go-template releases page](https://github.com/SchwarzIT/go-template/releases). 
+Make the file executable and place it in a directory available in your $PATH.
 
 ### Initialize your repo from the template
 
