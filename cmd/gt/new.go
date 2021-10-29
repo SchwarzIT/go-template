@@ -58,10 +58,10 @@ To get further information look at the flag's documentation.
 	cmd.Flags().StringVarP(
 		&configFile,
 		"config", "c", "",
-		`Config file that defines all parameters.
+		`YAML file that defines all parameters.
 This is helpful if you don't want to run the CLI interactively.
-It should either be a json or a yaml file.
-An example file could look like:
+An example file could look like (other example can be found here:
+https://github.com/SchwarzIT/go-template/blob/main/pkg/gotemplate/testdata/values.yml):
 
 // values.yaml
 base:
