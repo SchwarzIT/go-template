@@ -22,7 +22,7 @@ var (
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrParameterNotSet = errors.New("parameter not set")
 	ErrMalformedInput  = errors.New("malformed input")
-	ErrParameterSet    = errors.New("parameter set but preconditions are not met")
+	ErrParameterSet    = errors.New("parameter set but has no effect in this context")
 )
 
 type ErrTypeMismatch struct {
@@ -103,7 +103,8 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (*OptionValues, error) {
 // nolint: gocritic // option is passed by value to improve usability when iterating a slice of options
 func validateFileOption(option Option, value interface{}, optionValues OptionValues) error {
 	valType := reflect.TypeOf(value)
-	defaultType := reflect.TypeOf(option.Default(&optionValues))
+	defaultVal := option.Default(&optionValues)
+	defaultType := reflect.TypeOf(defaultVal)
 	if valType != defaultType {
 		return &ErrTypeMismatch{
 			Expected: defaultType.Name(),
@@ -115,8 +116,8 @@ func validateFileOption(option Option, value interface{}, optionValues OptionVal
 		return errors.Wrap(ErrMalformedInput, fmt.Sprintf("%s: %s", option.Name(), err.Error()))
 	}
 
-	// if it is set with shouldDisplay not set it means preconditions are not met
-	if !option.ShouldDisplay(&optionValues) {
+	// if it is set to sth else than default with shouldDisplay returning false it means the parameters does not have any effect
+	if value != defaultVal && !option.ShouldDisplay(&optionValues) {
 		return errors.Wrap(ErrParameterSet, option.Name())
 	}
 

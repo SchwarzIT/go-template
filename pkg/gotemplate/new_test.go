@@ -202,18 +202,52 @@ base:
 	})
 
 	t.Run("error if option is set but shouldDisplay returns false", func(t *testing.T) {
-		gt.Options.Base[0] = gotemplate.NewOption(
-			optionName,
+		gt.Options = &gotemplate.Options{
+			Extensions: []gotemplate.Category{
+				{
+					Name: "test",
+					Options: []gotemplate.Option{
+						gotemplate.NewOption(
+							"option",
+							gotemplate.StringValue("description"),
+							gotemplate.StaticValue(false),
+							gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
+						),
+					},
+				},
+			},
+		}
+
+		_, err := loadValueFromTestFile(t, gt, `---
+extensions:
+    test:
+        option: true`)
+
+		require.ErrorIs(t, err, gotemplate.ErrParameterSet)
+	})
+
+	t.Run("no error if option is set to default value shouldDisplay returns false", func(t *testing.T) {
+		gt.Options = &gotemplate.Options{
+			Extensions: []gotemplate.Category{
+				{
+					Name: "test",
+					Options: []gotemplate.Option{
+						gotemplate.NewOption(
+							"option",
 							gotemplate.StringValue("description"),
 							gotemplate.StaticValue(true),
 							gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
-		)
+						),
+					},
+				},
+			},
+		}
 
-		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
-base:
-    %s: true`, optionName))
-
-		assert.ErrorIs(t, err, gotemplate.ErrParameterSet)
+		_, err := loadValueFromTestFile(t, gt, `---
+extensions:
+    test:
+        option: true`)
+		require.NoError(t, err)
 	})
 }
 
