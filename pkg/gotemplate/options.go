@@ -174,8 +174,8 @@ type Options struct {
 // This makes looking up already supplied option values easier than it would
 // be in the Options struct.
 type OptionValues struct {
-	Base       OptionNameToValue            `json:"base"`
-	Extensions map[string]OptionNameToValue `json:"extensions"`
+	Base       OptionNameToValue            `yaml:"base"`
+	Extensions map[string]OptionNameToValue `yaml:"extensions"`
 }
 
 func NewOptionValues() *OptionValues {

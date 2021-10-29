@@ -13,8 +13,9 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
+
 	gotemplate "github.com/schwarzit/go-template"
-	"sigs.k8s.io/yaml"
 )
 
 var (
@@ -60,7 +61,7 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (*OptionValues, error) {
 
 	var optionValues OptionValues
 
-	if err := yaml.UnmarshalStrict(fileBytes, &optionValues); err != nil {
+	if err := yaml.Unmarshal(fileBytes, &optionValues); err != nil {
 		return nil, err
 	}
 

@@ -11,9 +11,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
+
 	"github.com/schwarzit/go-template/pkg/gotemplate"
-	"github.com/stretchr/testify/assert"
-	"sigs.k8s.io/yaml"
 )
 
 const (
@@ -27,13 +28,13 @@ func TestNewRepositoryOptions_Validate(t *testing.T) {
 			OutputDir: "random-dir-that-does-not-exist",
 		}
 
-		assert.Error(t, opts.Validate())
+		require.Error(t, opts.Validate())
 	})
 
 	t.Run("OutputDir is not set", func(t *testing.T) {
 		opts := gotemplate.NewRepositoryOptions{}
 
-		assert.NoError(t, opts.Validate())
+		require.NoError(t, opts.Validate())
 	})
 
 	t.Run("OutputDir set to valid dir", func(t *testing.T) {
@@ -41,7 +42,7 @@ func TestNewRepositoryOptions_Validate(t *testing.T) {
 			OutputDir: t.TempDir(),
 		}
 
-		assert.NoError(t, opts.Validate())
+		require.NoError(t, opts.Validate())
 	})
 }
 
@@ -79,8 +80,8 @@ extensions:
     %s:
         %s: true`, optionName, optionValue, categoryName, categoryOptionName))
 
-		assert.NoError(t, err)
-		assert.Equal(
+		require.NoError(t, err)
+		require.Equal(
 			t,
 			&gotemplate.OptionValues{
 				Base: gotemplate.OptionNameToValue{optionName: optionValue},
@@ -94,12 +95,12 @@ extensions:
 		)
 	})
 
-	t.Run("validates that parameters are not empty", func(t *testing.T) {
+	t.Run("validates that base parameters are not empty", func(t *testing.T) {
 		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
 base:
     %s: ""`, optionName))
 
-		assert.ErrorIs(t, err, gotemplate.ErrParameterNotSet)
+		require.ErrorIs(t, err, gotemplate.ErrParameterNotSet)
 	})
 
 	t.Run("validates validator if set", func(t *testing.T) {
@@ -117,7 +118,45 @@ base:
 base:
     %s: "NOT_A_VALID_VALUE"`, optionName))
 
-		assert.ErrorIs(t, err, gotemplate.ErrMalformedInput)
+		require.ErrorIs(t, err, gotemplate.ErrMalformedInput)
+	})
+
+	t.Run("supports int, string, bool", func(t *testing.T) {
+		gt.Options = &gotemplate.Options{
+			Base: []gotemplate.Option{
+				gotemplate.NewOption(
+					"int",
+					gotemplate.StringValue("desc"),
+					gotemplate.StaticValue(2),
+				),
+				gotemplate.NewOption(
+					"string",
+					gotemplate.StringValue("desc"),
+					gotemplate.StaticValue("string"),
+				),
+				gotemplate.NewOption(
+					"bool",
+					gotemplate.StringValue("desc"),
+					gotemplate.StaticValue(false),
+				),
+			},
+		}
+
+		optionValues, err := loadValueFromTestFile(t, gt, `---
+base:
+    int: 2
+    string: "test"
+    bool: true
+`)
+
+		require.NoError(t, err)
+		require.Equal(t, &gotemplate.OptionValues{
+			Base: gotemplate.OptionNameToValue{
+				"int":    2,
+				"string": "test",
+				"bool":   true,
+			},
+		}, optionValues)
 	})
 
 	t.Run("error on type mismatch", func(t *testing.T) {
@@ -132,15 +171,15 @@ base:
     %s: "not a bool"`, optionName))
 
 		var errTypeMismatch *gotemplate.ErrTypeMismatch
-		assert.ErrorAs(t, err, &errTypeMismatch)
+		require.ErrorAs(t, err, &errTypeMismatch)
 	})
 
 	t.Run("error if option is set but shouldDisplay returns false", func(t *testing.T) {
 		gt.Options.Base[0] = gotemplate.NewOption(
 			optionName,
-			gotemplate.StringValue("description"),
-			gotemplate.StaticValue(true),
-			gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
+							gotemplate.StringValue("description"),
+							gotemplate.StaticValue(true),
+							gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
 		)
 
 		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
@@ -155,7 +194,7 @@ func loadValueFromTestFile(t *testing.T, gt gotemplate.GT, contents string) (*go
 	dir := t.TempDir()
 	testFile := path.Join(dir, "test.yml")
 	err := os.WriteFile(testFile, []byte(contents), os.ModePerm)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	return gt.LoadConfigValuesFromFile(testFile)
 }
@@ -197,8 +236,8 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
-		assert.NoError(t, err)
-		assert.Equal(
+		require.NoError(t, err)
+		require.Equal(
 			t,
 			&gotemplate.OptionValues{
 				Base: gotemplate.OptionNameToValue{optionName: optionValue},
@@ -210,7 +249,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 			},
 			optionValues,
 		)
-		assert.Contains(t, out.String(), "CATEGORY")
+		require.Contains(t, out.String(), "CATEGORY")
 	})
 
 	t.Run("checks regex if it is set and retry if no match", func(t *testing.T) {
@@ -231,10 +270,10 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
-		assert.NoError(t, err)
-		assert.Equal(t, gotemplate.OptionNameToValue{optionName: "matches-the-regex"}, optionValues.Base)
-		assert.Contains(t, out.String(), "WARNING")
-		assert.Contains(t, out.String(), "invalid pattern", "should include regex description in warning message")
+		require.NoError(t, err)
+		require.Equal(t, gotemplate.OptionNameToValue{optionName: "matches-the-regex"}, optionValues.Base)
+		require.Contains(t, out.String(), "WARNING")
+		require.Contains(t, out.String(), "invalid pattern", "should include regex description in warning message")
 	})
 
 	t.Run("checks regex on defaults as well", func(t *testing.T) {
@@ -255,9 +294,9 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
-		assert.NoError(t, err)
-		assert.Equal(t, gotemplate.OptionNameToValue{optionName: "matches-the-regex"}, optionValues.Base)
-		assert.Contains(t, out.String(), "WARNING")
+		require.NoError(t, err)
+		require.Equal(t, gotemplate.OptionNameToValue{optionName: "matches-the-regex"}, optionValues.Base)
+		require.Contains(t, out.String(), "WARNING")
 	})
 
 	t.Run("retries to get value on error", func(t *testing.T) {
@@ -269,9 +308,9 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
-		assert.NoError(t, err)
-		assert.Equal(t, gotemplate.OptionNameToValue{optionName: true}, optionValues.Base)
-		assert.Contains(t, out.String(), "WARNING")
+		require.NoError(t, err)
+		require.Equal(t, gotemplate.OptionNameToValue{optionName: true}, optionValues.Base)
+		require.Contains(t, out.String(), "WARNING")
 	})
 
 	t.Run("renders dynamic values correctly", func(t *testing.T) {
@@ -294,8 +333,8 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
-		assert.NoError(t, err)
-		assert.Equal(
+		require.NoError(t, err)
+		require.Equal(
 			t,
 			gotemplate.OptionNameToValue{
 				optionName:         optionValue,
@@ -323,9 +362,9 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
-		assert.NoError(t, err)
-		assert.Equal(t, len(optionValues.Base), 0)
-		assert.NotContains(t, out.String(), dependentOptionName)
+		require.NoError(t, err)
+		require.Equal(t, len(optionValues.Base), 0)
+		require.NotContains(t, out.String(), dependentOptionName)
 	})
 
 	t.Run("parses non string values", func(t *testing.T) {
@@ -349,10 +388,10 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
-		assert.NoError(t, err)
-		assert.Equal(t, 2, len(optionValues.Base))
-		assert.Equal(t, false, optionValues.Base[optionName])
-		assert.Equal(t, 4, optionValues.Base[intOptionName])
+		require.NoError(t, err)
+		require.Equal(t, 2, len(optionValues.Base))
+		require.Equal(t, false, optionValues.Base[optionName])
+		require.Equal(t, 4, optionValues.Base[intOptionName])
 	})
 	t.Run("panics if default type is not supported", func(t *testing.T) {
 		gt.InScanner = bufio.NewScanner(strings.NewReader("3.0\n"))
@@ -369,7 +408,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 			),
 		}
 
-		assert.PanicsWithValue(t, "unsupported type", func() {
+		require.PanicsWithValue(t, "unsupported type", func() {
 			gt.LoadConfigValuesInteractively()
 		})
 	})
@@ -381,11 +420,11 @@ func TestGT_InitNewProject(t *testing.T) {
 	gt.Streams.Out = &bytes.Buffer{}
 
 	testValuesBytes, err := os.ReadFile("./testdata/values.yml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	var optionValues gotemplate.OptionValues
 	err = yaml.Unmarshal(testValuesBytes, &optionValues)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	opts := &gotemplate.NewRepositoryOptions{OptionValues: &optionValues}
 	t.Run("generates folder in target dir and initializes it with go.mod and .git", func(t *testing.T) {
@@ -393,13 +432,13 @@ func TestGT_InitNewProject(t *testing.T) {
 		opts.OutputDir = tmpDir
 
 		err = gt.InitNewProject(opts)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		_, err = os.Stat(path.Join(getTargetDir(tmpDir, opts), ".git"))
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		_, err = os.Stat(path.Join(getTargetDir(tmpDir, opts), "go.mod"))
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("copies hidden files (e.g. .gitignore)", func(t *testing.T) {
@@ -407,12 +446,12 @@ func TestGT_InitNewProject(t *testing.T) {
 		opts.OutputDir = tmpDir
 
 		err = gt.InitNewProject(opts)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		testItems := []string{".gitignore", "pkg", "internal", ".golangci.yml"}
 		for _, item := range testItems {
 			_, err = os.Stat(path.Join(getTargetDir(tmpDir, opts), item))
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}
 	})
 
@@ -421,7 +460,7 @@ func TestGT_InitNewProject(t *testing.T) {
 		opts.OutputDir = tmpDir
 
 		err := gt.InitNewProject(opts)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		err = filepath.WalkDir(getTargetDir(tmpDir, opts), func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
@@ -447,7 +486,7 @@ func TestGT_InitNewProject(t *testing.T) {
 
 			return nil
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("error if target dir already exists", func(t *testing.T) {
@@ -455,10 +494,10 @@ func TestGT_InitNewProject(t *testing.T) {
 		opts.OutputDir = tmpDir
 
 		err := os.MkdirAll(getTargetDir(tmpDir, opts), os.ModePerm)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		err = gt.InitNewProject(opts)
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("removes all files on error", func(t *testing.T) {
@@ -473,10 +512,10 @@ func TestGT_InitNewProject(t *testing.T) {
 					},
 				}},
 		)
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		_, err := os.Stat(getTargetDir(tmpDir, opts))
-		assert.ErrorIs(t, err, os.ErrNotExist)
+		require.ErrorIs(t, err, os.ErrNotExist)
 	})
 
 	t.Run("postHook not executed if value not set", func(t *testing.T) {
@@ -495,8 +534,8 @@ func TestGT_InitNewProject(t *testing.T) {
 		))
 
 		err := gt.InitNewProject(opts)
-		assert.NoError(t, err)
-		assert.False(t, postHookTriggered, "postHook should not be triggered")
+		require.NoError(t, err)
+		require.False(t, postHookTriggered, "postHook should not be triggered")
 	})
 
 	t.Run("postHook is executed if value is set", func(t *testing.T) {
@@ -516,8 +555,8 @@ func TestGT_InitNewProject(t *testing.T) {
 		))
 
 		err := gt.InitNewProject(opts)
-		assert.NoError(t, err)
-		assert.True(t, postHookTriggered, "postHook should be triggered")
+		require.NoError(t, err)
+		require.True(t, postHookTriggered, "postHook should be triggered")
 	})
 }
 
