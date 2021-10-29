@@ -77,9 +77,17 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (*OptionValues, error) {
 	}
 
 	for _, category := range gt.Options.Extensions {
+		if optionValues.Extensions == nil {
+			optionValues.Extensions = map[string]OptionNameToValue{}
+		}
 		for _, option := range category.Options {
-			val, ok := optionValues.Base[option.Name()]
+			if optionValues.Extensions[category.Name] == nil {
+				optionValues.Extensions[category.Name] = OptionNameToValue{}
+			}
+			val, ok := optionValues.Extensions[category.Name][option.Name()]
 			if !ok {
+				// set defaults for all unset optionValues, no need to validate
+				optionValues.Extensions[category.Name][option.Name()] = option.Default(&optionValues)
 				continue
 			}
 

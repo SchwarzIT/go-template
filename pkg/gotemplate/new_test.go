@@ -121,6 +121,33 @@ base:
 		require.ErrorIs(t, err, gotemplate.ErrMalformedInput)
 	})
 
+	t.Run("sets default values for extensions", func(t *testing.T) {
+		gt.Options = &gotemplate.Options{
+			Extensions: []gotemplate.Category{
+				{
+					Name: "test",
+					Options: []gotemplate.Option{
+						gotemplate.NewOption(
+							"string",
+							gotemplate.StringValue("desc"),
+							gotemplate.StaticValue("default"),
+						),
+					},
+				},
+			},
+		}
+
+		optionValues, err := loadValueFromTestFile(t, gt, "")
+		require.NoError(t, err)
+		require.Equal(t, &gotemplate.OptionValues{
+			Extensions: map[string]gotemplate.OptionNameToValue{
+				"test": {
+					"string": "default",
+				},
+			},
+		}, optionValues)
+	})
+
 	t.Run("supports int, string, bool", func(t *testing.T) {
 		gt.Options = &gotemplate.Options{
 			Base: []gotemplate.Option{
