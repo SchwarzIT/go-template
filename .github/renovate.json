@@ -5,6 +5,7 @@
     ":semanticCommitTypeAll(chore)",
     ":gitSignOff"
   ],
+  "dependencyDashboard": false,
   "packageRules": [
     {
       "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
