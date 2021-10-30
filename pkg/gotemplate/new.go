@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path"
 	"reflect"
 	"strconv"
@@ -238,16 +239,18 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 func (gt *GT) initRepo(targetDir, moduleName string) {
 	commandGroups := []ownexec.CommandGroup{
 		{
-			Commands: []ownexec.Command{
-				ownexec.NewExecCmd([]string{"git", "init"}, ownexec.WithTargetDir(targetDir)),
+			Commands: []*exec.Cmd{
+				exec.Command("git", "init"),
 			},
+			TargetDir: targetDir,
 		},
 		{
-			PreRun: checkGoVersion,
-			Commands: []ownexec.Command{
-				ownexec.NewExecCmd([]string{"go", "mod", "init", moduleName}, ownexec.WithTargetDir(targetDir)),
-				ownexec.NewExecCmd([]string{"go", "mod", "tidy"}, ownexec.WithTargetDir(targetDir)),
+			// PreRun: checkGoVersion,
+			Commands: []*exec.Cmd{
+				exec.Command("go", "mod", "init", moduleName),
+				exec.Command("go", "mod", "tidy"),
 			},
+			TargetDir: targetDir,
 		},
 	}
 
