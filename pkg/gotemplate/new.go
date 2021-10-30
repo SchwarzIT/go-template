@@ -24,12 +24,13 @@ import (
 const minGoVersion = "1.15"
 
 var (
-	ErrAlreadyExists   = errors.New("already exists")
-	ErrParameterNotSet = errors.New("parameter not set")
-	ErrMalformedInput  = errors.New("malformed input")
-	ErrParameterSet    = errors.New("parameter set but has no effect in this context")
+	ErrAlreadyExists         = errors.New("already exists")
+	ErrParameterNotSet       = errors.New("parameter not set")
+	ErrMalformedInput        = errors.New("malformed input")
+	ErrParameterSet          = errors.New("parameter set but has no effect in this context")
+	ErrGoVersionNotSupported = fmt.Errorf("go version is not supported, gt requires at least %s", minGoVersion)
 
-	minGoVersionSemver = semver.MustParse(minGoVersion)
+	minGoVersionSemver = semver.MustParse(minGoVersion) // nolint: gochecknoglobals // parsed semver from const minGoVersion
 )
 
 type ErrTypeMismatch struct {
@@ -245,7 +246,7 @@ func (gt *GT) initRepo(targetDir, moduleName string) {
 			TargetDir: targetDir,
 		},
 		{
-			// PreRun: checkGoVersion,
+			PreRun: checkGoVersion,
 			Commands: []*exec.Cmd{
 				exec.Command("go", "mod", "init", moduleName),
 				exec.Command("go", "mod", "tidy"),
@@ -274,7 +275,7 @@ func checkGoVersion() error {
 	}
 
 	if goSemver.LessThan(minGoVersionSemver) {
-		return fmt.Errorf("go version %s is not supported, requires at least %s", goSemver.String(), minGoVersionSemver.String())
+		return errors.Wrap(ErrGoVersionNotSupported, goSemver.String())
 	}
 
 	return nil

@@ -128,6 +128,7 @@ issues:
         - noctx
         - goerr113
         - funlen
+        - goconst
     - path: dotembed/main\.go
       linters:
         - gochecknoglobals
