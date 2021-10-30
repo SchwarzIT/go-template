@@ -24,7 +24,9 @@
 
 ## Usage
 
-### Install
+### Installation
+
+#### From source
 
 If you have Go 1.16+, you can directly install by running:
 
@@ -32,9 +34,19 @@ If you have Go 1.16+, you can directly install by running:
 go install github.com/schwarzit/go-template/cmd/gt@latest
 ```
 
-#### Install from the released binaries
-Download the desired version for your operating system and processor architecture from the [go-template releases page](https://github.com/SchwarzIT/go-template/releases). 
-Make the file executable and place it in a directory available in your $PATH.
+#### From the released binaries
+
+Download the desired version for your operating system and processor architecture from the [go-template releases page](https://github.com/SchwarzIT/go-template/releases).
+Make the file executable and place it in a directory available in your `$PATH`.
+
+### Preconditions
+
+`go/template`'s `gt` CLI requires at least the following executables on `$PATH` to run succesfully:
+
+- Go >= 1.15
+- Git
+
+These are used at the end of `gt new`'s execution to initialize Git and Go modules in the newly created project repository.
 
 ### Initialize your repo from the template
 
