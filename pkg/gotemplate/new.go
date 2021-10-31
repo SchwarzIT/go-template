@@ -12,17 +12,25 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
 	gotemplate "github.com/schwarzit/go-template"
+	ownexec "github.com/schwarzit/go-template/pkg/exec"
+	"github.com/schwarzit/go-template/pkg/gocli"
 )
 
+const minGoVersion = "1.15"
+
 var (
-	ErrAlreadyExists   = errors.New("already exists")
-	ErrParameterNotSet = errors.New("parameter not set")
-	ErrMalformedInput  = errors.New("malformed input")
-	ErrParameterSet    = errors.New("parameter set but has no effect in this context")
+	ErrAlreadyExists         = errors.New("already exists")
+	ErrParameterNotSet       = errors.New("parameter not set")
+	ErrMalformedInput        = errors.New("malformed input")
+	ErrParameterSet          = errors.New("parameter set but has no effect in this context")
+	ErrGoVersionNotSupported = fmt.Errorf("go version is not supported, gt requires at least %s", minGoVersion)
+
+	minGoVersionSemver = semver.MustParse(minGoVersion) // nolint: gochecknoglobals // parsed semver from const minGoVersion
 )
 
 type ErrTypeMismatch struct {
@@ -224,32 +232,53 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 	}
 
 	gt.printProgressf("Initializing git and Go modules...")
-	if err := initRepo(targetDir, opts.OptionValues.Base["moduleName"].(string)); err != nil {
-		return err
-	}
+	gt.initRepo(targetDir, opts.OptionValues.Base["moduleName"].(string))
 
 	return nil
 }
 
-func initRepo(targetDir, moduleName string) error {
-	gitInit := exec.Command("git", "init")
-	gitInit.Dir = targetDir
+func (gt *GT) initRepo(targetDir, moduleName string) {
+	commandGroups := []ownexec.CommandGroup{
+		{
+			Commands: []*exec.Cmd{
+				exec.Command("git", "init"),
+			},
+			TargetDir: targetDir,
+		},
+		{
+			PreRun: checkGoVersion,
+			Commands: []*exec.Cmd{
+				exec.Command("go", "mod", "init", moduleName),
+				exec.Command("go", "mod", "tidy"),
+			},
+			TargetDir: targetDir,
+		},
+	}
 
-	if err := gitInit.Run(); err != nil {
+	failedCGs := 0
+	for _, cg := range commandGroups {
+		if err := cg.Run(); err != nil {
+			gt.printWarningf(err.Error())
+			failedCGs++
+		}
+	}
+
+	if failedCGs > 0 {
+		gt.printWarningf("one or more initialization steps failed, pls see warnings for more info.")
+	}
+}
+
+func checkGoVersion() error {
+	goSemver, err := gocli.Semver()
+	if err != nil {
 		return err
 	}
 
-	goModInit := exec.Command("go", "mod", "init", moduleName)
-	goModInit.Dir = targetDir
-
-	if err := goModInit.Run(); err != nil {
-		return err
+	if goSemver.LessThan(minGoVersionSemver) {
+		return errors.Wrap(ErrGoVersionNotSupported, goSemver.String())
 	}
 
-	goModTidy := exec.Command("go", "mod", "tidy")
-	goModTidy.Dir = targetDir
-
-	return goModTidy.Run()
+	return nil
 }
 
 func postHook(options *Options, optionValues *OptionValues, targetDir string) error {
