@@ -15,6 +15,13 @@ on:
   workflow_dispatch:
 
 jobs:
+  yamlLinter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3
+
   test:
     strategy:
       matrix:
