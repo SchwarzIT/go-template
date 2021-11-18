@@ -35,12 +35,9 @@ If you have Go 1.16+, you can directly install by running:
 go install github.com/schwarzit/go-template/cmd/gt@latest
 ```
 
-Based on your go configuration the go-template binary can be found in $GOPATH/bin or $HOME/go/bin [See go docs for further information](https://golang.org/ref/mod#go-install)
-
-```bash
-~/go/bin/gt new
-```
-
+> Based on your go configuration the `go/template` binary can be found in `$GOPATH/bin` or `$HOME/go/bin` in case `$GOPATH` is not set. 
+> Make sure to add the respective directory to your `$PATH`.
+> [For more information see go docs for further information](https://golang.org/ref/mod#go-install). Run `go env` to view your current configuration.
 #### From the released binaries
 
 Download the desired version for your operating system and processor architecture from the [go-template releases page](https://github.com/SchwarzIT/go-template/releases).
