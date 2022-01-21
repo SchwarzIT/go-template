@@ -15,7 +15,13 @@ func Test_Run(t *testing.T) {
 	outputDir := t.TempDir()
 	outputFile := path.Join(outputDir, "test.go")
 
-	dotfiles := []string{path.Join(targetDir, ".gitignore"), path.Join(targetDir, ".dockerignore")}
+	dotfiles := []string{
+		path.Join(targetDir, ".gitignore"),
+		path.Join(targetDir, ".dockerignore"),
+		path.Join(targetDir, ".github"),
+		path.Join(targetDir, ".azure-pipelines.yml"),
+		path.Join(targetDir, ".gitlab-ci.yml"),
+	}
 	for _, file := range dotfiles {
 		_, err := os.Create(path.Join(file))
 		assert.NoError(t, err)
