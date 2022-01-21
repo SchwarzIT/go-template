@@ -10,8 +10,6 @@ stages:
       - job: GoBuildTest
         displayName: Lint & Test Go Application
         steps:
-          - template: install-docker-ssh-key.yml
-
           - task: GoTool@0
             displayName: Install Go Binary
             inputs:
@@ -31,7 +29,6 @@ stages:
         steps:
           - bash: |
               docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
-              --baseline-ref main \
               --config p/secrets \
               --config p/ci \
               --config p/r2c \
@@ -39,5 +36,5 @@ stages:
               --config p/docker \
               --config p/dockerfile \
               --config p/command-injection \
-              --config displayName: Semgrep \
               --config p/security-audit
+            displayName: Semgrep
