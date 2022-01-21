@@ -1,0 +1,43 @@
+pool:
+  vmImage: ubuntu-latest
+variables:
+  - name: goVersion
+    value: 1.17
+
+stages:
+  - stage: test
+    jobs:
+      - job: GoBuildTest
+        displayName: Lint & Test Go Application
+        steps:
+          - template: install-docker-ssh-key.yml
+
+          - task: GoTool@0
+            displayName: Install Go Binary
+            inputs:
+              version: $(goVersion)
+
+          - bash: make download
+            displayName: Downloads the dependencies
+
+          - bash: make lint
+            displayName: Lints all code with golangci-lint
+
+          - bash: make test-reports
+            displayName: Runs all tests and generates reports
+
+      - job: Semgrep
+        displayName: Run semgrep security tests
+        steps:
+          - bash: |
+              docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
+              --baseline-ref main \
+              --config p/secrets \
+              --config p/ci \
+              --config p/r2c \
+              --config p/r2c-ci \
+              --config p/docker \
+              --config p/dockerfile \
+              --config p/command-injection \
+              --config displayName: Semgrep \
+              --config p/security-audit

@@ -1,0 +1,29 @@
+stages:
+  - static_analysis
+  - test
+
+semgrep:
+  stage: static_analysis
+  script:
+    - |
+       docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
+          --baseline-ref main \
+          --config p/secrets \
+          --config p/ci \
+          --config p/r2c \
+          --config p/r2c-ci \
+          --config p/docker \
+          --config p/dockerfile \
+          --config p/command-injection \
+          --config displayName: Semgrep \
+          --config p/security-audit
+
+golang:
+  stage: test
+  image: golang:1.17
+  tags:
+    - golang
+  script:
+    - make download
+    - make lint
+    - make test-reports
