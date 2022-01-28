@@ -1,6 +1,6 @@
 # {{.Base.projectName}}
 
-[![GoTemplate](https://img.shields.io/badge/go/template-black?logo=go)](https://github.com/SchwarzIT/go-template) 
+[![GoTemplate](https://img.shields.io/badge/go/template-black?logo=go)](https://github.com/SchwarzIT/go-template)
 
 {{.Base.projectDescription}}
 
