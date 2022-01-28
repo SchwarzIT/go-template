@@ -203,7 +203,7 @@ func NewOptions(githubTagLister repos.GithubTagLister) *Options { // nolint: fun
 					return strings.ReplaceAll(strings.ToLower(projectName), " ", "-")
 				}),
 				description: StringValue("Technical name of the project for folders and names. This will also be used as output directory."),
-				validator:   RegexValidator(`^[a-z1-9]+(-[a-z1-9]+)*$`, "only lowercase letters and dashes"),
+				validator:   RegexValidator(`^[a-z1-9]+(-[a-z1-9]+)*$`, "only lowercase letters, numbers and dashes"),
 			},
 			{
 				name:         "projectDescription",
@@ -211,12 +211,14 @@ func NewOptions(githubTagLister repos.GithubTagLister) *Options { // nolint: fun
 				description:  StringValue("Description of the project used in the README."),
 			},
 			{
-				name:         "appName",
-				defaultValue: StaticValue("awesomecli"),
+				name: "appName",
+				defaultValue: DynamicValue(func(ov *OptionValues) interface{} {
+					return ov.Base["projectSlug"].(string)
+				}),
 				description: StringValue(`The name of the binary that you want to create.
-Could be the same your "projectSlug" but since Go supports multiple apps in one repo it could also be sth. else.
+Could be the same as your "projectSlug" but since Go supports multiple apps in one repo it could also be sth. else.
 For example if your project is for some API there could be one app for the server and one CLI client.`),
-				validator: RegexValidator(`^[a-z]+$`, "only lowercase letters"),
+				validator: RegexValidator(`^[a-z1-9]+(-[a-z1-9]+)*$`, "only lowercase letters, numbers and dashes"),
 			},
 			{
 				name: "moduleName",
