@@ -1,0 +1,18 @@
+# config options found here: https://github.com/zeke/semantic-pull-requests
+
+# Always validate the PR title, and ignore the commits
+titleOnly: true
+
+scopes:
+  - template
+  - engine
+
+types:
+  - feat
+  - fix
+  - docs
+  - refactor
+  - test
+  - ci
+  - chore
+  - revert
