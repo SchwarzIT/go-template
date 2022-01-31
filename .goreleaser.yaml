@@ -29,6 +29,30 @@ builds:
       - amd64
       - arm64
 
+source:
+  enabled: true
+
+sboms:
+  - artifacts: binary
+  - id: source
+    artifacts: source
+
+checksum:
+  name_template: 'checksums.txt'
+
+signs:
+  - cmd: cosign
+    env:
+      - COSIGN_EXPERIMENTAL=1
+    certificate: '${artifact}.pem'
+    args:
+      - sign-blob
+      - '--output-certificate=${certificate}'
+      - '--output-signature=${signature}'
+      - '${artifact}'
+    artifacts: checksum
+    output: true
+
 archives:
   - format: binary
     name_template: '{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}'
