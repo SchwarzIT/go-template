@@ -21,8 +21,8 @@ stages:
           - bash: make lint
             displayName: Lints all code with golangci-lint
 
-          - bash: make test-reports
-            displayName: Runs all tests and generates reports
+          - bash: make test
+            displayName: Runs all tests
 
       - job: Semgrep
         displayName: Run semgrep security tests
