@@ -10,8 +10,6 @@ extensions:
     author: "Marty Mc Fly"
     codeowner: "Marty.Mc.Fly@future.back"
     license: 1 # MIT License
-  ci:
-    provider: 1 # Github
   grpc:
     base: true
     grpcGateway: false
