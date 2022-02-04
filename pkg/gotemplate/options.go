@@ -257,7 +257,7 @@ The default points to "github.com" but for devops for example it would look sth.
 						description: StringValue(`Set an OpenSource license.
 Unsure which to pick? Checkout Github's https://choosealicense.com/
 Options:
-    0: Add no license
+	0: Add no license
 	1: MIT License
 	2: Apache License 2.0
 	3: GNU AGPLv3
