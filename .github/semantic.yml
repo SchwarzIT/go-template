@@ -6,6 +6,7 @@ titleOnly: true
 scopes:
   - template
   - engine
+  - ci
 
 types:
   - feat
@@ -13,6 +14,5 @@ types:
   - docs
   - refactor
   - test
-  - ci
   - chore
   - revert
