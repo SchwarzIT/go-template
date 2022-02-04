@@ -39,7 +39,7 @@ jobs:
 
         # Instead of `config:`, use rules set in Semgrep App.
         # Get your token from semgrep.dev/manage/settings.
-        #   publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
+        #   publishToken: {{`${{ secrets.SEMGREP_APP_TOKEN }}`}}
 
         # Never fail the build due to findings on pushes.
         # Instead, just collect findings for semgrep.dev/manage/findings
