@@ -19,7 +19,6 @@ jobs:
     strategy:
       matrix:
         go-version: [1.17.x]
-        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -51,6 +50,3 @@ jobs:
       - name: Run linting & unittest
         if: matrix.os == 'ubuntu-latest'
         run: make ci
-
-      - name: Build package
-        run: make build
