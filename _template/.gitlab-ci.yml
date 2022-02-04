@@ -57,4 +57,4 @@ golang:
   script:
     - make download
     - make lint
-    - make test-reports
+    - make test

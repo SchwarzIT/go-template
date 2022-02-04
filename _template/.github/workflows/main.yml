@@ -48,6 +48,11 @@ jobs:
           restore-keys: |
             {{`${{ runner.os }}`}}-go-
 
-      - name: Run linting & unittest
-        if: matrix.os == 'ubuntu-latest'
-        run: make ci
+      - name: Downloads the dependencies
+        run: make download
+
+      - name: Lints all code with golangci-lint
+        run: make lint
+
+      - name: Runs all tests
+        run: make test
