@@ -1,0 +1,58 @@
+---
+# based on https://github.com/mvdan/github-actions-golang
+name: CI
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths-ignore: ["docs/**"]
+
+  push:
+    branches: ["main"]
+    paths-ignore: ["docs/**"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.17.x]
+        os: [ubuntu-latest]
+    runs-on: {{`${{ matrix.os }}`}}
+
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: {{`${{ matrix.go-version }}`}}
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # cache go modules
+      - uses: actions/cache@v2
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          # * Build cache (Mac)
+          # * Build cache (Windows)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: {{`${{ runner.os }}`}}-go-{{`${{ hashFiles('**/go.sum') }}`}}
+          restore-keys: |
+            {{`${{ runner.os }}`}}-go-
+
+      - name: Downloads the dependencies
+        run: make download
+
+      - name: Lints all code with golangci-lint
+        run: make lint
+
+      - name: Runs all tests
+        run: make test

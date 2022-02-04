@@ -311,6 +311,41 @@ Options:
 				},
 			},
 			{
+				Name: "ci",
+				Options: []Option{
+					{
+						name:         "provider",
+						defaultValue: StaticValue(1),
+						description: StringValue(`Set an CI pipeline provider integration
+			Options:
+			0: No CI
+			1: Github
+			2: Gitlab
+			3: Azure DevOps`),
+						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
+							ciFiles := map[int][]string{
+								0: {},
+								1: {".github"},
+								2: {".gitlab-ci.yml"},
+								3: {".azure-pipelines.yml"},
+							}
+
+							for i, files := range ciFiles {
+								if i == v.(int) {
+									continue
+								}
+								for _, file := range files {
+									if err := os.RemoveAll(path.Join(targetDir, file)); err != nil {
+										return err
+									}
+								}
+							}
+							return nil
+						},
+					},
+				},
+			},
+			{
 				Name: "grpc",
 				Options: []Option{
 					{
