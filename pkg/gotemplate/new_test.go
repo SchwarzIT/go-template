@@ -424,7 +424,8 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
 		require.NoError(t, err)
-		require.Equal(t, len(optionValues.Base), 0)
+		// the default value should be used in the optionValues in case there are dependent options
+		require.Equal(t, len(optionValues.Base), 1)
 		require.NotContains(t, out.String(), dependentOptionName)
 	})
 
