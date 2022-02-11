@@ -167,7 +167,7 @@ func (gt *GT) LoadConfigValuesInteractively() (*OptionValues, error) {
 
 func (gt *GT) loadOptionValueInteractively(option *Option, optionValues *OptionValues) interface{} {
 	if !option.ShouldDisplay(optionValues) {
-		return nil
+		return option.Default(optionValues)
 	}
 
 	val, err := gt.readOptionValue(option, optionValues)
