@@ -1,6 +1,7 @@
 {
   "extends": [
     "config:base",
+    "group:allNonMajor",
     ":semanticCommits",
     ":semanticCommitTypeAll(chore)",
     ":gitSignOff"
@@ -8,9 +9,18 @@
   "dependencyDashboard": false,
   "packageRules": [
     {
-      "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
     }
   ],
-  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"]
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ]
 }
