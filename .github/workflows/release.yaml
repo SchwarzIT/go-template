@@ -33,7 +33,7 @@ jobs:
       - uses: sigstore/cosign-installer@179e0f15e70e22ca2e7254fc12d68a9fbab35614 # tag=v2.0.1
       - uses: anchore/sbom-action/download-syft@3626d7d7b13e87ee6c6f9ded3940dea05a3967bc # tag=v0.6.0
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@79d4afbba1b4eff8b9a98e3d2e58c4dbaf094e2b # tag=v2.8.1
+        uses: goreleaser/goreleaser-action@b953231f81b8dfd023c58e0854a721e35037f28b # tag=v2.9.1
         with:
           version: latest
           args: release --rm-dist
