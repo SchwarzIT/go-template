@@ -18,8 +18,15 @@ func main() {
 	}
 }
 
+func getLogger() (*zap.Logger, error) {
+	if os.Getenv("LOG_LEVEL") == "debug" {
+		return zap.NewDevelopment()
+	}
+	return zap.NewProduction()
+}
+
 func run() error {
-	logger, err := zap.NewProduction()
+	logger, err := getLogger()
 	if err != nil {
 		return err
 	}
