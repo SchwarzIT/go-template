@@ -129,7 +129,9 @@ issues:
         - goerr113
         - funlen
         - goconst
-    - path: dotembed/main\.go
+    # only small tools that use globals for templating
+    # and errors for CLI error output
+    - path: (dotembed|options2md)\/main\.go
       linters:
         - gochecknoglobals
         - goerr113

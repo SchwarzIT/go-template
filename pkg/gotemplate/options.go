@@ -57,7 +57,7 @@ type Option struct {
 	name string
 	// description is the description of the option that should be shown.
 	// It's a StringValuer since it could depend on some earlier input.
-	description StringValuer
+	description string
 	// defaultValue is the default value of the option.
 	// It's a Valuer since it could be depend on earlier inputs or some http call.
 	defaultValue Valuer
@@ -77,7 +77,7 @@ type Option struct {
 
 type PostHookFunc func(value interface{}, optionValues *OptionValues, targetDir string) error
 
-func NewOption(name string, description StringValuer, defaultValue Valuer, opts ...NewOptionOption) Option {
+func NewOption(name, description string, defaultValue Valuer, opts ...NewOptionOption) Option {
 	option := Option{
 		name:         name,
 		description:  description,
@@ -115,8 +115,8 @@ func (s *Option) Name() string {
 	return s.name
 }
 
-func (s *Option) Description(currentValues *OptionValues) string {
-	return s.description.Value(currentValues)
+func (s *Option) Description() string {
+	return s.description
 }
 
 // Default either returns the default value (possibly calculated with currentValues).
@@ -194,7 +194,7 @@ func NewOptions(githubTagLister repos.GithubTagLister) *Options { // nolint: fun
 			{
 				name:         "projectName",
 				defaultValue: StaticValue("Awesome Project"),
-				description:  StringValue("Name of the project"),
+				description:  "Name of the project",
 			},
 			{
 				name: "projectSlug",
@@ -202,22 +202,22 @@ func NewOptions(githubTagLister repos.GithubTagLister) *Options { // nolint: fun
 					projectName := ov.Base["projectName"].(string)
 					return strings.ReplaceAll(strings.ToLower(projectName), " ", "-")
 				}),
-				description: StringValue("Technical name of the project for folders and names. This will also be used as output directory."),
+				description: "Technical name of the project for folders and names. This will also be used as output directory.",
 				validator:   RegexValidator(`^[a-z1-9]+(-[a-z1-9]+)*$`, "only lowercase letters, numbers and dashes"),
 			},
 			{
 				name:         "projectDescription",
 				defaultValue: StaticValue("The awesome project provides awesome features to awesome people."),
-				description:  StringValue("Description of the project used in the README."),
+				description:  "Description of the project used in the README.",
 			},
 			{
 				name: "appName",
 				defaultValue: DynamicValue(func(ov *OptionValues) interface{} {
 					return ov.Base["projectSlug"].(string)
 				}),
-				description: StringValue(`The name of the binary that you want to create.
+				description: `The name of the binary that you want to create.
 Could be the same as your "projectSlug" but since Go supports multiple apps in one repo it could also be sth. else.
-For example if your project is for some API there could be one app for the server and one CLI client.`),
+For example if your project is for some API there could be one app for the server and one CLI client.`,
 				validator: RegexValidator(`^[a-z1-9]+(-[a-z1-9]+)*$`, "only lowercase letters, numbers and dashes"),
 			},
 			{
@@ -226,10 +226,10 @@ For example if your project is for some API there could be one app for the serve
 					projectSlug := vals.Base["projectSlug"].(string)
 					return fmt.Sprintf("github.com/user/%s", projectSlug)
 				}),
-				description: StringValue(`The name of the Go module defined in the "go.mod" file.
+				description: `The name of the Go module defined in the "go.mod" file.
 This is used if you want to "go get" the module.
 Please be aware that this depends on your version control system.
-The default points to "github.com" but for devops for example it would look sth. like this "dev.azure.com/org/project/repo.git"`),
+The default points to "github.com" but for devops for example it would look sth. like this "dev.azure.com/org/project/repo.git"`,
 				validator: RegexValidator(`^[\S]+$`, "no whitespaces"),
 			},
 			{
@@ -242,7 +242,7 @@ The default points to "github.com" but for devops for example it would look sth.
 
 					return latestTag.String()
 				}),
-				description: StringValue("Golangci-lint version to use."),
+				description: "Golangci-lint version to use.",
 				validator: RegexValidator(
 					semverRegex,
 					"valid semver version string",
@@ -256,7 +256,7 @@ The default points to "github.com" but for devops for example it would look sth.
 					{
 						name:         "license",
 						defaultValue: StaticValue(1),
-						description: StringValue(`Set an OpenSource license.
+						description: `Set an OpenSource license.
 Unsure which to pick? Checkout Github's https://choosealicense.com/
 Options:
 	0: Add no license
@@ -267,7 +267,7 @@ Options:
 	5: GNU LGPLv3
 	6: Mozilla Public License 2.0
 	7: Boost Software License 1.0
-	8: The Unlicense`),
+	8: The Unlicense`,
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							if v.(int) == 0 {
 								return os.RemoveAll(path.Join(targetDir, "LICENSE"))
@@ -286,7 +286,7 @@ Options:
 							}
 							return strings.TrimSpace(buffer.String())
 						}),
-						description: StringValue(`License author`),
+						description: `License author`,
 						shouldDisplay: DynamicBoolValue(func(vals *OptionValues) bool {
 							switch vals.Extensions["openSource"]["license"].(int) {
 							case 1, 2:
@@ -306,7 +306,7 @@ Options:
 							}
 							return strings.TrimSpace(buffer.String())
 						}),
-						description: StringValue("Set the codeowner of the project"),
+						description: "Set the codeowner of the project",
 					},
 				},
 			},
@@ -316,12 +316,12 @@ Options:
 					{
 						name:         "provider",
 						defaultValue: StaticValue(1),
-						description: StringValue(`Set an CI pipeline provider integration
+						description: `Set an CI pipeline provider integration
 			Options:
 			0: No CI
 			1: Github
 			2: Gitlab
-			3: Azure DevOps`),
+			3: Azure DevOps`,
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							ciFiles := map[int][]string{
 								0: {},
@@ -351,7 +351,7 @@ Options:
 					{
 						name:         "base",
 						defaultValue: StaticValue(false),
-						description:  StringValue("Base configuration for gRPC"),
+						description:  "Base configuration for gRPC",
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							set := v.(bool)
 							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.yaml", "api/openapi.v1.yml"}
@@ -365,7 +365,7 @@ Options:
 					{
 						name:         "grpcGateway",
 						defaultValue: StaticValue(false),
-						description:  StringValue("Extend gRPC configuration with grpc-gateway"),
+						description:  "Extend gRPC configuration with grpc-gateway",
 						shouldDisplay: DynamicBoolValue(func(vals *OptionValues) bool {
 							return vals.Extensions["grpc"]["base"].(bool)
 						}),

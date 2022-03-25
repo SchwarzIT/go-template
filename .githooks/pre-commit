@@ -1,0 +1,16 @@
+#!/bin/bash
+
+## compare amount of changed file before and after generate
+CHANGE_STATS=$(git diff --shortstat)
+
+make generate &>/dev/null
+
+CHANGE_STATS_NEW=$(git diff --shortstat)
+
+## we can check to see if this is empty
+if [[ "$CHANGE_STATS" != "$CHANGE_STATS_NEW" ]]; then
+    echo -e "Files have been generated. Pls treat them also."
+    exit 1
+fi
+
+echo "No changes happened due to make generate, ready to proceed"

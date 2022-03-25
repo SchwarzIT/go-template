@@ -28,7 +28,7 @@ func (gt *GT) printWarningf(format string, a ...interface{}) {
 func (gt *GT) printOption(opts *Option, optionValues *OptionValues) {
 	highlight := color.New(color.FgCyan).SprintFunc()
 	underline := color.New(color.FgHiYellow, color.Underline).SprintFunc()
-	gt.printf("%s\n", underline(opts.Description(optionValues)))
+	gt.printf("%s\n", underline(opts.Description()))
 	gt.printf("%s: (%v) ", highlight(opts.Name()), opts.Default(optionValues))
 }
 

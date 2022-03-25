@@ -71,7 +71,7 @@ make all
 
 ## Options
 
-To get an overview of all options that can be set for the template you can take a look at the [options definition file](pkg/gotemplate/options.go), run the CLI or check out the [testing example values file](pkg/gotemplate/testdata/values.yml).
+To get an overview of all options that can be set for the template you can take a look at the [options docs](docs/options.md), run the CLI or check out the [testing example values file](pkg/gotemplate/testdata/values.yml).
 
 ## Maintainers
 
