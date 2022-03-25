@@ -31,7 +31,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - uses: sigstore/cosign-installer@581838fbedd492d2350a9ecd427a95d6de1e5d01 # tag=v2.1.0
-      - uses: anchore/sbom-action/download-syft@ce4a7cf05d7b684693d7b6bba97bfbee56806edb # tag=v0.7.0
+      - uses: anchore/sbom-action/download-syft@2ad78246293830258e98b4e707b1fb02d0242828 # tag=v0.8.0
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@b953231f81b8dfd023c58e0854a721e35037f28b # tag=v2.9.1
         with:
