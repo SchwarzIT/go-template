@@ -2,7 +2,7 @@ SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
 # constants
-GOLANGCI_VERSION = 1.42.1
+GOLANGCI_VERSION = 1.45.2
 
 all: git-hooks generate ## Initializes all tools and files
 
@@ -49,7 +49,7 @@ out/lint.xml: $(GOLANGCI_LINT) out download
 	$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
 
 test: ## Runs all tests
-	go test ./...
+	@go test ./...
 
 coverage: out/report.json ## Displays coverage per func on cli
 	go tool cover -func=out/cover.out
