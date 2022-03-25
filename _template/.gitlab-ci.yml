@@ -53,7 +53,7 @@ semgrep:
 
 golang:
   stage: test
-  image: golang:1.17
+  image: golang:1.18
   script:
     - make download
     - make lint
