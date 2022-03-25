@@ -95,32 +95,19 @@ endef
 # this creates a target for each go dependency to be referenced in other targets
 $(foreach dep, $(GO_DEPENDENCIES), $(eval $(call make-go-dependency, $(dep))))
 
-api/proto/google:
-	@mkdir -p api/proto/google/api
-	curl -s https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/annotations.proto -o api/proto/google/api/annotations.proto
-	curl -s https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/http.proto -o api/proto/google/api/http.proto
-	curl -s https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/field_behavior.proto -o api/proto/google/api/field_behavior.proto
+.PHONY: api/proto/buf.lock
+api/proto/buf.lock: bin/buf
+	@bin/buf mod update api/proto
 
-api/proto/validate:
-	@mkdir -p api/proto/validate
-	curl -s https://raw.githubusercontent.com/envoyproxy/protoc-gen-validate/main/validate/validate.proto -o api/proto/validate/validate.proto
-
-{{- if .Extensions.grpc.grpcGateway }}
-api/proto/protoc-gen-openapiv2:
-	@mkdir -p api/proto/protoc-gen-openapiv2/options
-	curl -s https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/master/protoc-gen-openapiv2/options/openapiv2.proto -o api/proto/protoc-gen-openapiv2/options/openapiv2.proto
-	curl -s https://raw.githubusercontent.com/grpc-ecosystem/grpc-gateway/master/protoc-gen-openapiv2/options/annotations.proto -o api/proto/protoc-gen-openapiv2/options/annotations.proto
-{{- end }}
-
-protolint: bin/buf bin/protoc-gen-buf-lint ## Lints your protobuf files
+protolint: api/proto/buf.lock bin/protoc-gen-buf-lint ## Lints your protobuf files
 	bin/buf lint
 
-protobreaking: bin/buf bin/protoc-gen-buf-breaking ## Compares your current protobuf with the version on master to find breaking changes
+protobreaking: api/proto/buf.lock bin/protoc-gen-buf-breaking ## Compares your current protobuf with the version on master to find breaking changes
 	bin/buf breaking --against '.git#branch=master'
 
 generate: ## Generates code from protobuf files
-generate: api/proto/google api/proto/validate {{if .Extensions.grpc.grpcGateway}}api/proto/protoc-gen-openapiv2 bin/protoc-gen-grpc-gateway bin/protoc-gen-openapiv2{{end}} bin/buf bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
-	PATH=$(PWD)/bin:$$PATH buf generate --path api/proto/{{.Base.appName}}/v1/{{.Base.appName}}.proto
+generate: {{if .Extensions.grpc.grpcGateway}}bin/protoc-gen-grpc-gateway bin/protoc-gen-openapiv2{{end}} api/proto/buf.lock bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
+	PATH=$(PWD)/bin:$$PATH buf generate
 {{- end }}
 
 ci: lint-reports test-reports ## Executes lint and test and generates reports

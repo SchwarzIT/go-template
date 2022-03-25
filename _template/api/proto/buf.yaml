@@ -1,0 +1,16 @@
+version: v1
+breaking:
+  use:
+    - FILE
+deps:
+  - buf.build/envoyproxy/protoc-gen-validate
+  - buf.build/googleapis/googleapis
+{{- if .Extensions.grpc.grpcGateway }}
+  - buf.build/grpc-ecosystem/grpc-gateway
+{{- end }}
+lint:
+  use:
+    - DEFAULT
+  except:
+    - RPC_RESPONSE_STANDARD_NAME
+    - RPC_REQUEST_RESPONSE_UNIQUE
