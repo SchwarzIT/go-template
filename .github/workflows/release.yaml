@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-go@f6164bd8c8acb4a71fb2791a8b6c4024ff038dab # tag=v3.0.0
         with:
           go-version: 1.18
-      - uses: actions/cache@4b0cf6cc4619e737324ddfcec08fff2413359514 # tag=v3.0.0
+      - uses: actions/cache@136d96b4aee02b1f0de3ba493b1d47135042d9c0 # tag=v3.0.1
         with:
           path: |
             ~/.cache/go-build
@@ -30,8 +30,8 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - uses: sigstore/cosign-installer@581838fbedd492d2350a9ecd427a95d6de1e5d01 # tag=v2.1.0
-      - uses: anchore/sbom-action/download-syft@2ad78246293830258e98b4e707b1fb02d0242828 # tag=v0.8.0
+      - uses: sigstore/cosign-installer@d6a3abf1bdea83574e28d40543793018b6035605 # tag=v2.2.0
+      - uses: anchore/sbom-action/download-syft@407a3ec314b07e326eff3ba171091cbc150460a8 # tag=v0.10.0
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@b953231f81b8dfd023c58e0854a721e35037f28b # tag=v2.9.1
         with:
