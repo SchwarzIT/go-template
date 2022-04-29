@@ -21,7 +21,11 @@ import (
 	"github.com/schwarzit/go-template/pkg/gocli"
 )
 
-const minGoVersion = "1.15"
+const (
+	minGoVersion        = "1.15"
+	permissionDirectory = 0755
+	permissionFile      = 0644
+)
 
 var (
 	ErrAlreadyExists         = errors.New("already exists")
@@ -207,7 +211,7 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 
 		pathToWrite = strings.ReplaceAll(pathToWrite, gotemplate.Key, targetDir)
 		if d.IsDir() {
-			return os.MkdirAll(pathToWrite, os.ModePerm)
+			return os.MkdirAll(pathToWrite, permissionDirectory)
 		}
 
 		fileBytes, err := fs.ReadFile(gotemplate.FS, path)
@@ -220,7 +224,7 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 			return err
 		}
 
-		return os.WriteFile(pathToWrite, []byte(data), os.ModePerm)
+		return os.WriteFile(pathToWrite, []byte(data), permissionFile)
 	})
 	if err != nil {
 		return err
