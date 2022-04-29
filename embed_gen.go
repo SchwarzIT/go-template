@@ -3,5 +3,5 @@ package gotemplate
 
 import "embed"
 
-//go:embed _template _template/.azure-pipelines.yml _template/.dockerignore _template/.editorconfig _template/.githooks _template/.github _template/.gitignore _template/.gitlab-ci.yml _template/.golangci.yml _template/assets/.gitkeep _template/configs/.gitkeep _template/deployments/.gitkeep _template/internal/.gitkeep _template/pkg/.gitkeep
+//go:embed _template _template/.azure-pipelines.yml _template/.dockerignore _template/.editorconfig _template/.githooks _template/.github _template/.gitignore _template/.gitlab-ci.yml _template/.golangci.yml
 var FS embed.FS
