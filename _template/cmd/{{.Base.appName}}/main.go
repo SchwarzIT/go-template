@@ -19,10 +19,24 @@ func main() {
 }
 
 func getLogger() (*zap.Logger, error) {
-	if os.Getenv("LOG_LEVEL") == "debug" {
-		return zap.NewDevelopment()
+	logLevel := zapcore.InfoLevel
+	if levelStr := os.Getenv("LOG_LEVEL"); levelStr != "" {
+		var err error
+		logLevel, err = zapcore.ParseLevel(levelStr)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return zap.NewProduction()
+
+	logConf := zap.NewProductionConfig()
+	logConf.Level = zap.NewAtomicLevelAt(logLevel)
+
+	logger, err := logConf.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	return logger, nil
 }
 
 func run() error {
