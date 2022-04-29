@@ -50,7 +50,7 @@ func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 	gt := gotemplate.GT{
 		Options: &gotemplate.Options{
 			Base: []gotemplate.Option{
-				gotemplate.NewOption(optionName, gotemplate.StringValue("description"), gotemplate.StaticValue("theDefault")),
+				gotemplate.NewOption(optionName, "description", gotemplate.StaticValue("theDefault")),
 			},
 		},
 	}
@@ -66,7 +66,7 @@ func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 				Options: []gotemplate.Option{
 					gotemplate.NewOption(
 						categoryOptionName,
-						gotemplate.StringValue("desc"),
+						"description",
 						gotemplate.StaticValue(false),
 					),
 				},
@@ -106,7 +106,7 @@ base:
 	t.Run("validates validator if set", func(t *testing.T) {
 		gt.Options.Base[0] = gotemplate.NewOption(
 			optionName,
-			gotemplate.StringValue("description"),
+			"description",
 			gotemplate.StaticValue("theDefault"),
 			gotemplate.WithValidator(gotemplate.RegexValidator(
 				`[a-z1-9]+(-[a-z1-9]+)*$`,
@@ -129,7 +129,7 @@ base:
 					Options: []gotemplate.Option{
 						gotemplate.NewOption(
 							"string",
-							gotemplate.StringValue("desc"),
+							"description",
 							gotemplate.StaticValue("default"),
 						),
 					},
@@ -153,17 +153,17 @@ base:
 			Base: []gotemplate.Option{
 				gotemplate.NewOption(
 					"int",
-					gotemplate.StringValue("desc"),
+					"description",
 					gotemplate.StaticValue(2),
 				),
 				gotemplate.NewOption(
 					"string",
-					gotemplate.StringValue("desc"),
+					"description",
 					gotemplate.StaticValue("string"),
 				),
 				gotemplate.NewOption(
 					"bool",
-					gotemplate.StringValue("desc"),
+					"description",
 					gotemplate.StaticValue(false),
 				),
 			},
@@ -189,7 +189,7 @@ base:
 	t.Run("error on type mismatch", func(t *testing.T) {
 		gt.Options.Base[0] = gotemplate.NewOption(
 			optionName,
-			gotemplate.StringValue("description"),
+			"description",
 			gotemplate.StaticValue(false),
 		)
 
@@ -209,7 +209,7 @@ base:
 					Options: []gotemplate.Option{
 						gotemplate.NewOption(
 							"option",
-							gotemplate.StringValue("description"),
+							"description",
 							gotemplate.StaticValue(false),
 							gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
 						),
@@ -234,7 +234,7 @@ extensions:
 					Options: []gotemplate.Option{
 						gotemplate.NewOption(
 							"option",
-							gotemplate.StringValue("description"),
+							"description",
 							gotemplate.StaticValue(true),
 							gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
 						),
@@ -279,7 +279,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				optionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				gotemplate.StaticValue("theDefault"),
 			),
 		}
@@ -289,7 +289,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 				Options: []gotemplate.Option{
 					gotemplate.NewOption(
 						categoryOptionName,
-						gotemplate.StringValue("desc"),
+						"description",
 						gotemplate.StaticValue(false),
 					),
 				},
@@ -321,7 +321,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				optionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				gotemplate.StaticValue("DOES_NOT_MATCH"),
 				gotemplate.WithValidator(gotemplate.RegexValidator(
 					`[a-z1-9]+(-[a-z1-9]+)*$`,
@@ -345,7 +345,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				optionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				gotemplate.StaticValue("DOES_NOT_MATCH"),
 				gotemplate.WithValidator(gotemplate.RegexValidator(
 					`[a-z1-9]+(-[a-z1-9]+)*$`,
@@ -365,7 +365,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		gt.Err = out
 		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "not a bool\ntrue\n"))
 		gt.Options.Base = []gotemplate.Option{
-			gotemplate.NewOption(optionName, gotemplate.StringValue("desc"), gotemplate.StaticValue(false)),
+			gotemplate.NewOption(optionName, "description", gotemplate.StaticValue(false)),
 		}
 
 		optionValues, err := gt.LoadConfigValuesInteractively()
@@ -381,12 +381,12 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				optionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				gotemplate.StaticValue("theDefault"),
 			),
 			gotemplate.NewOption(
 				templateOptionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				gotemplate.DynamicValue(func(vals *gotemplate.OptionValues) interface{} {
 					return vals.Base[optionName].(string) + "-templated"
 				}),
@@ -416,7 +416,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				dependentOptionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				gotemplate.StaticValue(false),
 				gotemplate.WithShouldDisplay(gotemplate.BoolValue(false)),
 			),
@@ -439,12 +439,12 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				optionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				gotemplate.StaticValue(true),
 			),
 			gotemplate.NewOption(
 				intOptionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				gotemplate.StaticValue(3),
 			),
 		}
@@ -464,7 +464,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				optionName,
-				gotemplate.StringValue("desc"),
+				"description",
 				// currently float is not supported
 				gotemplate.StaticValue(2.0),
 			),
@@ -587,7 +587,7 @@ func TestGT_InitNewProject(t *testing.T) {
 		postHookTriggered := false
 		gt.Options.Base = append(gt.Options.Base, gotemplate.NewOption(
 			"testOption",
-			gotemplate.StringValue("desc"),
+			"description",
 			gotemplate.StaticValue(true),
 			gotemplate.WithPosthook(func(value interface{}, optionValues *gotemplate.OptionValues, targetDir string) error {
 				postHookTriggered = true
@@ -608,7 +608,7 @@ func TestGT_InitNewProject(t *testing.T) {
 		postHookTriggered := false
 		gt.Options.Base = append(gt.Options.Base, gotemplate.NewOption(
 			"testOption",
-			gotemplate.StringValue("desc"),
+			"description",
 			gotemplate.StaticValue(false),
 			gotemplate.WithPosthook(func(value interface{}, optionValues *gotemplate.OptionValues, targetDir string) error {
 				postHookTriggered = true

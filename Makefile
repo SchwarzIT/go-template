@@ -32,7 +32,8 @@ run: fmt ## Run a controller from your host
 	@go run ./main.go
 
 generate: ## Generates files
-	@go generate ./...
+	@go run cmd/dotembed/main.go -target _template -o embed_gen.go -pkg gotemplate -var FS
+	@go run cmd/options2md/main.go -o docs/options.md
 
 GOLANGCI_LINT = bin/golangci-lint-$(GOLANGCI_VERSION)
 $(GOLANGCI_LINT):
