@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"{{.Base.moduleName}}/internal/logger"
 	"go.uber.org/zap"
 
 	// This controls the maxprocs environment variable in container runtimes.
@@ -18,29 +19,8 @@ func main() {
 	}
 }
 
-func getLogger() (*zap.Logger, error) {
-	logLevel := zapcore.InfoLevel
-	if levelStr := os.Getenv("LOG_LEVEL"); levelStr != "" {
-		var err error
-		logLevel, err = zapcore.ParseLevel(levelStr)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	logConf := zap.NewProductionConfig()
-	logConf.Level = zap.NewAtomicLevelAt(logLevel)
-
-	logger, err := logConf.Build()
-	if err != nil {
-		return nil, err
-	}
-
-	return logger, nil
-}
-
 func run() error {
-	logger, err := getLogger()
+	logger, err := logger.GetLogger(os.Getenv("LOG_LEVEL"))
 	if err != nil {
 		return err
 	}
