@@ -13,11 +13,9 @@ out/
 
 # docs
 api/
-docs/
 **/*.md
 
 # other files not needed for build
-deployments/
 .editorconfig
 .golangci.yml
 Makefile
