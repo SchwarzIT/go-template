@@ -5,9 +5,9 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func GetLogger(logLevelValue string) (*zap.Logger, error) {
+func NewAtLevel(levelStr string) (*zap.Logger, error) {
 	logLevel := zapcore.InfoLevel
-	if levelStr := logLevelValue; levelStr != "" {
+	if levelStr != "" {
 		var err error
 		logLevel, err = zapcore.ParseLevel(levelStr)
 		if err != nil {

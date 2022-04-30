@@ -20,7 +20,7 @@ func main() {
 }
 
 func run() error {
-	logger, err := logger.GetLogger(os.Getenv("LOG_LEVEL"))
+	logger, err := logger.NewAtLevel(os.Getenv("LOG_LEVEL"))
 	if err != nil {
 		return err
 	}
