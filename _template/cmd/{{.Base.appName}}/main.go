@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"{{.Base.moduleName}}/internal/logger"
 	"go.uber.org/zap"
 
 	// This controls the maxprocs environment variable in container runtimes.
@@ -19,7 +20,7 @@ func main() {
 }
 
 func run() error {
-	logger, err := zap.NewProduction()
+	logger, err := logger.NewAtLevel(os.Getenv("LOG_LEVEL"))
 	if err != nil {
 		return err
 	}
