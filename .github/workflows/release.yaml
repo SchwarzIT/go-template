@@ -5,14 +5,14 @@ on:
     tags:
       - "*"
 
-permissions:
-  contents: write
+permissions: read-all
 
 jobs:
   release:
     permissions:
       id-token: write
       packages: write
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
