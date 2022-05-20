@@ -354,7 +354,7 @@ Options:
 						description:  "Base configuration for gRPC",
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							set := v.(bool)
-							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.yaml", "api/openapi.v1.yml"}
+							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.work.yaml", "api/openapi.v1.yml"}
 
 							if set {
 								return os.RemoveAll(path.Join(targetDir, "api/openapi.v1.yml"))
