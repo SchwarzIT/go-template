@@ -4,7 +4,7 @@ base:
   projectDescription: Some project used for testing
   appName: testing
   moduleName: github.com/fake/testing
-  golangciVersion: 1.42.1
+  golangciVersion: 1.46.2
 extensions:
   openSource:
     author: "Marty Mc Fly"
