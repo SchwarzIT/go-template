@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Install Go
-        uses: actions/setup-go@f6164bd8c8acb4a71fb2791a8b6c4024ff038dab # tag=v3.0.0
+        uses: actions/setup-go@fcdc43634adb5f7ae75a9d7a9b9361790f7293e2 # tag=v3.1.0
         with:
           go-version: ${{ matrix.go-version }}
 
