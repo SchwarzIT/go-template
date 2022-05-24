@@ -22,9 +22,9 @@ import (
 )
 
 const (
-	minGoVersion        = "1.15"
-	permissionDirectory = 0755
-	permissionFile      = 0644
+	minGoVersion  = "1.15"
+	permissionRWX = 0755
+	permissionRW  = 0644
 )
 
 var (
@@ -211,7 +211,7 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 
 		pathToWrite = strings.ReplaceAll(pathToWrite, gotemplate.Key, targetDir)
 		if d.IsDir() {
-			return os.MkdirAll(pathToWrite, permissionDirectory)
+			return os.MkdirAll(pathToWrite, permissionRWX)
 		}
 
 		fileBytes, err := fs.ReadFile(gotemplate.FS, path)
@@ -224,7 +224,13 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
 			return err
 		}
 
-		return os.WriteFile(pathToWrite, []byte(data), permissionFile)
+		filePermissions := fs.FileMode(permissionRW)
+		// files that contain a shebang should be executable
+		if strings.HasPrefix(strings.TrimSpace(data), "#!") {
+			filePermissions = permissionRWX
+		}
+
+		return os.WriteFile(pathToWrite, []byte(data), filePermissions)
 	})
 	if err != nil {
 		return err
