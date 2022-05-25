@@ -64,3 +64,6 @@ jobs:
 
       - name: Lint the test project
         run: cd testing-project && make ci
+
+      - name: Lint the test project
+        run: make testing-projects-cases

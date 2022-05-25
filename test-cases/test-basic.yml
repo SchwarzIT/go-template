@@ -1,0 +1,15 @@
+base:
+  projectName: Testing Project
+  projectSlug: testing-project-basic
+  projectDescription: Some project used for testing
+  appName: testing
+  moduleName: github.com/fake/testing
+  golangciVersion: 1.46.2
+extensions:
+  openSource:
+    license: 0 # Add no license
+  ci:
+    provider: 0 # No CI
+  grpc:
+    base: false
+    grpcGateway: false

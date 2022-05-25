@@ -67,6 +67,9 @@ out/report.json: out
 clean-test-project: ## Removes test-project
 	@rm -rf testing-project
 
+clean-test-project-cases: ## Removes test-project cases
+	@rm -rf testing-project-*
+
 clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
 
@@ -77,6 +80,18 @@ create-test-project: clean-test-project testing-project ## Creates a testing-pro
 .PHONY: testing-project
 testing-project:
 	go run cmd/gt/*.go new -c pkg/gotemplate/testdata/values.yml
+
+.PHONY: testing-projects-cases
+testing-projects-cases: clean-test-project-cases ## test generating mutiple projects with running tests & linting within the new project
+	@for case in basic grpc grpc-gateway ; do \
+		echo Test: $$case ; \
+		go run cmd/gt/*.go new -c test-cases/test-$$case.yml ; \
+		cd testing-project-$$case ; \
+		make ci ; \
+		make docker ; \
+		make all ; \
+		cd .. ; \
+    done
 
 help:
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

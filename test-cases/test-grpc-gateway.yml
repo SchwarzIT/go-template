@@ -1,0 +1,17 @@
+base:
+  projectName: Testing Project
+  projectSlug: testing-project-grpc-gateway
+  projectDescription: Some project used for testing
+  appName: testing
+  moduleName: github.com/fake/testing
+  golangciVersion: 1.46.2
+extensions:
+  openSource:
+    author: "Marty Mc Fly"
+    codeowner: "Marty.Mc.Fly@future.back"
+    license: 1 # MIT License
+  ci:
+    provider: 1 # Github
+  grpc:
+    base: true
+    grpcGateway: true
