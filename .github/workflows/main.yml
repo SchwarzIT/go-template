@@ -61,3 +61,6 @@ jobs:
 
       - name: Create a test project
         run: make create-test-project
+
+      - name: Lint the test project
+        run: cd testing-project && make ci
