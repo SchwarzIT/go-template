@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Install Go
-        uses: actions/setup-go@fcdc43634adb5f7ae75a9d7a9b9361790f7293e2 # tag=v3.1.0
+        uses: actions/setup-go@b22fbbc2921299758641fab08929b4ac52b32923 # tag=v3.2.0
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3.0.2
 
       # cache go modules
-      - uses: actions/cache@48af2dc4a9e8278b89d7fa154b955c30c6aaab09 # tag=v3.0.2
+      - uses: actions/cache@30f413bfed0a2bc738fdfd409e5a9e96b24545fd # tag=v3.0.3
         with:
           # In order:
           # * Module download cache
