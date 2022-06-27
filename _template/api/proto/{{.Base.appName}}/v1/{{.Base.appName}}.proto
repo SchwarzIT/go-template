@@ -30,7 +30,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 {{- end }}
 
-service {{ .Base.appName | title}}Service {
+service {{ .Base.appName | title | replace "-" "" }}Service {
   {{- if .Extensions.grpc.grpcGateway }}
   rpc GetExample(GetExampleRequest) returns (GetExampleResponse) {
     option (google.api.http) = {
