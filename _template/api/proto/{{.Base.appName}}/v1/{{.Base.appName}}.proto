@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package {{.Base.appName}}.v1;
+package {{.Base.appName | replace "-" "_" }}.v1;
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
