@@ -103,7 +103,7 @@ protolint: api/proto/buf.lock bin/protoc-gen-buf-lint ## Lints your protobuf fil
 	bin/buf lint
 
 protobreaking: api/proto/buf.lock bin/protoc-gen-buf-breaking ## Compares your current protobuf with the version on master to find breaking changes
-	bin/buf breaking --against '.git#branch=master'
+	bin/buf breaking --against '.git#branch=main'
 
 generate: ## Generates code from protobuf files
 generate: {{if .Extensions.grpc.grpcGateway}}bin/protoc-gen-grpc-gateway bin/protoc-gen-openapiv2{{end}} api/proto/buf.lock bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
