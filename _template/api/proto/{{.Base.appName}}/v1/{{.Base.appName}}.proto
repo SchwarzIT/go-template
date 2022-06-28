@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package {{.Base.appName}}.v1;
+package {{.Base.appName | replace "-" "_" }}.v1;
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -30,7 +30,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 {{- end }}
 
-service {{ .Base.appName | title}}Service {
+service {{ .Base.appName | title | replace "-" "" }}Service {
   {{- if .Extensions.grpc.grpcGateway }}
   rpc GetExample(GetExampleRequest) returns (GetExampleResponse) {
     option (google.api.http) = {
