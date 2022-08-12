@@ -112,7 +112,6 @@ func (gt *GT) LoadConfigValuesFromFile(file string) (*OptionValues, error) {
 	return &optionValues, nil
 }
 
-// nolint: gocritic // option is passed by value to improve usability when iterating a slice of options
 func validateFileOption(option Option, value interface{}, optionValues OptionValues) error {
 	valType := reflect.TypeOf(value)
 	defaultVal := option.Default(&optionValues)
