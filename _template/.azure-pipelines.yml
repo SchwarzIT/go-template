@@ -10,7 +10,7 @@ stages:
       - job: GoBuildTest
         displayName: Lint & Test Go Application
         steps:
-          - task: GoTool@0
+          - task: GoTool@0.207.0
             displayName: Install Go Binary
             inputs:
               version: $(goVersion)
