@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3.0.2
 
       # cache go modules
-      - uses: actions/cache@0865c47f36e68161719c5b124609996bb5c40129 # tag=v3.0.5
+      - uses: actions/cache@a7c34adf76222e77931dedbf4a45b2e4648ced19 # tag=v3.0.7
         with:
           # In order:
           # * Module download cache
