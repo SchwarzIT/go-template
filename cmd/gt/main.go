@@ -10,8 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// nolint: gochecknoglobals // only a colored string, cannot be put into a const
-var goTemplateHighlighted = color.CyanString("go/template")
+var (
+	//nolint:gochecknoglobals // only a colored string, cannot be put into a const
+	goTemplateHighlighted = color.CyanString("go/template")
+)
 
 func main() {
 	cmd := buildRootCommand()

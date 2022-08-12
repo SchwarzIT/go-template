@@ -11,10 +11,15 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
 	"github.com/schwarzit/go-template/pkg/gotemplate"
+)
+
+var (
+	errFoundLeftoverTemplateVar = errors.New("Found a leftover template variable in")
 )
 
 const (
@@ -471,7 +476,10 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		}
 
 		require.PanicsWithValue(t, "unsupported type", func() {
-			gt.LoadConfigValuesInteractively()
+			_, err := gt.LoadConfigValuesInteractively()
+			if err != nil {
+				t.Error("Error while loading config: %w", err)
+			}
 		})
 	})
 }
@@ -530,7 +538,7 @@ func TestGT_InitNewProject(t *testing.T) {
 			}
 
 			if strings.Contains(path, "<no value>") {
-				return fmt.Errorf("found a leftover template variable in %s", path)
+				return fmt.Errorf("%w: %s", errFoundLeftoverTemplateVar, path)
 			}
 
 			if d.IsDir() || strings.Contains(path, ".git") {
@@ -543,7 +551,7 @@ func TestGT_InitNewProject(t *testing.T) {
 			}
 
 			if strings.Contains(string(fileBytes), "<no value>") {
-				return fmt.Errorf("found a leftover template variable in %s", path)
+				return fmt.Errorf("%w: %s", errFoundLeftoverTemplateVar, path)
 			}
 
 			return nil

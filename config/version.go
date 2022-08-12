@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	Version       = strings.TrimSpace(version)
-	VersionSemver = semver.MustParse(Version)
+	Version       = strings.TrimSpace(version) //nolint:gochecknoglobals // version
+	VersionSemver = semver.MustParse(Version)  //nolint:gochecknoglobals // version
 
 	//go:embed version.txt
 	version string

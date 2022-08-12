@@ -23,7 +23,7 @@ func Semver() (*semver.Version, error) {
 	}
 
 	versionParts := strings.Split(stdout.String(), " ")
-	if len(versionParts) != 4 { // nolint: gomnd // go version output has exactly 4 parts (e.g. "go version go1.17.2 darwin/amd64")
+	if len(versionParts) != 4 { //nolint:gomnd // go version output has exactly 4 parts (e.g. "go version go1.17.2 darwin/amd64")
 		return nil, errors.Wrap(ErrMalformedGoVersionOutput, stdout.String())
 	}
 

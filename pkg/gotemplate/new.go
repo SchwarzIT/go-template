@@ -34,7 +34,7 @@ var (
 	ErrParameterSet          = errors.New("parameter set but has no effect in this context")
 	ErrGoVersionNotSupported = fmt.Errorf("go version is not supported, gt requires at least %s", minGoVersion)
 
-	minGoVersionSemver = semver.MustParse(minGoVersion) // nolint: gochecknoglobals // parsed semver from const minGoVersion
+	minGoVersionSemver = semver.MustParse(minGoVersion) //nolint:gochecknoglobals // parsed semver from const minGoVersion
 )
 
 type ErrTypeMismatch struct {
@@ -65,7 +65,7 @@ func (opts NewRepositoryOptions) Validate() error {
 }
 
 // LoadConfigValuesFromFile loads value for the options from a file and validates the inputs
-func (gt *GT) LoadConfigValuesFromFile(file string) (*OptionValues, error) {
+func (gt *GT) LoadConfigValuesFromFile(file string) (*OptionValues, error) { //nolint:cyclop // todo refactor
 	fileBytes, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -182,7 +182,7 @@ func (gt *GT) loadOptionValueInteractively(option *Option, optionValues *OptionV
 	return val
 }
 
-func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) {
+func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) { //nolint:cyclop // todo refactor
 	gt.printProgressf("Generating repo folder...")
 
 	targetDir := path.Join(opts.OutputDir, opts.OptionValues.Base["projectSlug"].(string))
