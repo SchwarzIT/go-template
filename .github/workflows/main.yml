@@ -59,8 +59,11 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: ./out/bin/gt.exe --help
 
-      - name: Create a test project
-        run: make create-test-project
+      - name: Create a test project & test it
+        run: |
+          make testing-project-default
+          make -C testing-project ci
+          make -C testing-project all
 
-      - name: Lint the test project
-        run: cd testing-project && make ci
+      - name: Test generate projects
+        run: make testing-project-ci
