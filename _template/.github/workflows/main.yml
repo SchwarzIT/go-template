@@ -56,3 +56,6 @@ jobs:
 
       - name: Runs all tests
         run: make test
+
+      - name: Test generate projects
+        run: make testing-project-ci
