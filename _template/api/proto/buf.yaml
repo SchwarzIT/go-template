@@ -6,7 +6,7 @@ deps:
   - buf.build/envoyproxy/protoc-gen-validate
   - buf.build/googleapis/googleapis
 {{- if .Extensions.grpc.grpcGateway }}
-  - buf.build/grpc-ecosystem/grpc-gateway
+  - buf.build/gnostic/gnostic
 {{- end }}
 lint:
   use:
@@ -14,3 +14,4 @@ lint:
   except:
     - RPC_RESPONSE_STANDARD_NAME
     - RPC_REQUEST_RESPONSE_UNIQUE
+    - IMPORT_NO_WEAK # required by gnostic for now. this way gen-go will not import _ "" broken packages

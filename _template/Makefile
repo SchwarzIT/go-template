@@ -83,7 +83,7 @@ GO_DEPENDENCIES = google.golang.org/protobuf/cmd/protoc-gen-go \
 {{- if .Extensions.grpc.grpcGateway }}
 # additional dependencies for grpc-gateway
 GO_DEPENDENCIES += github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
-				github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
+				github.com/google/gnostic/cmd/protoc-gen-openapi
 {{- end }}
 
 define make-go-dependency
@@ -106,7 +106,7 @@ protobreaking: api/proto/buf.lock bin/protoc-gen-buf-breaking ## Compares your c
 	bin/buf breaking --against '.git#branch=main'
 
 generate: ## Generates code from protobuf files
-generate: {{if .Extensions.grpc.grpcGateway}}bin/protoc-gen-grpc-gateway bin/protoc-gen-openapiv2{{end}} api/proto/buf.lock bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
+generate: {{if .Extensions.grpc.grpcGateway}}bin/protoc-gen-grpc-gateway bin/protoc-gen-openapi{{end}} api/proto/buf.lock bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
 	PATH=$(PWD)/bin:$$PATH buf generate
 {{- end }}
 
