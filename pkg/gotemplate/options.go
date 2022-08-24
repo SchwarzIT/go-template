@@ -12,7 +12,7 @@ import (
 	"github.com/schwarzit/go-template/pkg/repos"
 )
 
-// nolint: lll // official regex for semver patterns that can't be broken up into multiple lines
+//nolint:lll // official regex for semver patterns that can't be broken up into multiple lines
 const semverRegex = `^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`
 
 type ErrOutOfRange struct {
@@ -25,7 +25,7 @@ func (e *ErrOutOfRange) Error() string {
 	return fmt.Sprintf("%d: value out of range (min: %d, max: %d)", e.Value, e.Min, e.Max)
 }
 
-// ErrInvalidaPattern indicates that an error occurred while matching
+// ErrInvalidPattern indicates that an error occurred while matching
 // a value with a pattern.
 // The pattern as well as a description for the pattern is included in the error message.
 type ErrInvalidPattern struct {
@@ -188,7 +188,7 @@ func NewOptionValues() *OptionValues {
 type OptionNameToValue map[string]interface{}
 
 // NewOptions returns all of go/template's options.
-func NewOptions(githubTagLister repos.GithubTagLister) *Options { // nolint: funlen // Static initialization
+func NewOptions(githubTagLister repos.GithubTagLister) *Options { //nolint:funlen,cyclop // Static initialization
 	return &Options{
 		Base: []Option{
 			{
@@ -289,7 +289,7 @@ Options:
 						description: `License author`,
 						shouldDisplay: DynamicBoolValue(func(vals *OptionValues) bool {
 							switch vals.Extensions["openSource"]["license"].(int) {
-							case 1, 2:
+							case 1, 2: //nolint:gomnd // 1: MIT License; 2: Apache License 2.0
 								return true
 							}
 							return false
