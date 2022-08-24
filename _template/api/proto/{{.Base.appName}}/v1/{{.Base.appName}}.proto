@@ -19,6 +19,41 @@ import weak "gnostic/openapi/v3/annotations.proto"; // Will not import _ "" in t
 // and the package name.
 option go_package = "{{.Base.moduleName | replace `.git` ``}}/internal/pkg/pb;pb";
 
+{{- if .Extensions.grpc.grpcGateway }}
+// These annotations are used when generating the OpenAPI file.
+option (openapi.v3.document) = {
+  info: {
+    title: "Title from annotation";
+    version: "Version from annotation";
+    description: "Description from annotation";
+    contact: {
+      name: "Contact Name";
+      url: "https://github.com/google/gnostic";
+      email: "gnostic@google.com";
+    }
+    license: {
+      name: "Apache License";
+      url: "https://github.com/google/gnostic/blob/master/LICENSE";
+    }
+  }
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BasicAuth";
+          value: {
+            security_scheme: {
+              type: "http";
+              scheme: "basic";
+            }
+          }
+        }
+      ]
+    }
+  }
+};
+{{- end }}
+
 service {{ .Base.appName | title | replace "-" "" }}Service {
   {{- if .Extensions.grpc.grpcGateway }}
   rpc GetExample(GetExampleRequest) returns (GetExampleResponse) {
