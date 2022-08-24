@@ -23,18 +23,9 @@ option go_package = "{{.Base.moduleName | replace `.git` ``}}/internal/pkg/pb;pb
 // These annotations are used when generating the OpenAPI file.
 option (openapi.v3.document) = {
   info: {
-    title: "Title from annotation";
-    version: "Version from annotation";
-    description: "Description from annotation";
-    contact: {
-      name: "Contact Name";
-      url: "https://github.com/google/gnostic";
-      email: "gnostic@google.com";
-    }
-    license: {
-      name: "Apache License";
-      url: "https://github.com/google/gnostic/blob/master/LICENSE";
-    }
+    title: "{{.Base.appName}}-api";
+    version: "1.0";
+    description: "{{.Base.projectDescription}}";
   }
   components: {
     security_schemes: {
