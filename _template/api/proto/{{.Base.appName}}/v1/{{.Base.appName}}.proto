@@ -42,6 +42,10 @@ option (openapi.v3.document) = {
       ]
     }
   }
+  servers : {
+    url: "http://localhost:8080";
+    description: "Host Server"
+  }
 };
 {{- end }}
 
