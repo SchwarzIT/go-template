@@ -1,0 +1,26 @@
+name: tag-release
+
+on:
+  push:
+    paths:
+      - "config/version.txt"
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current version from file
+        id: tag
+        run: |
+          export VERSION="$(cat config/version.txt)"
+          echo "::set-output name=tag::$VERSION"
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ steps.tag.outputs.tag }}",
+              sha: context.sha
+            })
