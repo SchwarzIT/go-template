@@ -84,3 +84,7 @@ To get an overview of all options that can be set for the template you can take 
 ## Contribution
 
 If you want to contribute to `go/template` please have a look at our [contribution guidelines](CONTRIBUTING.md).
+
+## Releasing
+
+The release process is described in the [release docs](docs/release.md).
