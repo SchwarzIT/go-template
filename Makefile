@@ -2,7 +2,7 @@ SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
 # constants
-GOLANGCI_VERSION = 1.45.2
+GOLANGCI_VERSION = 1.48.0
 
 all: git-hooks generate ## Initializes all tools and files
 
@@ -72,11 +72,26 @@ clean: clean-test-project ## Cleans up everything
 
 ci: lint-reports test-reports
 
-create-test-project: clean-test-project testing-project ## Creates a testing-project from the template
-
 .PHONY: testing-project
-testing-project:
-	go run cmd/gt/*.go new -c pkg/gotemplate/testdata/values.yml
+testing-project: clean-test-project ## Creates a testing-project from the template
+	@go run cmd/gt/*.go new -c $$VALUES_FILE
+
+.PHONY: testing-project-ci-single
+testing-project-ci-single:  ## Creates a testing-project from the template and run make ci within it
+	@make testing-project VALUES_FILE=$$VALUES_FILE
+	@make -C testing-project ci
+	@make -C testing-project all
+
+.PHONY: testing-project-default
+testing-project-default: ## Creates the default testing-project from the template
+	@make testing-project VALUES_FILE=pkg/gotemplate/testdata/values.yml
+
+.PHONY: testing-project-ci
+testing-project-ci:  ## Creates for all yml files in ./test_project_values a test project and run `make ci`
+	for VALUES in ./test_project_values/*.yml; do \
+		make testing-project-ci-single VALUES_FILE=$$VALUES; \
+	done
+
 
 help:
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

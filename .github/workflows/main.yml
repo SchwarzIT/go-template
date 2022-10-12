@@ -14,13 +14,13 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.18.x]
+        go-version: [1.18.x, 1.19.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Install Go
-        uses: actions/setup-go@84cbf8094393cdc5fe1fe1671ff2647332956b1a # tag=v3.2.1
+        uses: actions/setup-go@268d8c0ca0432bb2cf416faae41297df9d262d7f # tag=v3.3.0
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -59,8 +59,11 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: ./out/bin/gt.exe --help
 
-      - name: Create a test project
-        run: make create-test-project
+      - name: Create a test project & test it
+        run: |
+          make testing-project-default
+          make -C testing-project ci
+          make -C testing-project all
 
-      - name: Lint the test project
-        run: cd testing-project && make ci
+      - name: Test generate projects
+        run: make testing-project-ci

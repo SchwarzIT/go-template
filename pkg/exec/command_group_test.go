@@ -9,11 +9,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	errDummy = errors.New("dummy")
+)
+
 func Test_CommandGroup_RunWith(t *testing.T) {
 	t.Run("no command is executed if prerun fails", func(t *testing.T) {
 		cg := ownexec.CommandGroup{
 			PreRun: func() error {
-				return errors.New("dummy")
+				return errDummy
 			},
 			Commands: []*exec.Cmd{
 				exec.Command("anything"),
@@ -64,7 +68,7 @@ func Test_CommandGroup_RunWith(t *testing.T) {
 		err := cg.RunWith(ownexec.CmdRunnerFunc(func(cmd *exec.Cmd) (string, error) {
 			switch cmd.Path {
 			case "anything":
-				return "", errors.New("dummy")
+				return "", errDummy
 			case "sthelse":
 				sthelseExecuted = true
 			}
