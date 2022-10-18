@@ -77,7 +77,7 @@ To get an overview of all options that can be set for the template you can take 
 
 | Name                                           | Email                        |
 | :--------------------------------------------- | :--------------------------- |
-| [@brumhard](https://github.com/brumhard)       | tobias.brumhard@mail.schwarz |
+| [@brumhard](https://github.com/brumhard)       | code@brumhard.com            |
 | [@linuxluigi](https://github.com/linuxluigi)   | steffen.exler@mail.schwarz   |
 | [@danielzwink](https://github.com/danielzwink) | daniel.zwink@mail.schwarz    |
 
