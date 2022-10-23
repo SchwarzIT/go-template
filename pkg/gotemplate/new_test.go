@@ -78,7 +78,7 @@ func TestGT_LoadConfigValuesFromFile(t *testing.T) {
 			},
 		}
 
-		optionValues, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+		optionValues, err := loadValueFromTestFile(t, &gt, fmt.Sprintf(`---
 base:
     %s: %s
 extensions:
@@ -101,7 +101,7 @@ extensions:
 	})
 
 	t.Run("validates that base parameters are not empty", func(t *testing.T) {
-		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+		_, err := loadValueFromTestFile(t, &gt, fmt.Sprintf(`---
 base:
     %s: ""`, optionName))
 
@@ -119,7 +119,7 @@ base:
 			)),
 		)
 
-		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+		_, err := loadValueFromTestFile(t, &gt, fmt.Sprintf(`---
 base:
     %s: "NOT_A_VALID_VALUE"`, optionName))
 
@@ -142,7 +142,7 @@ base:
 			},
 		}
 
-		optionValues, err := loadValueFromTestFile(t, gt, "")
+		optionValues, err := loadValueFromTestFile(t, &gt, "")
 		require.NoError(t, err)
 		require.Equal(t, &gotemplate.OptionValues{
 			Extensions: map[string]gotemplate.OptionNameToValue{
@@ -174,7 +174,7 @@ base:
 			},
 		}
 
-		optionValues, err := loadValueFromTestFile(t, gt, `---
+		optionValues, err := loadValueFromTestFile(t, &gt, `---
 base:
     int: 2
     string: "test"
@@ -198,7 +198,7 @@ base:
 			gotemplate.StaticValue(false),
 		)
 
-		_, err := loadValueFromTestFile(t, gt, fmt.Sprintf(`---
+		_, err := loadValueFromTestFile(t, &gt, fmt.Sprintf(`---
 base:
     %s: "not a bool"`, optionName))
 
@@ -223,7 +223,7 @@ base:
 			},
 		}
 
-		_, err := loadValueFromTestFile(t, gt, `---
+		_, err := loadValueFromTestFile(t, &gt, `---
 extensions:
     test:
         option: true`)
@@ -248,7 +248,7 @@ extensions:
 			},
 		}
 
-		_, err := loadValueFromTestFile(t, gt, `---
+		_, err := loadValueFromTestFile(t, &gt, `---
 extensions:
     test:
         option: true`)
@@ -256,7 +256,7 @@ extensions:
 	})
 }
 
-func loadValueFromTestFile(t *testing.T, gt gotemplate.GT, contents string) (*gotemplate.OptionValues, error) {
+func loadValueFromTestFile(t *testing.T, gt *gotemplate.GT, contents string) (*gotemplate.OptionValues, error) {
 	dir := t.TempDir()
 	testFile := path.Join(dir, "test.yml")
 	err := os.WriteFile(testFile, []byte(contents), os.ModePerm)

@@ -4,12 +4,25 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fatih/color"
+	"github.com/muesli/termenv"
+	"github.com/schwarzit/go-template/pkg/colors"
 )
 
+func (gt *GT) colorStyler(color string) termenv.Style {
+	return gt.styler().String().Foreground(gt.styler().Color(color))
+}
+
+func (gt *GT) cyanStyler() termenv.Style {
+	return gt.colorStyler(colors.Cyan)
+}
+
+func (gt *GT) yellowStyler() termenv.Style {
+	return gt.colorStyler(colors.Yellow)
+}
+
 func (gt *GT) printProgressf(format string, a ...interface{}) {
-	_, _ = color.New(color.FgCyan, color.Bold).Fprintf(gt.Out, format, a...)
-	_, _ = fmt.Fprintln(gt.Out)
+	s := gt.cyanStyler().Bold().Styled(fmt.Sprintf(format, a...))
+	_, _ = fmt.Fprintln(gt.Out, s)
 }
 
 func (gt *GT) printf(format string, a ...interface{}) {
@@ -17,23 +30,19 @@ func (gt *GT) printf(format string, a ...interface{}) {
 }
 
 func (gt *GT) printWarningf(format string, a ...interface{}) {
-	headerHighlight := color.New(color.FgYellow, color.Bold).SprintFunc()
-	highlight := color.New(color.FgYellow)
+	warningBanner := gt.yellowStyler().Bold().Styled("WARNING")
+	warningText := gt.yellowStyler().Styled(fmt.Sprintf(format, a...))
 
-	_, _ = fmt.Fprintf(gt.Err, "%s: ", headerHighlight("WARNING"))
-	_, _ = highlight.Fprintf(gt.Err, format, a...)
-	_, _ = fmt.Fprintln(gt.Err)
+	_, _ = fmt.Fprintf(gt.Err, "%s: %s\n", warningBanner, warningText)
 }
 
 func (gt *GT) printOption(opts *Option, optionValues *OptionValues) {
-	highlight := color.New(color.FgCyan).SprintFunc()
-	underline := color.New(color.FgHiYellow, color.Underline).SprintFunc()
-	gt.printf("%s\n", underline(opts.Description()))
-	gt.printf("%s: (%v) ", highlight(opts.Name()), opts.Default(optionValues))
+	gt.printf("%s\n", gt.yellowStyler().Underline().Styled(opts.Description()))
+	gt.printf("%s: (%v) ", gt.cyanStyler().Styled(opts.Name()), opts.Default(optionValues))
 }
 
 func (gt *GT) printBanner() {
-	highlight := color.New(color.FgCyan).SprintFunc()
+	highlight := gt.cyanStyler().Styled
 	gt.printf("Hi! Welcome to the %s cli.\n", highlight("go/template"))
 	gt.printf("This command will walk you through creating a new project.\n")
 	gt.printf("You will first be asked to set values for the base paremeters that are needed for the minimal setup.\n")
@@ -44,6 +53,6 @@ func (gt *GT) printBanner() {
 
 func (gt *GT) printCategory(category string) {
 	gt.printf(" --\n")
-	gt.printf("| CATEGORY: %q\n", strings.ToUpper(category))
+	gt.printf("| CATEGORY: %q\n", strings.ToUpper(category))
 	gt.printf(" --\n")
 }

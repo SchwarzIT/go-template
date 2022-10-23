@@ -3,18 +3,18 @@ package main
 import (
 	"fmt"
 
-	"github.com/fatih/color"
+	"github.com/muesli/termenv"
 	"github.com/schwarzit/go-template/pkg/gotemplate"
 	"github.com/spf13/cobra"
 )
 
-func buildNewCommand(gt *gotemplate.GT) *cobra.Command {
+func buildNewCommand(output *termenv.Output, gt *gotemplate.GT) *cobra.Command {
 	var (
 		configFile string
 		opts       gotemplate.NewRepositoryOptions
 	)
 
-	underline := color.New(color.Underline).SprintFunc()
+	underline := output.String().Underline().Styled
 
 	cmd := &cobra.Command{
 		Use:   "new",
