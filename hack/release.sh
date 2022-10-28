@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# This script is meant to be used by go/template's maintainers
+# to trigger the creation of a new release branch and PR according
+# to the release flow described in the docs (../docs/release.md).
+
+# The script sets the defined new version in the version.txt file
+# and automatically opens a new PR on GitHub.
+
 set -e
 
 SVU="go run github.com/caarlos0/svu@latest"
