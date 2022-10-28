@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3.0.2
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # tag=v3.1.0
         with:
           fetch-depth: 0
       - name: Get current version from file
@@ -21,7 +21,7 @@ jobs:
           export VERSION="$(cat config/version.txt)"
           echo "tag=$VERSION" >> $GITHUB_OUTPUT
       - name: Create tag
-        uses: actions/github-script@7dff1a87643417cf3b95bb10b29f4c4bc60d8ebd # tag=v6.3.1
+        uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0 # tag=v6.3.3
         with:
           script: |
             github.rest.git.createRef({
