@@ -56,6 +56,7 @@ func TestGT_CheckVersion(t *testing.T) {
 			out := &bytes.Buffer{}
 			gt := gotemplate.GT{
 				Streams: gotemplate.Streams{
+					Out: out,
 					Err: out,
 				},
 				GithubTagLister: test.listerFunc,

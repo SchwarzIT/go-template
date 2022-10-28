@@ -5,32 +5,35 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fatih/color"
+	"github.com/muesli/termenv"
+	"github.com/schwarzit/go-template/pkg/colors"
 	"github.com/schwarzit/go-template/pkg/gotemplate"
 	"github.com/spf13/cobra"
 )
 
-var (
-	//nolint:gochecknoglobals // only a colored string, cannot be put into a const
-	goTemplateHighlighted = color.CyanString("go/template")
-)
+const goTemplate = "go/template"
 
 func main() {
-	cmd := buildRootCommand()
+	output := termenv.NewOutput(os.Stdout, termenv.WithProfile(termenv.EnvColorProfile()))
+
+	cmd := buildRootCommand(output)
 	if err := cmd.Execute(); err != nil {
-		printError(err)
+		printError(output, err)
 		os.Exit(1)
 	}
 }
 
-func printError(err error) {
-	headerHighlight := color.New(color.FgRed, color.Bold).SprintFunc()
-	highlight := color.New(color.FgRed).SprintFunc()
+func printError(output *termenv.Output, err error) {
+	redStyler := output.String().Foreground(output.Color(colors.Red))
 
-	_, _ = fmt.Fprintf(os.Stderr, "%s: %s\n", headerHighlight("ERROR"), highlight(err.Error()))
+	_, _ = fmt.Fprintf(
+		os.Stderr, "%s: %s\n",
+		redStyler.Bold().Styled("ERROR"),
+		redStyler.Styled(err.Error()),
+	)
 }
 
-func buildRootCommand() *cobra.Command {
+func buildRootCommand(output *termenv.Output) *cobra.Command {
 	gt := gotemplate.New()
 
 	cmd := &cobra.Command{
@@ -44,7 +47,9 @@ To begin working with %[1]s, run the 'gt new' command:
 
 This will prompt you to create a new Golang project using standard configs.
 
-For more information, please visit the project's Github page: github.com/schwarzit/go-template.`, goTemplateHighlighted),
+For more information, please visit the project's Github page: github.com/schwarzit/go-template.`,
+			output.String(goTemplate).Foreground(output.Color(colors.Cyan)),
+		),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// Enable swapping out stdout/stderr for testing
 			gt.Out = cmd.OutOrStdout()
@@ -58,8 +63,8 @@ For more information, please visit the project's Github page: github.com/schwarz
 		SilenceUsage:  true,
 	}
 
-	cmd.AddCommand(buildNewCommand(gt))
-	cmd.AddCommand(buildVersionCommand(gt))
+	cmd.AddCommand(buildNewCommand(output, gt))
+	cmd.AddCommand(buildVersionCommand(output, gt))
 
 	return cmd
 }
