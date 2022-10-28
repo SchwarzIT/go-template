@@ -2,8 +2,8 @@ name: tag-release
 
 on:
   push:
-    branches:
-      - main
+    # branches:
+    #   - main
     paths:
       - "config/version.txt"
 
@@ -19,7 +19,7 @@ jobs:
         id: tag
         run: |
           export VERSION="$(cat config/version.txt)"
-          echo "::set-output name=tag::$VERSION"
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
       - name: Create tag
         uses: actions/github-script@7dff1a87643417cf3b95bb10b29f4c4bc60d8ebd # tag=v6.3.1
         with:
