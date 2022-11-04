@@ -1,4 +1,4 @@
-# config options found here: https://github.com/zeke/semantic-pull-requests
+# config options found here: https://github.com/Ezard/semantic-prs
 
 # Always validate the PR title, and ignore the commits
 titleOnly: true
