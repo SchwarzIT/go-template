@@ -21,7 +21,7 @@ option go_package = "{{.Base.moduleName | replace `.git` ``}}/internal/pkg/pb;pb
 
 {{- if .Extensions.grpc.grpcGateway }}
 // These annotations are used when generating the OpenAPI file.
-option (openapi.v3.document) = {
+option (gnostic.openapi.v3.document) = {
   info: {
     title: "{{.Base.appName}}-api";
     version: "1.0";
