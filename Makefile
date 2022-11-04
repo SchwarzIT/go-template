@@ -93,6 +93,9 @@ testing-project-ci:  ## Creates for all yml files in ./test_project_values a tes
 		make testing-project-ci-single VALUES_FILE=$$VALUES; \
 	done
 
+.PHONY: release
+release:  ## Create a new release version
+	@./hack/release.sh
 
 help:
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'
