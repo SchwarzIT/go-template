@@ -14,6 +14,3 @@ lint:
   except:
     - RPC_RESPONSE_STANDARD_NAME
     - RPC_REQUEST_RESPONSE_UNIQUE
-{{- if .Extensions.grpc.grpcGateway }}
-    - IMPORT_NO_WEAK # required by gnostic for now. this way gen-go will not import _ "" broken packages
-{{- end }}
