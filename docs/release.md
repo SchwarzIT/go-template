@@ -10,7 +10,7 @@ To create a new release please do the following:
 
 - Checkout the main branch
 - `git pull` to update it
-- Execute `hack/release.sh` to create a new release PR (if you don't have the GitHub CLI installed you need to create the PR yourself from the branch that was created by the script)
+- Execute `make release` to create a new release PR (if you don't have the GitHub CLI installed you need to create the PR yourself from the branch that was created by the script)
 - Get someone else to approve your PR. This also ensures that all maintainers agree that a new version should be released
 - After the PR is merged, the workflow `tag-release` should be executed automatically
   - This workflow listens to all changes on the `config/version.txt` file
