@@ -10,7 +10,7 @@ plugins:
   - name: grpc-gateway
     out: internal/pkg/api/pb
     opt: paths=source_relative
-  - name: openapiv2
+  - name: openapi
     out: api/openapi
 {{- end }}
   - name: validate

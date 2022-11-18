@@ -6,7 +6,7 @@ deps:
   - buf.build/envoyproxy/protoc-gen-validate
   - buf.build/googleapis/googleapis
 {{- if .Extensions.grpc.grpcGateway }}
-  - buf.build/grpc-ecosystem/grpc-gateway
+  - buf.build/gnostic/gnostic
 {{- end }}
 lint:
   use:
