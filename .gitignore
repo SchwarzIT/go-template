@@ -2,6 +2,10 @@
 # Project #
 ###########
 
+# direnv
+.direnv/
+.envrc
+
 # make output
 bin/
 out/
