@@ -3,8 +3,8 @@ module github.com/schwarzit/go-template
 go 1.19
 
 require (
-	github.com/Masterminds/semver/v3 v3.1.1
-	github.com/Masterminds/sprig/v3 v3.2.2
+	github.com/Masterminds/semver/v3 v3.2.0
+	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/google/go-github/v39 v39.2.0
 	github.com/muesli/termenv v0.13.0
 	github.com/pkg/errors v0.9.1
@@ -19,7 +19,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/huandu/xstrings v1.3.2 // indirect
+	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
@@ -32,6 +32,6 @@ require (
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272 // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
+	golang.org/x/crypto v0.3.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 )
