@@ -39,5 +39,13 @@
             exePath = "/bin/gt";
           };
         };
+
+        devShell = pkgs.mkShell {
+          packages = with pkgs; [
+            vhs
+          ];
+
+          shellHook = "";
+        };
       });
 }
