@@ -270,6 +270,10 @@ Options:
 	8: The Unlicense`,
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							if v.(int) == 0 {
+								err := os.RemoveAll(path.Join(targetDir, "CODEOWNERS"))
+								if err != nil {
+									return err
+								}
 								return os.RemoveAll(path.Join(targetDir, "LICENSE"))
 							}
 							return nil
