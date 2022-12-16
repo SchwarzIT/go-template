@@ -313,10 +313,7 @@ Options:
 						}),
 						description: "Set the codeowner of the project",
 						shouldDisplay: DynamicBoolValue(func(vals *OptionValues) bool {
-							if vals.Extensions["openSource"]["license"].(int) == 0 { //nolint:gomnd // 0: no license
-								return false
-							}
-							return true
+							return vals.Extensions["openSource"]["license"].(int) != 0 // 0 == no license
 						}),
 					},
 				},
