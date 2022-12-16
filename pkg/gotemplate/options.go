@@ -270,11 +270,12 @@ Options:
 	8: The Unlicense`,
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							if v.(int) == 0 {
-								err := os.RemoveAll(path.Join(targetDir, "CODEOWNERS"))
-								if err != nil {
-									return err
+								files := []string{"LICENSE", "CODEOWNERS"}
+								for _, file := range files {
+									if err := os.RemoveAll(path.Join(targetDir, file)); err != nil {
+										return err
+									}
 								}
-								return os.RemoveAll(path.Join(targetDir, "LICENSE"))
 							}
 							return nil
 						},
@@ -311,6 +312,12 @@ Options:
 							return strings.TrimSpace(buffer.String())
 						}),
 						description: "Set the codeowner of the project",
+						shouldDisplay: DynamicBoolValue(func(vals *OptionValues) bool {
+							if vals.Extensions["openSource"]["license"].(int) == 0 { //nolint:gomnd // 0: no license
+								return false
+							}
+							return true
+						}),
 					},
 				},
 			},
