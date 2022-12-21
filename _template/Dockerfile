@@ -22,7 +22,7 @@ RUN --mount=target=. \
     go build -ldflags="-w -s" -o /app/main ./cmd/{{.Base.appName}}/*.go
 
 # Import the binary from build stage
-FROM gcr.io/distroless/static:nonroot@sha256:ed05c7a5d67d6beebeba19c6b9082a5513d5f9c3e22a883b9dc73ec39ba41c04 as prd
+FROM gcr.io/distroless/static:nonroot@sha256:9ec950c09380320e203369982691eb821df6a6974edf9f4bb8e661d4b77b9d99 as prd
 COPY --from=build /app/main /
 # this is the numeric version of user nonroot:nonroot to check runAsNonRoot in kubernetes
 USER 65532:65532
