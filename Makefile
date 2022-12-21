@@ -74,7 +74,7 @@ clean-test-project: ## Removes test-project
 clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
 
-ci: lint-reports test-reports
+ci: lint-reports test-reports govulncheck
 
 .PHONY: testing-project
 testing-project: clean-test-project ## Creates a testing-project from the template

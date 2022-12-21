@@ -50,6 +50,9 @@ lint-reports: out/lint.xml
 out/lint.xml: $(GOLANGCI_LINT) out download
 	@$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
 
+govulncheck: ## Vulnerability detection using govulncheck
+	@govulncheck ./...
+
 test: ## Runs all tests
 	@go test $(ARGS) ./...
 
@@ -110,7 +113,7 @@ generate: {{if .Extensions.grpc.grpcGateway}}bin/protoc-gen-grpc-gateway bin/pro
 	PATH=$(PWD)/bin:$$PATH buf generate
 {{- end }}
 
-ci: lint-reports test-reports ## Executes lint and test and generates reports
+ci: lint-reports test-reports govulncheck ## Executes vulnerability scan, lint, test and generates reports
 
 help: ## Shows the help
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'
