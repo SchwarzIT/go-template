@@ -5,11 +5,11 @@ schema = 3
     version = "v1.1.1"
     hash = "sha256-MEvA5e099GUllILa5EXxa6toQexU1sz6eDZt2tiqpCY="
   [mod."github.com/Masterminds/semver/v3"]
-    version = "v3.1.1"
-    hash = "sha256-6AbVa1URv04zlxUZA/Wc484EzrzgAuPcuub3WFBRWDc="
+    version = "v3.2.0"
+    hash = "sha256-JaGYNQwDxFCsLwzYVoJY4RUpP4dtiRlV14t2dVAg4oQ="
   [mod."github.com/Masterminds/sprig/v3"]
-    version = "v3.2.2"
-    hash = "sha256-XXDG2ImEqg+TbrXBNYAXaqeV0H/nsNRfijqctCv8y3E="
+    version = "v3.2.3"
+    hash = "sha256-1GLZic3WQIBZGyjvyHbfcZ/7EV7oNzNhkwEiiTpVfL4="
   [mod."github.com/aymanbagabas/go-osc52"]
     version = "v1.0.3"
     hash = "sha256-+PPvxpq4eEcolG77a9g3r5Tw67Zs7hDOXS3nOYnizBQ="
@@ -26,8 +26,8 @@ schema = 3
     version = "v1.3.0"
     hash = "sha256-QoR55eBtA94T2tBszyxfDtO7/pjZZSGb5vm7U0Xhs0Y="
   [mod."github.com/huandu/xstrings"]
-    version = "v1.3.2"
-    hash = "sha256-ueAZrYRXMdRpeTKct3Yxa5YXkCZEoUHpNQs7wLLJil8="
+    version = "v1.3.3"
+    hash = "sha256-xtauGYk7SnC2LMnCD+dc5dBhNFNfFnkWXcKyHQNaaK0="
   [mod."github.com/imdario/mergo"]
     version = "v0.3.12"
     hash = "sha256-IPGunEznxlUilS22LUU4p/QTA7f5+Goowf1Utg9ARpc="
@@ -77,11 +77,23 @@ schema = 3
     version = "v1.8.1"
     hash = "sha256-3e0vOJLgCMAan+GfaGN8RGZdarh5iCavM6flf6YMNPk="
   [mod."golang.org/x/crypto"]
-    version = "v0.0.0-20210915214749-c084706c2272"
-    hash = "sha256-xJkNphIlSfFUXryOK1Tom9GQIZrOzoG7Qq6ScKxV70Q="
+    version = "v0.3.0"
+    hash = "sha256-Un9wPqz8u/xpV98T4IqE6RMXIPhGCIm2prsNkHP3cjg="
+  [mod."golang.org/x/exp"]
+    version = "v0.0.0-20220722155223-a9213eeb770e"
+    hash = "sha256-kNgzydWRpjm0sZl4uXEs3LX5L0xjJtJRAFf/CTlYUN4="
+  [mod."golang.org/x/mod"]
+    version = "v0.7.0"
+    hash = "sha256-ur4ld/ZtS6fnjLpHje0i00buolCTxVDH/HBJPfTj1Yc="
   [mod."golang.org/x/sys"]
-    version = "v0.0.0-20220811171246-fbc7d0a398ab"
-    hash = "sha256-acnc9aKY/SyebObLasV+gowfB0S+6ehz3hnUgAmQmSU="
+    version = "v0.3.0"
+    hash = "sha256-TIHhfYbZ99sCU1ZMikxwomXH5AEtD/lA1VMMW+UAhbU="
+  [mod."golang.org/x/tools"]
+    version = "v0.4.1-0.20221217013628-b4dfc36097e2"
+    hash = "sha256-FQqKSYALR8depquRd4TaAvIS6//KWAW5U9B+Ua4LFpA="
+  [mod."golang.org/x/vuln"]
+    version = "v0.0.0-20221217143601-785badac1c32"
+    hash = "sha256-HXMF887SVU6g10er0qfxu63vAuEgSeZ10DsYqnMtD7U="
   [mod."gopkg.in/yaml.v3"]
     version = "v3.0.1"
     hash = "sha256-FqL9TKYJ0XkNwJFnq9j0VvJ5ZUU1RvH/52h/f5bkYAU="

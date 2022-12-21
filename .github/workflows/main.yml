@@ -47,6 +47,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: make ci
 
+      - name: Run Vulnerability detection using govulncheck
+        if: matrix.os == 'ubuntu-latest'
+        run: make govulncheck
+
       - name: Build package
         run: make build
 

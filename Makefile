@@ -50,6 +50,9 @@ lint-reports: out/lint.xml
 out/lint.xml: $(GOLANGCI_LINT) out download
 	$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
 
+govulncheck: ## Vulnerability detection using govulncheck
+	@govulncheck ./...
+
 test: ## Runs all tests
 	@go test ./...
 
