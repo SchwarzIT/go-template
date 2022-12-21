@@ -50,7 +50,6 @@ lint-reports: out/lint.xml
 out/lint.xml: $(GOLANGCI_LINT) out download
 	$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
 
-.PHONY: govulncheck
 govulncheck: bin/govulncheck ## Vulnerability detection using govulncheck
 	@govulncheck ./...
 
