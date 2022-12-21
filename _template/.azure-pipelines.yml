@@ -60,6 +60,9 @@ stages:
           - bash: make test
             displayName: Runs all tests
 
+          - bash: make govulncheck
+            displayName: Run Vulnerability detection using govulncheck
+
       - job: Semgrep
         displayName: Run semgrep security tests
         steps:

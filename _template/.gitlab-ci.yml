@@ -51,3 +51,4 @@ golang:
     - make download
     - make lint
     - make test
+    - make govulncheck
