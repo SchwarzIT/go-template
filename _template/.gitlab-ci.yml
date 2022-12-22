@@ -15,14 +15,7 @@ semgrep:
 
   variables:
     SEMGREP_RULES: >- # more at semgrep.dev/explore
-      p/security-audit
-      p/secrets
-      p/ci
-      p/r2c
-      p/r2c-ci
-      p/docker
-      p/dockerfile
-      p/command-injection
+      p/auto
 
   # == Optional settings in the `variables:` block
 
