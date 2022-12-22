@@ -40,7 +40,7 @@ lint-reports: out/lint.xml
 
 .PHONY: out/lint.xml
 out/lint.xml: bin/golangci-lint out download
-	$PATH=$(PWD)/bin:$$PATH golangci-lint run ./... --out-format checkstyle | tee "$(@)"
+	@PATH=$(PWD)/bin:$$PATH golangci-lint run ./... --out-format checkstyle | tee "$(@)"
 
 govulncheck: bin/govulncheck ## Vulnerability detection using govulncheck
 	@PATH=$(PWD)/bin:$$PATH govulncheck ./...
