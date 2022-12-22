@@ -69,7 +69,8 @@ docker: ## Builds docker image
 	docker buildx build -t $(DOCKER_REPO):$(DOCKER_TAG) .
 
 # Go dependencies versioned through tools.go
-GO_DEPENDENCIES = golang.org/x/vuln/cmd/govulncheck{{- if .Extensions.grpc.base }}
+GO_DEPENDENCIES = golang.org/x/vuln/cmd/govulncheck \
+				github.com/golangci/golangci-lint/cmd/golangci-lint{{- if .Extensions.grpc.base }}
 
 # additional dependencies for grpc
 GO_DEPENDENCIES += google.golang.org/protobuf/cmd/protoc-gen-go \

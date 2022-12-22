@@ -67,7 +67,8 @@ clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
 
 # Go dependencies versioned through tools.go
-GO_DEPENDENCIES = golang.org/x/vuln/cmd/govulncheck
+GO_DEPENDENCIES = golang.org/x/vuln/cmd/govulncheck \
+				github.com/golangci/golangci-lint/cmd/golangci-lint
 
 define make-go-dependency
   # target template for go tools, can be referenced e.g. via /bin/<tool>
