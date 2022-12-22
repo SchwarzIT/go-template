@@ -1,9 +1,6 @@
 SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
-# constants
-GOLANGCI_VERSION = 1.48.0
-
 all: git-hooks generate ## Initializes all tools and files
 
 out:
@@ -36,13 +33,8 @@ generate: ## Generates files
 	@go run cmd/options2md/main.go -o docs/options.md
 	@go run github.com/nix-community/gomod2nix@latest --outdir nix
 
-GOLANGCI_LINT = bin/golangci-lint-$(GOLANGCI_VERSION)
-$(GOLANGCI_LINT):
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b bin v$(GOLANGCI_VERSION)
-	@mv bin/golangci-lint "$(@)"
-
-lint: fmt $(GOLANGCI_LINT) download ## Lints all code with golangci-lint
-	@$(GOLANGCI_LINT) run
+lint: bin/golangci-lint fmt download ## Lints all code with golangci-lint
+	@$PATH=$(PWD)/bin:$$PATH golangci-lint run
 
 lint-reports: out/lint.xml
 

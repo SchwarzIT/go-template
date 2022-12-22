@@ -232,22 +232,6 @@ Please be aware that this depends on your version control system.
 The default points to "github.com" but for devops for example it would look sth. like this "dev.azure.com/org/project/repo.git"`,
 				validator: RegexValidator(`^[\S]+$`, "no whitespaces"),
 			},
-			{
-				name: "golangciVersion",
-				defaultValue: DynamicValue(func(_ *OptionValues) interface{} {
-					latestTag, err := repos.LatestGithubReleaseTag(githubTagLister, "golangci", "golangci-lint")
-					if err != nil {
-						return "1.42.1"
-					}
-
-					return latestTag.String()
-				}),
-				description: "Golangci-lint version to use.",
-				validator: RegexValidator(
-					semverRegex,
-					"valid semver version string",
-				),
-			},
 		},
 		Extensions: []Category{
 			{

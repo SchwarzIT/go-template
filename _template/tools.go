@@ -6,6 +6,9 @@ import (
 	// Go vulnerability scanner
 	// https://go.dev/blog/vuln
 	_ "golang.org/x/vuln/cmd/govulncheck"
+	// golangci linter
+	// https://golangci-lint.run
+	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
 	{{- if .Extensions.grpc.base }}
 	// gRPC generation via https://buf.build/
 	_ "github.com/bufbuild/buf/cmd/buf"
