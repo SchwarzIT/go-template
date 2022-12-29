@@ -55,7 +55,13 @@ stages:
             displayName: Downloads the dependencies
 
           - bash: make lint
-            displayName: Lints all code with golangci-lint
+            displayName: Lints all code with golangci-lint {{- if .Extensions.grpc.base }}
+
+          - bash: make protolint
+            displayName: Lints protobuf files
+
+          - bash: make protobreaking
+            displayName: Check fot protobuf breaking change {{- end }}
 
           - bash: make test
             displayName: Runs all tests
