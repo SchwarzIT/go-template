@@ -64,6 +64,7 @@ jobs:
           make testing-project-default
           make -C testing-project ci
           make -C testing-project all
+          make -C testing-project docker
           make -C testing-project docker-lint
 
       - name: Test generate projects
