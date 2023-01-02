@@ -115,7 +115,7 @@ docker-lint:
 		--mount type=bind,source="$(PWD)"/.hadolint.yml,target=/.config/hadolint.yaml,readonly \
 		hadolint/hadolint < ./Dockerfile
 
-ci: lint-reports test-reports docker-lint ## Executes lint and test and generates reports
+ci: lint-reports test-reports ## Executes lint and test and generates reports
 
 help: ## Shows the help
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

@@ -59,10 +59,12 @@ jobs:
         run: ./out/bin/gt.exe --help
 
       - name: Create a test project & test it
+        if: matrix.os == 'ubuntu-latest'
         run: |
           make testing-project-default
           make -C testing-project ci
           make -C testing-project all
+          make -C testing-project docker-lint
 
       - name: Test generate projects
         run: make testing-project-ci
