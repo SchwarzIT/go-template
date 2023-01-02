@@ -46,14 +46,20 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Bumb version file
+        run: make svu args=${{ inputs.versionBumb }}
+
+      - name: Get version from file
+        id: tag
         run: |
-          make svu args=${{ inputs.versionBumb }}
+          export VERSION="$(cat config/version.txt)"
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "branch=version-bumb/v$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
         run: |
-          git checkout -b "version-bumb/v$(cat config/version.txt)"
-          git commit -m "chore(engine): prepare release v$(cat config/version.txt)"
-          git push --set-upstream origin "version-bumb/v$(cat config/version.txt)"
+          git checkout -b "${{ steps.tag.outputs.branch }}"
+          git commit -m "chore(engine): prepare release ${{ steps.tag.outputs.tag }}"
+          git push --set-upstream origin "${{ steps.tag.outputs.branch }}"
           gh pr create --fill
 
 

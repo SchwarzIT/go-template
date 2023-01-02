@@ -36,3 +36,5 @@ jobs:
         run: |
           git tag ${{ steps.tag.outputs.tag }}
           git push --tags
+      - name: Create release
+        run: gh release create {{ steps.tag.outputs.tag }} --verify-tag --generate-notes
