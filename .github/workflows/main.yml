@@ -58,6 +58,12 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: ./out/bin/gt.exe --help
 
+      - name: Validate all template files are embedded
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          make generate
+          git diff --stat --exit-code
+
       - name: Create a test project & test it
         run: |
           make testing-project-default
