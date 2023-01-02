@@ -107,7 +107,7 @@ generate: ## Generates code from protobuf files
 generate: {{if .Extensions.grpc.grpcGateway}}bin/protoc-gen-grpc-gateway bin/protoc-gen-openapi{{end}} api/proto/buf.lock bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
 	PATH=$(PWD)/bin:$$PATH buf generate
 {{- end }}
-ci: lint-reports test-reports govulncheck ## Executes vulnerability scan, lint, test and generates reports
+ci: lint test govulncheck ## Executes vulnerability scan, lint and test
 
 help: ## Shows the help
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'
