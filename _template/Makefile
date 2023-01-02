@@ -69,7 +69,7 @@ clean: ## Cleans up everything
 	@rm -rf bin out {{if .Extensions.grpc.base}}protodeps{{end}}
 
 docker: ## Builds docker image
-	docker buildx build -t $(DOCKER_REPO):$(DOCKER_TAG) .
+	docker buildx build --cache-to type=inline -t $(DOCKER_REPO):$(DOCKER_TAG) .
 
 {{- if .Extensions.grpc.base }}
 # Go dependencies versioned through tools.go
