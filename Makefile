@@ -71,7 +71,17 @@ clean-test-project: ## Removes test-project
 clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
 
-ci: lint-reports test-reports
+# Go dependencies versioned through tools.go
+GO_DEPENDENCIES = github.com/caarlos0/svu
+
+define make-go-dependency
+  # target template for go tools, can be referenced e.g. via /bin/<tool>
+  bin/$(notdir $1):
+	GOBIN=$(PWD)/bin go install $1
+endef
+
+# this creates a target for each go dependency to be referenced in other targets
+$(foreach dep, $(GO_DEPENDENCIES), $(eval $(call make-go-dependency, $(dep))))
 
 .PHONY: testing-project
 testing-project: clean-test-project ## Creates a testing-project from the template
@@ -92,6 +102,10 @@ testing-project-ci:  ## Creates for all yml files in ./test_project_values a tes
 	for VALUES in ./test_project_values/*.yml; do \
 		make testing-project-ci-single VALUES_FILE=$$VALUES; \
 	done
+
+svu: bin/svu ## Creates a new version, args options major, minor & patch
+	@PATH=$(PWD)/bin:$$PATH svu $(args) --strip-prefix > config/version.txt
+	@PATH=$(PWD)/bin:$$PATH svu $(args)
 
 .PHONY: release
 release:  ## Create a new release version
