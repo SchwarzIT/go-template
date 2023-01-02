@@ -71,6 +71,8 @@ clean-test-project: ## Removes test-project
 clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
 
+ci: lint-reports test-reports
+
 # Go dependencies versioned through tools.go
 GO_DEPENDENCIES = github.com/caarlos0/svu
 
