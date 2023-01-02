@@ -110,7 +110,12 @@ generate: {{if .Extensions.grpc.grpcGateway}}bin/protoc-gen-grpc-gateway bin/pro
 	PATH=$(PWD)/bin:$$PATH buf generate
 {{- end }}
 
-ci: lint-reports test-reports ## Executes lint and test and generates reports
+docker-lint:
+	@docker run --rm -i \
+		--mount type=bind,source="$(PWD)"/.hadolint.yml,target=/.config/hadolint.yaml,readonly \
+		hadolint/hadolint < ./Dockerfile
+
+ci: lint-reports test-reports docker-lint ## Executes lint and test and generates reports
 
 help: ## Shows the help
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

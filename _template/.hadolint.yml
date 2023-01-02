@@ -1,0 +1,13 @@
+# Docker linter hadolint config
+# https://github.com/hadolint/hadolint
+failure-threshold: warning              # name of threshold level (error | warning | info | style | ignore | none)
+format: tty                             # Output format (tty | json | checkstyle | codeclimate | gitlab_codeclimate | gnu | codacy)
+ignored: []                             # list of rules
+no-color: false                         # true | false
+no-fail: false                          # true | false
+override:
+  error: []                             # list of rules
+  warning: []                           # list of rules
+  info: []                              # list of rules
+  style: []                             # list of rules
+trustedRegistries: []                   # registry or list of registries

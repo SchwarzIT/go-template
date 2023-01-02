@@ -24,6 +24,9 @@ stages:
           - bash: make test
             displayName: Runs all tests
 
+          - bash: make docker-lint
+            displayName: Run docker linter
+
       - job: Semgrep
         displayName: Run semgrep security tests
         steps:
