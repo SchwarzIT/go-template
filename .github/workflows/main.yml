@@ -25,6 +25,9 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
       # cache go modules
       - uses: actions/cache@4723a57e26efda3a62cbde1812113b730952852d # v3.2.2
