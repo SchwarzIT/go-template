@@ -4,6 +4,7 @@
 [![CI](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml)
 [![Semgrep](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/SchwarzIT/go-template)](https://goreportcard.com/report/github.com/SchwarzIT/go-template)
+![Coverage](https://img.shields.io/badge/Coverage-0-red)
 
 `go/template` provides a **blueprint** for production-ready Go project layouts.
 
