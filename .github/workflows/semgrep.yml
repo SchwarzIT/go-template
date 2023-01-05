@@ -1,8 +1,12 @@
 name: Semgrep
 
 on:
-  # Scan changed files in PRs, block on new issues only (existing issues ignored)
-  pull_request: {}
+  pull_request:
+    branches: ["main"]
+    paths-ignore: ["docs/**", "README.md"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   semgrep:
