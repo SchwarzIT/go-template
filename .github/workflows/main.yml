@@ -66,3 +66,26 @@ jobs:
 
       - name: Test generate projects
         run: make testing-project-ci
+
+      - name: Go Coverage Badge
+        uses: tj-actions/coverage-badge-go@v1
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          green: 80
+          filename: ./out/cover.out
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        id: auto-commit-action
+        with:
+          commit_message: Apply Code Coverage Badge
+          skip_fetch: true
+          skip_checkout: true
+          file_pattern: ./README.md
+
+      - name: Push Changes
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ github.token }}
+          branch: ${{ github.ref }}
+
