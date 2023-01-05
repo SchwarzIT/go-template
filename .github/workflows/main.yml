@@ -75,10 +75,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         with:
           green: 80
-          filename: ./out/cover.out
+          filename: out/cover.out
 
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v12
+        if: matrix.os == 'ubuntu-latest'
         id: verify-changed-files
         with:
           files: README.md
