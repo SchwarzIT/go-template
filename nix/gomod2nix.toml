@@ -16,9 +16,9 @@ schema = 3
   [mod."github.com/davecgh/go-spew"]
     version = "v1.1.1"
     hash = "sha256-nhzSUrE1fCkN0+RL04N4h8jWmRFPPPWbCuDc7Ss0akI="
-  [mod."github.com/google/go-github/v48"]
-    version = "v48.2.0"
-    hash = "sha256-8dCc12b5KHFF+KGxGU+gkwid7Vr57fl2ivSuW7L3KJo="
+  [mod."github.com/google/go-github/v49"]
+    version = "v49.0.0"
+    hash = "sha256-5SS2n2o4MeJVuYSz2HKTRvzPzvQHXU7QG54eCisp/oI="
   [mod."github.com/google/go-querystring"]
     version = "v1.1.0"
     hash = "sha256-itsKgKghuX26czU79cK6C2n+lc27jm5Dw1XbIRgwZJY="

@@ -25,6 +25,9 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+        with:
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
+          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
       # cache go modules
       - uses: actions/cache@4723a57e26efda3a62cbde1812113b730952852d # v3.2.2
@@ -58,11 +61,10 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: ./out/bin/gt.exe --help
 
-      - name: Validate all template files are embedded
+      - name: Update `embed_gen.go` & `nix/gomod2nix.toml` files
         if: matrix.os == 'ubuntu-latest'
         run: |
           make generate
-          git diff --stat --exit-code
 
       - name: Create a test project & test it
         run: |
@@ -72,3 +74,27 @@ jobs:
 
       - name: Test generate projects
         run: make testing-project-ci
+
+      - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v12
+        if: matrix.os == 'ubuntu-latest'
+        id: verify-changed-files
+        with:
+          files: |
+            nix/gomod2nix.toml
+            embed_gen.go
+
+      - name: Commit changes
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "chore: Updated coverage badge."
+
+      - name: Push changes
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ github.token }}
+          branch: ${{ github.head_ref }}
