@@ -54,16 +54,16 @@ test: ## Runs all tests
 	@go test $(ARGS) ./...
 
 coverage: out/report.json ## Displays coverage per func on cli
-	go tool cover -func=out/cover.out -o=out/cover.out
+	@go tool cover -func=out/cover.out -o=out/cover.out
 
 html-coverage: out/report.json ## Displays the coverage results in the browser
-	go tool cover -html=out/cover.out
+	@go tool cover -html=out/cover.out
 
 test-reports: out/report.json
 
 .PHONY: out/report.json
 out/report.json: out
-	@go test -count 1 ./... -coverprofile=out/cover.out --json | tee "$(@)"
+	@go test -v -cover ./... -coverprofile=out/cover.out -coverpkg=./... --json | tee "$(@)"
 
 clean: ## Cleans up everything
 	@rm -rf bin out {{if .Extensions.grpc.base}}protodeps{{end}}
