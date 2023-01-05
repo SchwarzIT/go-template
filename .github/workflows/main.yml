@@ -83,6 +83,7 @@ jobs:
           files: |
             nix/gomod2nix.toml
             embed_gen.go
+            docs/options.md
 
       - name: Commit changes
         if: steps.verify-changed-files.outputs.files_changed == 'true'
