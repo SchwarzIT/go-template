@@ -54,7 +54,7 @@ test: ## Runs all tests
 	@go test $(ARGS) ./...
 
 coverage: out/report.json ## Displays coverage per func on cli
-	go tool cover -func=out/cover.out
+	go tool cover -func=out/cover.out -o=out/cover.out
 
 html-coverage: out/report.json ## Displays the coverage results in the browser
 	go tool cover -html=out/cover.out
