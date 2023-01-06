@@ -61,7 +61,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: ./out/bin/gt.exe --help
 
-      - name: Update `embed_gen.go` & `nix/gomod2nix.toml` files
+      - name: Run generate
         if: matrix.os == 'ubuntu-latest'
         run: |
           make generate
