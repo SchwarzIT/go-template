@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Masterminds/semver/v3 v3.2.0
 	github.com/Masterminds/sprig/v3 v3.2.3
-	github.com/google/go-github/v49 v49.0.0
+	github.com/google/go-github/v49 v49.1.0
 	github.com/muesli/termenv v0.13.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.1
