@@ -7,13 +7,8 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
-import "validate/validate.proto";
-{{- if .Extensions.grpc.grpcGateway }}
-// weak, otherwise gnostic imports broken imports for gen-go
-// weak import: proto definition only adds options, no additional messages.
-// buf:lint:ignore IMPORT_NO_WEAK
-import weak "gnostic/openapi/v3/annotations.proto"; // Will not import _ "" in the gen-go files
-{{- end }}
+import "validate/validate.proto";{{- if .Extensions.grpc.grpcGateway }}
+import "gnostic/openapi/v3/annotations.proto";{{- end }}
 
 // Defines the import path that should be used to import the generated package,
 // and the package name.
