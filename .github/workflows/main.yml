@@ -61,15 +61,6 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: ./out/bin/gt.exe --help
 
-      - name: Create a test project & test it
-        run: |
-          make testing-project-default
-          make -C testing-project ci
-          make -C testing-project all
-
-      - name: Test generate projects
-        run: make testing-project-ci
-
       - name: Go Coverage Badge
         uses: tj-actions/coverage-badge-go@v1
         if: matrix.os == 'ubuntu-latest'
@@ -91,6 +82,15 @@ jobs:
           git config --local user.name "GitHub Action"
           git add README.md
           git commit -m "chore: Updated coverage badge."
+
+      - name: Create a test project & test it
+        run: |
+          make testing-project-default
+          make -C testing-project ci
+          make -C testing-project all
+
+      - name: Test generate projects
+        run: make testing-project-ci
 
       - name: Push changes
         if: steps.verify-changed-files.outputs.files_changed == 'true'
