@@ -66,6 +66,8 @@ clean-test-project: ## Removes test-project
 clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
 
+ci: lint-reports test-reports
+
 .PHONY: testing-project
 testing-project: clean-test-project ## Creates a testing-project from the template
 	@go run cmd/gt/*.go new -c $$VALUES_FILE
