@@ -7,8 +7,8 @@ bin/
 out/
 
 # test projects
-/awesome-project
-/testing-project
+awesome-project/
+testing-project/
 
 ##########
 # Golang #
