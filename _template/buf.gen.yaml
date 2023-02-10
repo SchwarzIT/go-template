@@ -7,12 +7,19 @@ plugins:
     out: internal/pkg/api/pb
     opt: paths=source_relative,require_unimplemented_servers=true
 {{- if .Extensions.grpc.grpcGateway }}
+  # gRPC Gateway
+  # generates a reverse-proxy server which translates a RESTful JSON API into gRPC
+  # https://grpc-ecosystem.github.io/grpc-gateway/
   - name: grpc-gateway
     out: internal/pkg/api/pb
     opt: paths=source_relative
+  # Generate OpenAPI Spec V3 file
+  # https://github.com/google/gnostic/tree/main/cmd/protoc-gen-openapi
   - name: openapi
     out: api/openapi
 {{- end }}
+  # Add field validation option within a protobuf file
+  # https://github.com/bufbuild/protoc-gen-validate
   - name: validate
     out: internal/pkg/api/pb
     opt: paths=source_relative,lang=go
