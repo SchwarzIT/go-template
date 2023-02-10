@@ -1,4 +1,5 @@
 # `go/template`
+![Coverage](https://img.shields.io/badge/Coverage-69.1%25-yellow)
 
 [![SIT](https://img.shields.io/badge/SIT-awesome-blueviolet.svg)](https://jobs.schwarz)
 [![CI](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml)
