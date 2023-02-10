@@ -23,7 +23,7 @@ RUN --mount=target=. \
 
 # Import the binary from build stage
 
-FROM gcr.io/distroless/static:nonroot@sha256:42ddd0c37ff4ccb0b1e0d2839eb846b250f0fbbb7e4a88ebc1634439b7ee8f0e as prd
+FROM gcr.io/distroless/static:nonroot@sha256:5c9728ecd8683960ffff84837b21ac9f8f1fabbe437221a486fb93ccc4e05d88 as prd
 COPY --link --from=build /app/main /
 # this is the numeric version of user nonroot:nonroot to check runAsNonRoot in kubernetes
 USER 65532:65532
