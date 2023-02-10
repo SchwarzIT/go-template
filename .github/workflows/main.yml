@@ -44,9 +44,29 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Run linting & unittest
+      - name: Run linting
         if: matrix.os == 'ubuntu-latest'
-        run: make ci
+        run: make lint
+
+      - name: Run unittest
+        if: matrix.os == 'ubuntu-latest'
+        run: make test-coverage
+
+      - name: Go Coverage Badge
+        uses: tj-actions/coverage-badge-go@v1
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          green: 80
+          filename: out/coverage.out
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        if: matrix.os == 'ubuntu-latest'
+        id: auto-commit-action
+        with:
+          commit_message: Apply Code Coverage Badge
+          skip_fetch: true
+          skip_checkout: true
+          file_pattern: ./README.md
 
       - name: Run Vulnerability detection using govulncheck
         if: matrix.os == 'ubuntu-latest'
@@ -71,3 +91,10 @@ jobs:
 
       - name: Test generate projects
         run: make testing-project-ci
+
+      - name: Push Changes
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ github.token }}
+          branch: ${{ github.ref }}
