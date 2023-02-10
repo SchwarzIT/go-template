@@ -2,7 +2,6 @@ SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
 # constants
-GOLANGCI_VERSION = {{.Base.golangciVersion}}
 DOCKER_REPO = {{.Base.appName}}
 DOCKER_TAG = latest
 
@@ -36,19 +35,14 @@ GO_BUILD = mkdir -pv "$(@)" && go build -ldflags="-w -s" -o "$(@)" ./...
 out/bin:
 	$(GO_BUILD)
 
-GOLANGCI_LINT = bin/golangci-lint-$(GOLANGCI_VERSION)
-$(GOLANGCI_LINT):
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b bin v$(GOLANGCI_VERSION)
-	@mv bin/golangci-lint "$(@)"
-
-lint: fmt $(GOLANGCI_LINT) download ## Lints all code with golangci-lint
-	@$(GOLANGCI_LINT) run
+lint: fmt download ## Lints all code with golangci-lint
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 
 lint-reports: out/lint.xml
 
 .PHONY: out/lint.xml
-out/lint.xml: $(GOLANGCI_LINT) out download
-	@$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
+out/lint.xml: out download
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --out-format checkstyle | tee "$(@)"
 
 test: ## Runs all tests
 	@go test $(ARGS) ./...
