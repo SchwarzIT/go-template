@@ -45,7 +45,7 @@ out/lint.xml: out download
 	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --out-format checkstyle | tee "$(@)"
 
 govulncheck: bin/govulncheck ## Vulnerability detection using govulncheck
-	@PATH=$(PWD)/bin:$$PATH govulncheck ./...
+	@go run golang.org/x/vuln/cmd/govulncheck ./...
 
 test: ## Runs all tests
 	@go test $(ARGS) ./...
@@ -67,10 +67,7 @@ clean: ## Cleans up everything
 
 docker: ## Builds docker image
 	docker buildx build --cache-to type=inline -t $(DOCKER_REPO):$(DOCKER_TAG) .
-
-# Go dependencies versioned through tools.go
-GO_DEPENDENCIES = golang.org/x/vuln/cmd/govulncheck{{- if .Extensions.grpc.base }}
-
+{{- if .Extensions.grpc.base }}
 # additional dependencies for grpc
 GO_DEPENDENCIES += google.golang.org/protobuf/cmd/protoc-gen-go \
 				google.golang.org/grpc/cmd/protoc-gen-go-grpc \

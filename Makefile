@@ -43,7 +43,7 @@ out/lint.xml: out download
 	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --out-format checkstyle | tee "$(@)"
 
 govulncheck: bin/govulncheck ## Vulnerability detection using govulncheck
-	@PATH=$(PWD)/bin:$$PATH govulncheck ./...
+	@go run golang.org/x/vuln/cmd/govulncheck ./...
 
 test: ## Runs all tests
 	@go test ./...
@@ -65,18 +65,6 @@ clean-test-project: ## Removes test-project
 
 clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
-
-# Go dependencies versioned through tools.go
-GO_DEPENDENCIES = golang.org/x/vuln/cmd/govulncheck
-
-define make-go-dependency
-  # target template for go tools, can be referenced e.g. via /bin/<tool>
-  bin/$(notdir $1):
-	GOBIN=$(PWD)/bin go install $1
-endef
-
-# this creates a target for each go dependency to be referenced in other targets
-$(foreach dep, $(GO_DEPENDENCIES), $(eval $(call make-go-dependency, $(dep))))
 
 .PHONY: testing-project
 testing-project: clean-test-project ## Creates a testing-project from the template
