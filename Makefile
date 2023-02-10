@@ -42,7 +42,7 @@ lint-reports: out/lint.xml
 out/lint.xml: out download
 	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --out-format checkstyle | tee "$(@)"
 
-govulncheck: bin/govulncheck ## Vulnerability detection using govulncheck
+govulncheck: ## Vulnerability detection using govulncheck
 	@go run golang.org/x/vuln/cmd/govulncheck ./...
 
 test: ## Runs all tests
