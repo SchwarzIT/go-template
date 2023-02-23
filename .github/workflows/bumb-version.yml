@@ -53,9 +53,16 @@ jobs:
           export VERSION="$(cat config/version.txt)"
           echo "tag=v$VERSION" >> $GITHUB_OUTPUT
           echo "branch=version-bumb/v$VERSION" >> $GITHUB_OUTPUT
-      - name: Create Pull Request
+
+      - name: Commit changes
         run: |
           git checkout -b "${{ steps.tag.outputs.branch }}"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add config/version.txt
           git commit -m "chore(engine): prepare release ${{ steps.tag.outputs.tag }}"
+
+      - name: Create Pull Request
+        run: |
           git push --set-upstream origin "${{ steps.tag.outputs.branch }}"
           gh pr create --fill
