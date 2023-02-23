@@ -87,11 +87,11 @@ To get an overview of all options that can be set for the template you can take 
 
 ## Maintainers
 
-| Name                                           | Email                        |
-| :--------------------------------------------- | :--------------------------- |
-| [@brumhard](https://github.com/brumhard)       | code@brumhard.com            |
-| [@linuxluigi](https://github.com/linuxluigi)   | steffen.exler@mail.schwarz   |
-| [@danielzwink](https://github.com/danielzwink) | daniel.zwink@mail.schwarz    |
+| Name                                           |
+| :--------------------------------------------- |
+| [@brumhard](https://github.com/brumhard)       |
+| [@linuxluigi](https://github.com/linuxluigi)   |
+| [@danielzwink](https://github.com/danielzwink) |
 
 ## Contribution
 
