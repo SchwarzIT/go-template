@@ -16,9 +16,12 @@ schema = 3
   [mod."github.com/davecgh/go-spew"]
     version = "v1.1.1"
     hash = "sha256-nhzSUrE1fCkN0+RL04N4h8jWmRFPPPWbCuDc7Ss0akI="
-  [mod."github.com/google/go-github/v49"]
-    version = "v49.0.0"
-    hash = "sha256-5SS2n2o4MeJVuYSz2HKTRvzPzvQHXU7QG54eCisp/oI="
+  [mod."github.com/golang/protobuf"]
+    version = "v1.3.2"
+    hash = "sha256-4fGAPuXMGpohqcqHeoIHwzCvkiWtIOAs0ewIhZ8JeU8="
+  [mod."github.com/google/go-github/v50"]
+    version = "v50.0.0"
+    hash = "sha256-V0dZpsI8VqB6K6EmxDACcRkSsk6S3nWyay3RKDAmchE="
   [mod."github.com/google/go-querystring"]
     version = "v1.1.0"
     hash = "sha256-itsKgKghuX26czU79cK6C2n+lc27jm5Dw1XbIRgwZJY="
@@ -79,9 +82,18 @@ schema = 3
   [mod."golang.org/x/crypto"]
     version = "v0.3.0"
     hash = "sha256-Un9wPqz8u/xpV98T4IqE6RMXIPhGCIm2prsNkHP3cjg="
+  [mod."golang.org/x/net"]
+    version = "v0.2.0"
+    hash = "sha256-0MqnHDdLkkau6k7hlWD9MzIoAFROvxulyT+KzZkSXOs="
+  [mod."golang.org/x/oauth2"]
+    version = "v0.0.0-20180821212333-d2e6202438be"
+    hash = "sha256-x0Lvhts17qZLPpt43EuNzUXcKJ6krpGWLYiA0Fw5dnE="
   [mod."golang.org/x/sys"]
     version = "v0.2.0"
     hash = "sha256-N6yfQH7R2gfcvyWTQZbxWuSNyVy6hAxiab2WFzgAykI="
+  [mod."google.golang.org/appengine"]
+    version = "v1.6.7"
+    hash = "sha256-zIxGRHiq4QBvRqkrhMGMGCaVL4iM4TtlYpAi/hrivS4="
   [mod."gopkg.in/yaml.v3"]
     version = "v3.0.1"
     hash = "sha256-FqL9TKYJ0XkNwJFnq9j0VvJ5ZUU1RvH/52h/f5bkYAU="
