@@ -93,6 +93,10 @@ testing-project-ci:  ## Creates for all yml files in ./test_project_values a tes
 		make testing-project-ci-single VALUES_FILE=$$VALUES; \
 	done
 
+svu: ## Creates a new version, args options major, minor & patch
+	@go run github.com/caarlos0/svu $(args) --strip-prefix > config/version.txt
+	@go run github.com/caarlos0/svu $(args)
+
 .PHONY: release
 release:  ## Create a new release version
 	@./hack/release.sh
