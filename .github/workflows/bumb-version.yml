@@ -47,6 +47,7 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
       - name: Bumb version file
         run: make svu args=${{ inputs.versionBumb }}
 
@@ -69,3 +70,5 @@ jobs:
         run: |
           git push --set-upstream origin "${{ steps.tag.outputs.branch }}"
           gh pr create --fill
+        env:
+          GH_TOKEN: ${{ github.token }}
