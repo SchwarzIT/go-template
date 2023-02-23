@@ -1,3 +1,6 @@
+pr:
+  - main
+
 pool:
   vmImage: ubuntu-latest
 variables:
