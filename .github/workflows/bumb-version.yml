@@ -1,0 +1,74 @@
+---
+name: Bumb version
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      versionBumb:
+        description: 'Version bumb'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - major     # Increases the major of the latest tag.
+        - minor     # Increases the minor of the latest tag.
+        - patch     # Increases the patch of the latest tag.
+
+jobs:
+  bumb-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # v3.5.0
+        with:
+          go-version: 1.19.x
+
+      - name: Checkout code
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      # cache go modules
+      - uses: actions/cache@4723a57e26efda3a62cbde1812113b730952852d # v3.2.2
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          # * Build cache (Mac)
+          # * Build cache (Windows)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Bumb version file
+        run: make svu args=${{ inputs.versionBumb }}
+
+      - name: Get version from file
+        id: tag
+        run: |
+          export VERSION="$(cat config/version.txt)"
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "branch=version-bumb/v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit changes
+        run: |
+          git checkout -b "${{ steps.tag.outputs.branch }}"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add config/version.txt
+          git commit -m "chore(engine): prepare release ${{ steps.tag.outputs.tag }}"
+
+      - name: Create Pull Request
+        run: |
+          git push --set-upstream origin "${{ steps.tag.outputs.branch }}"
+          gh pr create --fill
+        env:
+          GH_TOKEN: ${{ github.token }}
