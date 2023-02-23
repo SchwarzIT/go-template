@@ -4,18 +4,36 @@ schema = 3
   [mod."github.com/Masterminds/goutils"]
     version = "v1.1.1"
     hash = "sha256-MEvA5e099GUllILa5EXxa6toQexU1sz6eDZt2tiqpCY="
+  [mod."github.com/Masterminds/semver"]
+    version = "v1.5.0"
+    hash = "sha256-3fEInOXFdzCiGdDZ1s9otEes7VXiL8Q1RVB3zXRPJsQ="
   [mod."github.com/Masterminds/semver/v3"]
     version = "v3.2.0"
     hash = "sha256-JaGYNQwDxFCsLwzYVoJY4RUpP4dtiRlV14t2dVAg4oQ="
   [mod."github.com/Masterminds/sprig/v3"]
     version = "v3.2.3"
     hash = "sha256-1GLZic3WQIBZGyjvyHbfcZ/7EV7oNzNhkwEiiTpVfL4="
+  [mod."github.com/alecthomas/kingpin"]
+    version = "v2.2.6+incompatible"
+    hash = "sha256-uViE2kPj7tMrGYVjjdLOl2jFDmmu+3P7GvnZBse2zVY="
+  [mod."github.com/alecthomas/template"]
+    version = "v0.0.0-20190718012654-fb15b899a751"
+    hash = "sha256-RsS4qxdRQ3q+GejA8D9Iu31A/mZNms4LbJ7518jWiu4="
+  [mod."github.com/alecthomas/units"]
+    version = "v0.0.0-20210208195552-ff826a37aa15"
+    hash = "sha256-1KBzVguMcqUTXZm7gUfAeH2axnlUdpocMyf/JTB9q5E="
   [mod."github.com/aymanbagabas/go-osc52"]
     version = "v1.0.3"
     hash = "sha256-+PPvxpq4eEcolG77a9g3r5Tw67Zs7hDOXS3nOYnizBQ="
+  [mod."github.com/caarlos0/svu"]
+    version = "v1.9.0"
+    hash = "sha256-Sf6qJksmZXo6s2mGMzbIMIsVlbHdUPE0xasaZEGLcNY="
   [mod."github.com/davecgh/go-spew"]
     version = "v1.1.1"
     hash = "sha256-nhzSUrE1fCkN0+RL04N4h8jWmRFPPPWbCuDc7Ss0akI="
+  [mod."github.com/gobwas/glob"]
+    version = "v0.2.3"
+    hash = "sha256-hYHMUdwxVkMOjSKjR7UWO0D0juHdI4wL8JEy5plu/Jc="
   [mod."github.com/golang/protobuf"]
     version = "v1.3.2"
     hash = "sha256-4fGAPuXMGpohqcqHeoIHwzCvkiWtIOAs0ewIhZ8JeU8="
