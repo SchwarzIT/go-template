@@ -64,6 +64,6 @@ stages:
         displayName: Run semgrep security tests
         steps:
           - bash: |
-              docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
+              docker run -v $(pwd):/src --workdir /src returntocorp/semgrep semgrep \
               --config p/auto
             displayName: Semgrep

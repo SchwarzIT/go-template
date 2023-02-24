@@ -4,8 +4,8 @@ stages:
 
 semgrep:
   stage: static_analysis
-  image: returntocorp/semgrep-agent:v1
-  script: semgrep-agent
+  image: returntocorp/semgrep
+  script: semgrep
 
   rules:
   # Scan changed files in MRs, block on new issues only (existing issues ignored)
