@@ -3,14 +3,6 @@ package gotemplate
 // TemplateOptionName represents the name of a template option.
 type TemplateOptionName string
 
-// TemplateOptionResponse represents the user's response to a template option.
-type TemplateOptionResponse struct {
-	// Name is the name of the option.
-	Name TemplateOptionName
-	// Value is the user's selected value for the option.
-	Value interface{}
-}
-
 // TemplateQuestion represents a single question in a module.
 type TemplateQuestion struct {
 	// Name is the name of the question.
@@ -26,6 +18,8 @@ type TemplateQuestion struct {
 	// PredefinedValues is a list of predefined values for the question. This is optional.
 	// If this is set, the user will be presented with a list of predefined values to choose from instead of an input field.
 	PredefinedValues []interface{}
+	// ResponseValue is the value that the user provided in response to the question. This is optional.
+	ResponseValue *string
 }
 
 // Template represents a template that can be generated.

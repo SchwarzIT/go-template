@@ -5,8 +5,6 @@ type Module interface {
 	// GetNextQuestion returns the next question in the module.
 	// If there are no more questions, it returns nil.
 	GetNextQuestion() *TemplateQuestion
-	// ReceiveResponse receives the user's response to a question.
-	ReceiveResponse(response TemplateOptionResponse)
 	// GetModuleData returns the complete module data when all questions have been answered.
 	GetModuleData() *ModuleData
 }
@@ -43,10 +41,6 @@ func (m *ModuleBase) GetNextQuestion() *TemplateQuestion {
 	question := m.questions[0]
 	m.questions = m.questions[1:]
 	return &question
-}
-
-// ReceiveResponse receives the user's response to a question.
-func (m *ModuleBase) ReceiveResponse(response TemplateOptionResponse) {
 }
 
 // GetModule returns the complete module data when all questions have been answered.
