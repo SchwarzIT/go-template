@@ -10,6 +10,9 @@ schema = 3
   [mod."github.com/Masterminds/sprig/v3"]
     version = "v3.2.3"
     hash = "sha256-1GLZic3WQIBZGyjvyHbfcZ/7EV7oNzNhkwEiiTpVfL4="
+  [mod."github.com/atotto/clipboard"]
+    version = "v0.1.4"
+    hash = "sha256-ZZ7U5X0gWOu8zcjZcWbcpzGOGdycwq0TjTFh/eZHjXk="
   [mod."github.com/aymanbagabas/go-osc52"]
     version = "v1.2.2"
     hash = "sha256-zuw3/3Q/ikIEC6yng1fLztEoAj/WzITAXU3wsSmHLnk="

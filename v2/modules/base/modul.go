@@ -30,6 +30,7 @@ func New() (*Module, error) {
 					IsValid: func(value interface{}) (bool, string) {
 						return true, ""
 					},
+					DefaultValue: gotemplate.StringPtr("my-project"),
 				},
 				{
 					Name:        "project-description",

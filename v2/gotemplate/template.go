@@ -33,7 +33,7 @@ type TemplateQuestion struct {
 	// Description is a short description of the question.
 	Description string
 	// DefaultValue is the default value for the question. This is optional.
-	DefaultValue string
+	DefaultValue *string
 	// Choices is a list of pre-defined choices for the question. This is optional.
 	Choices []string
 	// IsValid is a function that validates the input value for the question. This is optional.

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/schwarzit/go-template/v2/gotemplate"
 	"github.com/schwarzit/go-template/v2/modules/base"
+	"github.com/schwarzit/go-template/v2/view/bubble"
 )
 
 func main() {
@@ -12,7 +13,7 @@ func main() {
 	}
 
 	t := gotemplate.NewTemplate(
-		gotemplate.NewBubbleTeaView(),
+		bubble.NewBubbleTeaView(),
 	)
 
 	t.AddModules([]gotemplate.Module{

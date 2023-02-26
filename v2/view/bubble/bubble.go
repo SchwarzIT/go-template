@@ -1,10 +1,11 @@
-package gotemplate
+package bubble
 
 import (
 	"errors"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/schwarzit/go-template/v2/gotemplate"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 // Model represents the state of the view at any given time.
 type Model struct {
 	// Question is the current question being presented to the user.
-	Question TemplateQuestion
+	Question gotemplate.TemplateQuestion
 	// Input is the user's response to the current question.
 	Input string
 	// Error is any error that occurred while processing the user's response to the current question.
@@ -43,10 +44,16 @@ func NewBubbleTeaView() BubbleTeaView {
 	}
 }
 
-func (b BubbleTeaView) PresentQuestion(question TemplateQuestion) (*TemplateQuestion, error) {
+func (b BubbleTeaView) PresentQuestion(question gotemplate.TemplateQuestion) (*gotemplate.TemplateQuestion, error) {
 	fmt.Println("PresentQuestion")
 	fmt.Println(question)
 	question.ResponseValue = nil
+
+	p := tea.NewProgram(initialModel(question))
+	if _, err := p.Run(); err != nil {
+		return nil, err
+	}
+
 	return &question, nil
 }
 
