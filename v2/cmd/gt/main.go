@@ -1,18 +1,26 @@
 package main
 
 import (
-	"fmt"
-
+	"github.com/schwarzit/go-template/v2/gotemplate"
 	"github.com/schwarzit/go-template/v2/modules/base"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
-
 	m, err := base.New()
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(m.TemplateFiles)
+	t := gotemplate.NewTemplate(
+		gotemplate.NewBubbleTeaView(),
+	)
+
+	t.AddModules([]gotemplate.Module{
+		m,
+	})
+
+	err = t.ExecuteWizard()
+	if err != nil {
+		panic(err)
+	}
 }

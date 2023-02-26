@@ -6,7 +6,8 @@ import (
 
 type Module struct {
 	gotemplate.ModuleData
-	questions map[string]gotemplate.TemplateQuestion
+	gotemplate.ModuleBase
+	// questions map[string]gotemplate.TemplateQuestion
 }
 
 func New() (*Module, error) {
@@ -21,19 +22,21 @@ func New() (*Module, error) {
 			TemplatePath:  "v2/modules/base/template",
 			TemplateFiles: files,
 		},
-		questions: map[string]gotemplate.TemplateQuestion{
-			"project-name": {
-				Name:        "project-name",
-				Description: "Project name",
-				IsValid: func(value interface{}) (bool, string) {
-					return true, ""
+		ModuleBase: gotemplate.ModuleBase{
+			Questions: []gotemplate.TemplateQuestion{
+				{
+					Name:        "project-name",
+					Description: "Project name",
+					IsValid: func(value interface{}) (bool, string) {
+						return true, ""
+					},
 				},
-			},
-			"project-description": {
-				Name:        "project-description",
-				Description: "Project description",
-				IsValid: func(value interface{}) (bool, string) {
-					return true, ""
+				{
+					Name:        "project-description",
+					Description: "Project description",
+					IsValid: func(value interface{}) (bool, string) {
+						return true, ""
+					},
 				},
 			},
 		},

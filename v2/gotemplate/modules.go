@@ -2,9 +2,14 @@ package gotemplate
 
 // Module represents a module that can be included in a template.
 type Module interface {
+	// GetModuleName returns the name of the module.
+	GetModuleName() ModuleName
+
 	// GetNextQuestion returns the next question in the module.
+	// The `moduleData` argument is a map of the module data that has been collected so far.
 	// If there are no more questions, it returns nil.
-	GetNextQuestion() *TemplateQuestion
+	GetNextQuestion(moduleData map[ModuleName]ModuleData) *TemplateQuestion
+
 	// GetModuleData returns the complete module data when all questions have been answered.
 	GetModuleData() *ModuleData
 }
@@ -23,30 +28,35 @@ type ModuleData struct {
 	TemplateFiles []string
 	// TemplateData is the data that will be used to generate the template for this module.
 	// The data can be of any type, depending on the needs of the module.
-	TemplateData interface{}
+	TemplateData map[TemplateOptionName]interface{}
 }
 
 // ModuleBase implements the Module interface.
 type ModuleBase struct {
 	ModuleData
-	questions []TemplateQuestion
+	Questions []TemplateQuestion
 }
 
 // GetNextQuestion returns the next question in the module.
 // If there are no more questions, it returns nil.
-func (m *ModuleBase) GetNextQuestion() *TemplateQuestion {
-	if len(m.questions) == 0 {
+func (m *ModuleBase) GetNextQuestion(moduleData map[ModuleName]ModuleData) *TemplateQuestion {
+	if len(m.Questions) == 0 {
 		return nil
 	}
-	question := m.questions[0]
-	m.questions = m.questions[1:]
+	question := m.Questions[0]
+	m.Questions = m.Questions[1:]
 	return &question
 }
 
-// GetModule returns the complete module data when all questions have been answered.
-func (m *ModuleBase) GetModule() *ModuleData {
-	if len(m.questions) == 0 {
+// GetModuleData returns the complete module data when all questions have been answered.
+func (m *ModuleBase) GetModuleData() *ModuleData {
+	if len(m.Questions) == 0 {
 		return &m.ModuleData
 	}
 	return nil
+}
+
+// GetModuleName returns the name of the module.
+func (m *ModuleBase) GetModuleName() ModuleName {
+	return m.ModuleData.Name
 }
