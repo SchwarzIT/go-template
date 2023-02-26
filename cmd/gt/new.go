@@ -70,7 +70,6 @@ base:
   projectDescription: Some random project
   appName: somecli
   moduleName: github.com/some-user/some-project
-  golangciVersion: 1.42.1
 extensions:
   grpc:
     base: true
