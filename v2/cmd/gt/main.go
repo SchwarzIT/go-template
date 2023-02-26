@@ -13,7 +13,7 @@ func main() {
 	}
 
 	t := gotemplate.NewTemplate(
-		bubble.NewBubbleTeaView(),
+		bubble.NewTeaView(),
 	)
 
 	t.AddModules([]gotemplate.Module{

@@ -26,17 +26,17 @@ type Model struct {
 	SelectedIdx int
 }
 
-// BubbleTeaView is a struct that implements the View interface using the Bubble Tea framework.
-type BubbleTeaView struct {
+// TeaView is a struct that implements the View interface using the Bubble Tea framework.
+type TeaView struct {
 	model    Model
 	program  *tea.Program
 	done     chan struct{}
 	response chan string
 }
 
-// NewBubbleTeaView creates a new BubbleTeaView.
-func NewBubbleTeaView() BubbleTeaView {
-	return BubbleTeaView{
+// NewTeaView creates a new TeaView.
+func NewTeaView() TeaView {
+	return TeaView{
 		model:    Model{},
 		program:  nil,
 		done:     make(chan struct{}),
@@ -44,7 +44,7 @@ func NewBubbleTeaView() BubbleTeaView {
 	}
 }
 
-func (b BubbleTeaView) PresentQuestion(question gotemplate.TemplateQuestion) (*gotemplate.TemplateQuestion, error) {
+func (b TeaView) PresentQuestion(question gotemplate.TemplateQuestion) (*gotemplate.TemplateQuestion, error) {
 	fmt.Println("PresentQuestion")
 	fmt.Println(question)
 	question.ResponseValue = nil
@@ -58,7 +58,7 @@ func (b BubbleTeaView) PresentQuestion(question gotemplate.TemplateQuestion) (*g
 }
 
 // ShowMessage displays a message to the user.
-func (b *BubbleTeaView) ShowMessage(message string) error {
+func (b *TeaView) ShowMessage(message string) error {
 	fmt.Println(message)
 	return nil
 }

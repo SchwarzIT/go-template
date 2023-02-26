@@ -21,8 +21,6 @@ func initialModel(question gotemplate.TemplateQuestion) textInputModel {
 		ti.Placeholder = *question.DefaultValue
 	}
 	ti.Focus()
-	// ti.CharLimit = 156
-	// ti.Width = 20
 
 	return textInputModel{
 		textInput: ti,
