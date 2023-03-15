@@ -1,5 +1,15 @@
+# Trigger Pipeline on PRs
 pr:
-  - main
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - README.md
+  drafts: true
+
+# Disable pipeline trigger on not PRs
+trigger: none
 
 pool:
   vmImage: ubuntu-latest
