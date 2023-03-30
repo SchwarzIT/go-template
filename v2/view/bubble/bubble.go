@@ -47,7 +47,7 @@ func NewTeaView() TeaView {
 func (b TeaView) PresentQuestion(question gotemplate.TemplateQuestion) (*gotemplate.TemplateQuestion, error) {
 	fmt.Println("PresentQuestion")
 	fmt.Println(question)
-	question.ResponseValue = nil
+	// question.ResponseValue = nil
 
 	p := tea.NewProgram(initialModel(question))
 	if _, err := p.Run(); err != nil {

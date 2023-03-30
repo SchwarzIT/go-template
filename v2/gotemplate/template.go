@@ -17,34 +17,37 @@ const (
 // ResponseValue is the interface that describes the possible values that can be set as a response to a TemplateQuestion.
 type ResponseValue interface{}
 
-// StringValue is a type that represents a single string value.
-type StringValue string
-
-// StringListValue is a type that represents a list of string values.
-type StringListValue []string
-
 // TemplateOptionName represents the name of a template option.
 type TemplateOptionName string
 
 // TemplateQuestion represents a single question in a module.
-type TemplateQuestion struct {
+type TemplateQuestion interface {
 	// Name is the name of the question.
-	Name TemplateOptionName
+	Name() TemplateOptionName
+
 	// Description is a short description of the question.
-	Description string
+	Description() string
+
 	// DefaultValue is the default value for the question. This is optional.
-	DefaultValue *string
+	DefaultValue() *string
+
 	// Choices is a list of pre-defined choices for the question. This is optional.
-	Choices []string
+	Choices() []string
+
 	// IsValid is a function that validates the input value for the question. This is optional.
 	// If the input is valid, the function should return (true, "").
 	// If the input is invalid, the function should return (false, "reason why input is invalid") or (false, "") if no reason is provided.
-	IsValid func(value interface{}) (isValid bool, reason string)
+	IsValid(answer []string) (isValid bool, reason *string, err error)
+
+	// IsEnabled returns whether or not the question should be enabled based on the current module data.
+	IsEnabled(moduleData map[ModuleName]ModuleData) (bool, error)
+
 	// ResponseValue is the value that the user provided in response to the question.
 	// This is optional and will be set after the question has been answered.
-	ResponseValue ResponseValue
+	ResponseValue(answer []string) (interface{}, error)
+
 	// Type is the type of question.
-	Type QuestionType
+	Type() QuestionType
 }
 
 // Template represents a template that can be generated.
@@ -91,20 +94,20 @@ func (t *Template) ProcessModules() error {
 			TemplateData: map[TemplateOptionName]interface{}{},
 		}
 
-		// Get the questions for this module and iterate over them.
-		question := module.GetNextQuestion(t.OutModuleData)
-		for question != nil {
-			// Present the question to the user and get the response.
-			response, err := t.View.PresentQuestion(*question)
-			if err != nil {
-				return err
-			}
+		// // Get the questions for this module and iterate over them.
+		// question := module.GetNextQuestion(t.OutModuleData)
+		// for question != nil {
+		// 	// Present the question to the user and get the response.
+		// 	response, err := t.View.PresentQuestion(*question)
+		// 	if err != nil {
+		// 		return err
+		// 	}
 
-			t.OutModuleData[moduleName].TemplateData[question.Name] = response.ResponseValue
+		// 	t.OutModuleData[moduleName].TemplateData[question.Name] = response.ResponseValue
 
-			// Get the next question.
-			question = module.GetNextQuestion(t.OutModuleData)
-		}
+		// 	// Get the next question.
+		// 	question = module.GetNextQuestion(t.OutModuleData)
+		// }
 
 		// Store the module data in the template.
 		t.OutModuleData[moduleName] = *module.GetModuleData()

@@ -5,10 +5,8 @@ type Module interface {
 	// GetModuleName returns the name of the module.
 	GetModuleName() ModuleName
 
-	// GetNextQuestion returns the next question in the module.
-	// The `moduleData` argument is a map of the module data that has been collected so far.
-	// If there are no more questions, it returns nil.
-	GetNextQuestion(moduleData map[ModuleName]ModuleData) *TemplateQuestion
+	// GetQuestions returns all the questions for the module.
+	GetQuestions() ([]TemplateQuestion, error)
 
 	// GetModuleData returns the complete module data when all questions have been answered.
 	GetModuleData() *ModuleData
@@ -37,15 +35,9 @@ type ModuleBase struct {
 	Questions []TemplateQuestion
 }
 
-// GetNextQuestion returns the next question in the module.
-// If there are no more questions, it returns nil.
-func (m *ModuleBase) GetNextQuestion(moduleData map[ModuleName]ModuleData) *TemplateQuestion {
-	if len(m.Questions) == 0 {
-		return nil
-	}
-	question := m.Questions[0]
-	m.Questions = m.Questions[1:]
-	return &question
+// GetQuestions returns all the questions in the module.
+func (m *ModuleBase) GetQuestions() ([]TemplateQuestion, error) {
+	return m.Questions, nil
 }
 
 // GetModuleData returns the complete module data when all questions have been answered.

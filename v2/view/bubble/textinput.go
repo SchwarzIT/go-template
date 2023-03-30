@@ -18,7 +18,7 @@ type textInputModel struct {
 func initialModel(question gotemplate.TemplateQuestion) textInputModel {
 	ti := textinput.New()
 	if question.DefaultValue != nil {
-		ti.Placeholder = *question.DefaultValue
+		// ti.Placeholder = *question.DefaultValue
 	}
 	ti.Focus()
 

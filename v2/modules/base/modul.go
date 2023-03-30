@@ -24,21 +24,21 @@ func New() (*Module, error) {
 		},
 		ModuleBase: gotemplate.ModuleBase{
 			Questions: []gotemplate.TemplateQuestion{
-				{
-					Name:        "project-name",
-					Description: "Project name",
-					IsValid: func(value interface{}) (bool, string) {
-						return true, ""
-					},
-					DefaultValue: gotemplate.StringPtr("my-project"),
-				},
-				{
-					Name:        "project-description",
-					Description: "Project description",
-					IsValid: func(value interface{}) (bool, string) {
-						return true, ""
-					},
-				},
+				// {
+				// 	Name:        "project-name",
+				// 	Description: "Project name",
+				// 	IsValid: func(value interface{}) (bool, string) {
+				// 		return true, ""
+				// 	},
+				// 	DefaultValue: gotemplate.StringPtr("my-project"),
+				// },
+				// {
+				// 	Name:        "project-description",
+				// 	Description: "Project description",
+				// 	IsValid: func(value interface{}) (bool, string) {
+				// 		return true, ""
+				// 	},
+				// },
 			},
 		},
 	}, nil
