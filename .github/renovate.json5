@@ -22,5 +22,16 @@
   "postUpdateOptions": [
     "gomodTidy",
     "gomodUpdateImportPaths"
-  ]
+  ],
+  "postUpgradeTasks": {
+    "commands": [
+      "make generate"
+    ],
+    // only include updates to the following files in the PR
+    "fileFilters": [
+      "nix/gomod2nix.toml"
+    ],
+    // only run once per update branch
+    "executionMode": "branch"
+  }
 }
