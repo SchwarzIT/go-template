@@ -55,3 +55,4 @@ golang:
     - make protobreaking
     {{- end }}
     - make test
+    - make govulncheck

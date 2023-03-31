@@ -185,7 +185,8 @@ func NewOptionValues() *OptionValues {
 type OptionNameToValue map[string]interface{}
 
 // NewOptions returns all of go/template's options.
-func NewOptions(githubTagLister repos.GithubTagLister) *Options { //nolint:funlen,cyclop // Static initialization
+// Keeping repos.GithubTagLister in case it's needed in the future
+func NewOptions(_ repos.GithubTagLister) *Options { //nolint:funlen,cyclop // Static initialization
 	return &Options{
 		Base: []Option{
 			{
