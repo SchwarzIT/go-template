@@ -50,4 +50,8 @@ golang:
   script:
     - make download
     - make lint
+    {{ if .Extensions.grpc.base -}}
+    - make protolint
+    - make protobreaking
+    {{- end }}
     - make test

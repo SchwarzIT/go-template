@@ -54,5 +54,13 @@ jobs:
       - name: Lints all code with golangci-lint
         run: make lint
 
+      {{ if .Extensions.grpc.base -}}
+      - name: Lints protobuf files
+        run: make protolint
+
+      - name: Check fot protobuf breaking change
+        run: make protobreaking
+      {{- end }}
+
       - name: Runs all tests
         run: make test

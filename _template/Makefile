@@ -96,7 +96,7 @@ api/proto/buf.lock: bin/buf
 protolint: api/proto/buf.lock bin/protoc-gen-buf-lint ## Lints your protobuf files
 	bin/buf lint
 
-protobreaking: api/proto/buf.lock bin/protoc-gen-buf-breaking ## Compares your current protobuf with the version on master to find breaking changes
+protobreaking: api/proto/buf.lock bin/protoc-gen-buf-breaking ## Compares your current protobuf with the version on main to find breaking changes
 	bin/buf breaking --against '.git#branch=main'
 
 generate: ## Generates code from protobuf files
