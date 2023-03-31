@@ -4,7 +4,6 @@ base:
   projectDescription: Some project used for testing
   appName: testing
   moduleName: github.com/fake/testing
-  golangciVersion: 1.48.0
 extensions:
   ci:
     provider: 3 # Azure DevOps

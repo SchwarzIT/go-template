@@ -1,9 +1,6 @@
 SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
-# constants
-GOLANGCI_VERSION = 1.51.2
-
 all: git-hooks generate ## Initializes all tools and files
 
 out:
@@ -36,19 +33,17 @@ generate: ## Generates files
 	@go run cmd/options2md/main.go -o docs/options.md
 	@go run github.com/nix-community/gomod2nix@latest --outdir nix
 
-GOLANGCI_LINT = bin/golangci-lint-$(GOLANGCI_VERSION)
-$(GOLANGCI_LINT):
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b bin v$(GOLANGCI_VERSION)
-	@mv bin/golangci-lint "$(@)"
-
-lint: fmt $(GOLANGCI_LINT) download ## Lints all code with golangci-lint
-	@$(GOLANGCI_LINT) run
+lint: fmt download ## Lints all code with golangci-lint
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 
 lint-reports: out/lint.xml
 
 .PHONY: out/lint.xml
-out/lint.xml: $(GOLANGCI_LINT) out download
-	$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
+out/lint.xml: out download
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --out-format checkstyle | tee "$(@)"
+
+govulncheck: ## Vulnerability detection using govulncheck
+	@go run golang.org/x/vuln/cmd/govulncheck ./...
 
 test: ## Runs all tests
 	@go test ./...

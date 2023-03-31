@@ -2,7 +2,6 @@ SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
 # constants
-GOLANGCI_VERSION = {{.Base.golangciVersion}}
 DOCKER_REPO = {{.Base.appName}}
 DOCKER_TAG = latest
 
@@ -36,19 +35,17 @@ GO_BUILD = mkdir -pv "$(@)" && go build -ldflags="-w -s" -o "$(@)" ./...
 out/bin:
 	$(GO_BUILD)
 
-GOLANGCI_LINT = bin/golangci-lint-$(GOLANGCI_VERSION)
-$(GOLANGCI_LINT):
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b bin v$(GOLANGCI_VERSION)
-	@mv bin/golangci-lint "$(@)"
-
-lint: fmt $(GOLANGCI_LINT) download ## Lints all code with golangci-lint
-	@$(GOLANGCI_LINT) run
+lint: fmt download ## Lints all code with golangci-lint
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 
 lint-reports: out/lint.xml
 
 .PHONY: out/lint.xml
-out/lint.xml: $(GOLANGCI_LINT) out download
-	@$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
+out/lint.xml: out download
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --out-format checkstyle | tee "$(@)"
+
+govulncheck: ## Vulnerability detection using govulncheck
+	@go run golang.org/x/vuln/cmd/govulncheck ./...
 
 test: ## Runs all tests
 	@go test $(ARGS) ./...
@@ -72,13 +69,14 @@ docker: ## Builds docker image
 	docker buildx build --cache-to type=inline -t $(DOCKER_REPO):$(DOCKER_TAG) .
 
 {{- if .Extensions.grpc.base }}
-# Go dependencies versioned through tools.go
+# additional dependencies for grpc
 GO_DEPENDENCIES = google.golang.org/protobuf/cmd/protoc-gen-go \
 				google.golang.org/grpc/cmd/protoc-gen-go-grpc \
 				github.com/envoyproxy/protoc-gen-validate \
 				github.com/bufbuild/buf/cmd/buf \
                 github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking \
                 github.com/bufbuild/buf/cmd/protoc-gen-buf-lint
+{{- end }}
 
 {{- if .Extensions.grpc.grpcGateway }}
 # additional dependencies for grpc-gateway
@@ -95,6 +93,7 @@ endef
 # this creates a target for each go dependency to be referenced in other targets
 $(foreach dep, $(GO_DEPENDENCIES), $(eval $(call make-go-dependency, $(dep))))
 
+{{- if .Extensions.grpc.base }}
 .PHONY: api/proto/buf.lock
 api/proto/buf.lock: bin/buf
 	@bin/buf mod update api/proto
@@ -102,15 +101,14 @@ api/proto/buf.lock: bin/buf
 protolint: api/proto/buf.lock bin/protoc-gen-buf-lint ## Lints your protobuf files
 	bin/buf lint
 
-protobreaking: api/proto/buf.lock bin/protoc-gen-buf-breaking ## Compares your current protobuf with the version on master to find breaking changes
+protobreaking: api/proto/buf.lock bin/protoc-gen-buf-breaking ## Compares your current protobuf with the version on main to find breaking changes
 	bin/buf breaking --against '.git#branch=main'
 
 generate: ## Generates code from protobuf files
 generate: {{if .Extensions.grpc.grpcGateway}}bin/protoc-gen-grpc-gateway bin/protoc-gen-openapi{{end}} api/proto/buf.lock bin/protoc-gen-go bin/protoc-gen-go-grpc bin/protoc-gen-validate
 	PATH=$(PWD)/bin:$$PATH buf generate
 {{- end }}
-
-ci: lint-reports test-reports ## Executes lint and test and generates reports
+ci: lint-reports test-reports govulncheck ## Executes vulnerability scan, lint, test and generates reports
 
 help: ## Shows the help
 	@echo 'Usage: make <OPTIONS> ... <TARGETS>'

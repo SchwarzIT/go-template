@@ -1,3 +1,16 @@
+# Trigger Pipeline on PRs
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - README.md
+  drafts: true
+
+# Disable pipeline trigger on not PRs
+trigger: none
+
 pool:
   vmImage: ubuntu-latest
 variables:
@@ -54,13 +67,24 @@ stages:
           - bash: make lint
             displayName: Lints all code with golangci-lint
 
+          {{ if .Extensions.grpc.base -}}
+          - bash: make protolint
+            displayName: Lints protobuf files
+
+          - bash: make protobreaking
+            displayName: Check fot protobuf breaking change
+          {{- end }}
+
           - bash: make test
             displayName: Runs all tests
+
+          - bash: make govulncheck
+            displayName: Run Vulnerability detection using govulncheck
 
       - job: Semgrep
         displayName: Run semgrep security tests
         steps:
           - bash: |
-              docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
+              docker run -v $(pwd):/src --workdir /src returntocorp/semgrep semgrep \
               --config p/auto
             displayName: Semgrep
