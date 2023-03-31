@@ -7,7 +7,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/golangci/golangci-lint v1.52.2
 	github.com/google/go-github/v50 v50.0.0
-	github.com/muesli/termenv v0.13.0
+	github.com/muesli/termenv v0.14.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.2
@@ -31,7 +31,7 @@ require (
 	github.com/alingse/asasalint v0.0.11 // indirect
 	github.com/ashanbrown/forbidigo v1.5.1 // indirect
 	github.com/ashanbrown/makezero v1.1.1 // indirect
-	github.com/aymanbagabas/go-osc52 v1.0.3 // indirect
+	github.com/aymanbagabas/go-osc52 v1.2.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bkielbasa/cyclop v1.2.0 // indirect
 	github.com/blizzy78/varnamelen v0.8.0 // indirect

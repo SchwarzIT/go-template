@@ -53,8 +53,8 @@ schema = 3
     version = "v1.1.1"
     hash = "sha256-GLoE0pIdC/BrHYSbLsYph76p+278u+TSnYE/yWvP66Q="
   [mod."github.com/aymanbagabas/go-osc52"]
-    version = "v1.0.3"
-    hash = "sha256-+PPvxpq4eEcolG77a9g3r5Tw67Zs7hDOXS3nOYnizBQ="
+    version = "v1.2.1"
+    hash = "sha256-u9hwD8hpR5mLM4r9yq5BkmQMRU8oUSwmtQMqwiERkMQ="
   [mod."github.com/beorn7/perks"]
     version = "v1.0.1"
     hash = "sha256-h75GUqfwJKngCJQVE5Ao5wnO3cfKD9lSIteoLp/3xJ4="
@@ -329,8 +329,8 @@ schema = 3
     version = "v0.3.1"
     hash = "sha256-Pmi98e4j7YOzIuaaS+7nw9Gd+Ny0I8a9typ9ZGYKW5k="
   [mod."github.com/muesli/termenv"]
-    version = "v0.13.0"
-    hash = "sha256-0KO2SSfj4J6Q3rXMohV+hnncUHiY7nAWU8hUbDQkLHA="
+    version = "v0.14.0"
+    hash = "sha256-EOrn9W60qGFWLdIfKcnhtiPGRpptcQpjglg5qCyWLOo="
   [mod."github.com/nakabonne/nestif"]
     version = "v0.3.1"
     hash = "sha256-wU/KvbZ1MWMW0a4KWSk1h+xYKI6RkJAIFDPLQMce6dc="
