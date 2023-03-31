@@ -29,7 +29,6 @@ run: fmt ## Run a controller from your host
 	@go run ./main.go
 
 generate: ## Generates files
-	@go run cmd/dotembed/main.go -target _template -o embed_gen.go -pkg gotemplate -var FS
 	@go run cmd/options2md/main.go -o docs/options.md
 	@go run github.com/nix-community/gomod2nix@latest --outdir nix
 
