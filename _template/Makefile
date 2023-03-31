@@ -67,18 +67,22 @@ clean: ## Cleans up everything
 
 docker: ## Builds docker image
 	docker buildx build --cache-to type=inline -t $(DOCKER_REPO):$(DOCKER_TAG) .
+
 {{- if .Extensions.grpc.base }}
 # additional dependencies for grpc
-GO_DEPENDENCIES += google.golang.org/protobuf/cmd/protoc-gen-go \
+GO_DEPENDENCIES = google.golang.org/protobuf/cmd/protoc-gen-go \
 				google.golang.org/grpc/cmd/protoc-gen-go-grpc \
 				github.com/envoyproxy/protoc-gen-validate \
 				github.com/bufbuild/buf/cmd/buf \
                 github.com/bufbuild/buf/cmd/protoc-gen-buf-breaking \
-                github.com/bufbuild/buf/cmd/protoc-gen-buf-lint{{- end }}{{- if .Extensions.grpc.grpcGateway }}
+                github.com/bufbuild/buf/cmd/protoc-gen-buf-lint
+{{- end }}
 
+{{- if .Extensions.grpc.grpcGateway }}
 # additional dependencies for grpc-gateway
 GO_DEPENDENCIES += github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
-				github.com/google/gnostic/cmd/protoc-gen-openapi{{- end }}
+				github.com/google/gnostic/cmd/protoc-gen-openapi
+{{- end }}
 
 define make-go-dependency
   # target template for go tools, can be referenced e.g. via /bin/<tool>
@@ -89,7 +93,8 @@ endef
 # this creates a target for each go dependency to be referenced in other targets
 $(foreach dep, $(GO_DEPENDENCIES), $(eval $(call make-go-dependency, $(dep))))
 
-{{- if .Extensions.grpc.base }}.PHONY: api/proto/buf.lock
+{{- if .Extensions.grpc.base }}
+.PHONY: api/proto/buf.lock
 api/proto/buf.lock: bin/buf
 	@bin/buf mod update api/proto
 
