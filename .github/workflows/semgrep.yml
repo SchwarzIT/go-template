@@ -3,7 +3,8 @@ name: Semgrep
 on:
   # Scan changed files in PRs, block on new issues only (existing issues ignored)
   pull_request:
-    paths-ignore: ["docs/**", "config/version.txt"]
+    branches: ["main"]
+    paths-ignore: ["docs/**", "config/version.txt", "README.md"]
 
 jobs:
   semgrep:
