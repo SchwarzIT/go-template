@@ -75,7 +75,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add README.md
-          git commit -m "chore: Updated coverage badge."
+          git commit -m "chore(docs): update coverage badge"
 
       - name: Run Vulnerability detection using govulncheck
         if: matrix.os == 'ubuntu-latest'
