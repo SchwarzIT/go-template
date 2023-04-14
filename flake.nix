@@ -19,7 +19,7 @@
           default = packages.${name};
           ${name} = pkgs.buildGoApplication {
             pname = name;
-            version = pkgs.lib.removeSuffix "\n" (builtins.readFile ./config/version.txt);
+            version = "latest";
             src = ./.;
             modules = ./nix/gomod2nix.toml;
             subPackages = [ "cmd/gt" ];

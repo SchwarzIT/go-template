@@ -193,9 +193,9 @@ schema = 3
   [mod."github.com/google/go-cmp"]
     version = "v0.5.9"
     hash = "sha256-lQc4O00R3QSMGs9LP8Sy7A9kj0cqV5rrUdpnGeipIyg="
-  [mod."github.com/google/go-github/v50"]
-    version = "v50.2.0"
-    hash = "sha256-J+hpDn9rKQ5NcGMlys5AIeMFyfw7djMZHeMUCbFlxTU="
+  [mod."github.com/google/go-github/v51"]
+    version = "v51.0.0"
+    hash = "sha256-MyYdvL4P2ziuBtVAe+3WbnWIqJJRG0VbUR5zxwhE5Ow="
   [mod."github.com/google/go-querystring"]
     version = "v1.1.0"
     hash = "sha256-itsKgKghuX26czU79cK6C2n+lc27jm5Dw1XbIRgwZJY="
