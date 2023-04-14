@@ -5,7 +5,7 @@ name: CI
 on:
   pull_request:
     branches: ["main"]
-    paths-ignore: ["docs/**", "config/version.txt"]
+    paths-ignore: ["docs/**", "config/version.txt", "README.md"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -25,6 +25,9 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
       # cache go modules
       - uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
@@ -44,9 +47,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Run linting & unittest
+      - name: Run linting
         if: matrix.os == 'ubuntu-latest'
-        run: make ci
+        run: make lint
+
+      - name: Run unittest
+        if: matrix.os == 'ubuntu-latest'
+        run: make test-coverage
+
+      - name: Go Coverage Badge
+        uses: tj-actions/coverage-badge-go@v1
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          green: 80
+          filename: out/coverage.out
+
+      - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v12
+        if: matrix.os == 'ubuntu-latest'
+        id: verify-changed-files
+        with:
+          files: README.md
+
+      - name: Commit changes
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "chore(docs): update coverage badge"
 
       - name: Run Vulnerability detection using govulncheck
         if: matrix.os == 'ubuntu-latest'
@@ -71,3 +100,10 @@ jobs:
 
       - name: Test generate projects
         run: make testing-project-ci
+
+      - name: Push Changes
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ github.token }}
+          branch: ${{ github.head_ref }}

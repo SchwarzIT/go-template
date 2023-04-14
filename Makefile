@@ -35,11 +35,6 @@ generate: ## Generates files
 lint: fmt download ## Lints all code with golangci-lint
 	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 
-lint-reports: out/lint.xml
-
-.PHONY: out/lint.xml
-out/lint.xml: out download
-	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./... --out-format checkstyle | tee "$(@)"
 
 govulncheck: ## Vulnerability detection using govulncheck
 	@go run golang.org/x/vuln/cmd/govulncheck ./...
@@ -53,19 +48,15 @@ coverage: out/report.json ## Displays coverage per func on cli
 html-coverage: out/report.json ## Displays the coverage results in the browser
 	go tool cover -html=out/cover.out
 
-test-reports: out/report.json
-
-.PHONY: out/report.json
-out/report.json: out
-	go test ./... -coverprofile=out/cover.out --json | tee "$(@)"
+test-coverage: out ## Creates a test coverage profile
+	go test -v -cover ./... -coverprofile out/coverage.out -coverpkg ./...
+	go tool cover -func out/coverage.out -o out/coverage.out
 
 clean-test-project: ## Removes test-project
 	@rm -rf testing-project
 
 clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
-
-ci: lint-reports test-reports
 
 .PHONY: testing-project
 testing-project: clean-test-project ## Creates a testing-project from the template
