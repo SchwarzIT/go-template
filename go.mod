@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/golangci/golangci-lint v1.52.2
-	github.com/google/go-github/v50 v50.2.0
+	github.com/google/go-github/v51 v51.0.0
 	github.com/muesli/termenv v0.15.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.7.0
