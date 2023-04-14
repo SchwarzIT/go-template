@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.2
-	golang.org/x/vuln v0.0.0-20230331142035-ba9ce01ba686
+	golang.org/x/vuln v0.0.0-20230413193909-03dd099d9b0d
 	gopkg.in/yaml.v3 v3.0.1
 )
 
