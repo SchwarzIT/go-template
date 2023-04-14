@@ -15,7 +15,6 @@ The extension options on the other hand enable optional features in the template
 | `projectDescription` | Description of the project used in the README. |
 | `appName` | The name of the binary that you want to create.<br>Could be the same as your "projectSlug" but since Go supports multiple apps in one repo it could also be sth. else.<br>For example if your project is for some API there could be one app for the server and one CLI client. |
 | `moduleName` | The name of the Go module defined in the "go.mod" file.<br>This is used if you want to "go get" the module.<br>Please be aware that this depends on your version control system.<br>The default points to "github.com" but for devops for example it would look sth. like this "dev.azure.com/org/project/repo.git" |
-| `golangciVersion` | Golangci-lint version to use. |
 
 ## Extensions
 

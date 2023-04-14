@@ -1,8 +1,21 @@
+# Trigger Pipeline on PRs
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - README.md
+  drafts: true
+
+# Disable pipeline trigger on not PRs
+trigger: none
+
 pool:
   vmImage: ubuntu-latest
 variables:
   - name: goVersion
-    value: 1.19
+    value: 1.20.x
 
 stages:
   - stage: test
@@ -15,26 +28,63 @@ stages:
             inputs:
               version: $(goVersion)
 
+          - bash: echo "##vso[task.setvariable variable=GOPATH]$(go env GOPATH)"
+            displayName: Set go GOPATH
+
+          - task: Cache@2
+            inputs:
+              key: '"Go-pkg" | "$(Agent.OS)-go-$(goVersion)" | go.sum'
+              restoreKeys: |
+                "Go-pkg" | "$(Agent.OS)-go-$(goVersion)"
+                "Go-pkg"
+              path: $(GOPATH)/pkg/mod
+            displayName: Cache Golang packages
+
+          - bash: echo "##vso[task.setvariable variable=GOCACHE]$(go env GOCACHE)"
+            displayName: Set go GOCACHE
+
+          - task: Cache@2
+            inputs:
+              key: '"Go-build" | "$(Agent.OS)-go-$(goVersion)" | go.sum'
+              restoreKeys: |
+                "Go-build" | "$(Agent.OS)-go-$(goVersion)"
+                "Go-build"
+              path: $(GOCACHE)
+            displayName: Cache Golang build
+
+          - task: Cache@2
+            inputs:
+              key: '"Go-bin" | "$(Agent.OS)-go-$(goVersion)" | go.sum'
+              restoreKeys: |
+                "Go-bin" | "$(Agent.OS)-go-$(goVersion)"
+                "Go-bin"
+              path: bin
+            displayName: Cache Golang third party binaries
+
           - bash: make download
             displayName: Downloads the dependencies
 
           - bash: make lint
             displayName: Lints all code with golangci-lint
 
+          {{ if .Extensions.grpc.base -}}
+          - bash: make protolint
+            displayName: Lints protobuf files
+
+          - bash: make protobreaking
+            displayName: Check fot protobuf breaking change
+          {{- end }}
+
           - bash: make test
             displayName: Runs all tests
+
+          - bash: make govulncheck
+            displayName: Run Vulnerability detection using govulncheck
 
       - job: Semgrep
         displayName: Run semgrep security tests
         steps:
           - bash: |
-              docker run -v $(pwd):/src --workdir /src returntocorp/semgrep-agent:v1 semgrep-agent \
-              --config p/secrets \
-              --config p/ci \
-              --config p/r2c \
-              --config p/r2c-ci \
-              --config p/docker \
-              --config p/dockerfile \
-              --config p/command-injection \
-              --config p/security-audit
+              docker run -v $(pwd):/src --workdir /src returntocorp/semgrep semgrep \
+              --config p/auto
             displayName: Semgrep

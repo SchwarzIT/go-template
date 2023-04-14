@@ -1,9 +1,6 @@
 SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
 
-# constants
-GOLANGCI_VERSION = 1.48.0
-
 all: git-hooks generate ## Initializes all tools and files
 
 out:
@@ -32,23 +29,15 @@ run: fmt ## Run a controller from your host
 	@go run ./main.go
 
 generate: ## Generates files
-	@go run cmd/dotembed/main.go -target _template -o embed_gen.go -pkg gotemplate -var FS
 	@go run cmd/options2md/main.go -o docs/options.md
 	@go run github.com/nix-community/gomod2nix@latest --outdir nix
 
-GOLANGCI_LINT = bin/golangci-lint-$(GOLANGCI_VERSION)
-$(GOLANGCI_LINT):
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | bash -s -- -b bin v$(GOLANGCI_VERSION)
-	@mv bin/golangci-lint "$(@)"
+lint: fmt download ## Lints all code with golangci-lint
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 
-lint: fmt $(GOLANGCI_LINT) download ## Lints all code with golangci-lint
-	@$(GOLANGCI_LINT) run
 
-lint-reports: out/lint.xml
-
-.PHONY: out/lint.xml
-out/lint.xml: $(GOLANGCI_LINT) out download
-	$(GOLANGCI_LINT) run ./... --out-format checkstyle | tee "$(@)"
+govulncheck: ## Vulnerability detection using govulncheck
+	@go run golang.org/x/vuln/cmd/govulncheck ./...
 
 test: ## Runs all tests
 	@go test ./...
@@ -59,19 +48,15 @@ coverage: out/report.json ## Displays coverage per func on cli
 html-coverage: out/report.json ## Displays the coverage results in the browser
 	go tool cover -html=out/cover.out
 
-test-reports: out/report.json
-
-.PHONY: out/report.json
-out/report.json: out
-	go test ./... -coverprofile=out/cover.out --json | tee "$(@)"
+test-coverage: out ## Creates a test coverage profile
+	go test -v -cover ./... -coverprofile out/coverage.out -coverpkg ./...
+	go tool cover -func out/coverage.out -o out/coverage.out
 
 clean-test-project: ## Removes test-project
 	@rm -rf testing-project
 
 clean: clean-test-project ## Cleans up everything
 	@rm -rf bin out
-
-ci: lint-reports test-reports
 
 .PHONY: testing-project
 testing-project: clean-test-project ## Creates a testing-project from the template

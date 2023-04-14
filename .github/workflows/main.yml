@@ -5,7 +5,7 @@ name: CI
 on:
   pull_request:
     branches: ["main"]
-    paths-ignore: ["docs/**"]
+    paths-ignore: ["docs/**", "config/version.txt", "README.md"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,18 +19,19 @@ jobs:
 
     steps:
       - name: Install Go
-        uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # v3.5.0
+        uses: actions/setup-go@4d34df0c2316fe8122ab82dc22947d607c0c91f9 # v4.0.0
         with:
-          go-version: 1.19.x
+          go-version: 1.20.x
 
       - name: Checkout code
         uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
         with:
+          ref: ${{ github.head_ref }}
           persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
           fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
       # cache go modules
-      - uses: actions/cache@4723a57e26efda3a62cbde1812113b730952852d # v3.2.2
+      - uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           # In order:
           # * Module download cache
@@ -42,13 +43,44 @@ jobs:
             ~/.cache/go-build
             ~/Library/Caches/go-build
             %LocalAppData%\go-build
+            bin
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Run linting & unittest
+      - name: Run linting
         if: matrix.os == 'ubuntu-latest'
-        run: make ci
+        run: make lint
+
+      - name: Run unittest
+        if: matrix.os == 'ubuntu-latest'
+        run: make test-coverage
+
+      - name: Go Coverage Badge
+        uses: tj-actions/coverage-badge-go@v1
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          green: 80
+          filename: out/coverage.out
+
+      - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v12
+        if: matrix.os == 'ubuntu-latest'
+        id: verify-changed-files-coverage
+        with:
+          files: README.md
+
+      - name: Commit changes
+        if: steps.verify-changed-files-coverage.outputs.files_changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "chore(docs): update coverage badge"
+
+      - name: Run Vulnerability detection using govulncheck
+        if: matrix.os == 'ubuntu-latest'
+        run: make govulncheck
 
       - name: Build package
         run: make build
@@ -61,11 +93,6 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: ./out/bin/gt.exe --help
 
-      - name: Run generate
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          make generate
-
       - name: Create a test project & test it
         run: |
           make testing-project-default
@@ -75,25 +102,26 @@ jobs:
       - name: Test generate projects
         run: make testing-project-ci
 
+      - name: Run generate
+        if: matrix.os == 'ubuntu-latest'
+        run: make generate
+
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v12
         if: matrix.os == 'ubuntu-latest'
-        id: verify-changed-files
+        id: verify-changed-files-generate
         with:
           files: |
             nix/gomod2nix.toml
-            embed_gen.go
             docs/options.md
 
       - name: Commit changes
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        if: steps.verify-changed-files-generate.outputs.files_changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add nix/gomod2nix.toml
-          git add embed_gen.go
-          git add docs/options.md
-          git commit -m "chore: Updated coverage badge."
+          git add nix/gomod2nix.toml docs/options.md
+          git commit -m "chore: regenerate files"
 
       - name: Push changes
         if: steps.verify-changed-files.outputs.files_changed == 'true'

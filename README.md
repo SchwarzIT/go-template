@@ -1,9 +1,11 @@
 # `go/template`
 
+![Coverage](https://img.shields.io/badge/Coverage-78.9%25-yellow)
 [![SIT](https://img.shields.io/badge/SIT-awesome-blueviolet.svg)](https://jobs.schwarz)
 [![CI](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml)
 [![Semgrep](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/SchwarzIT/go-template)](https://goreportcard.com/report/github.com/SchwarzIT/go-template)
+[![Go Reference](https://pkg.go.dev/badge/github.com/schwarzit/go-template.svg)](https://pkg.go.dev/github.com/schwarzit/go-template)
 
 `go/template` provides a **blueprint** for production-ready Go project layouts.
 
@@ -86,11 +88,11 @@ To get an overview of all options that can be set for the template you can take 
 
 ## Maintainers
 
-| Name                                           | Email                        |
-| :--------------------------------------------- | :--------------------------- |
-| [@brumhard](https://github.com/brumhard)       | code@brumhard.com            |
-| [@linuxluigi](https://github.com/linuxluigi)   | steffen.exler@mail.schwarz   |
-| [@danielzwink](https://github.com/danielzwink) | daniel.zwink@mail.schwarz    |
+| Name                                           |
+| :--------------------------------------------- |
+| [@brumhard](https://github.com/brumhard)       |
+| [@linuxluigi](https://github.com/linuxluigi)   |
+| [@danielzwink](https://github.com/danielzwink) |
 
 ## Contribution
 

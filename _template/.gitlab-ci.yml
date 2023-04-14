@@ -4,8 +4,8 @@ stages:
 
 semgrep:
   stage: static_analysis
-  image: returntocorp/semgrep-agent:v1
-  script: semgrep-agent
+  image: returntocorp/semgrep
+  script: semgrep
 
   rules:
   # Scan changed files in MRs, block on new issues only (existing issues ignored)
@@ -15,14 +15,7 @@ semgrep:
 
   variables:
     SEMGREP_RULES: >- # more at semgrep.dev/explore
-      p/security-audit
-      p/secrets
-      p/ci
-      p/r2c
-      p/r2c-ci
-      p/docker
-      p/dockerfile
-      p/command-injection
+      p/auto
 
   # == Optional settings in the `variables:` block
 
@@ -53,8 +46,13 @@ semgrep:
 
 golang:
   stage: test
-  image: golang:1.19
+  image: golang:1.20
   script:
     - make download
     - make lint
+    {{ if .Extensions.grpc.base -}}
+    - make protolint
+    - make protobreaking
+    {{- end }}
     - make test
+    - make govulncheck

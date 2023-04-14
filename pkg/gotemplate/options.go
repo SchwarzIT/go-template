@@ -12,9 +12,6 @@ import (
 	"github.com/schwarzit/go-template/pkg/repos"
 )
 
-//nolint:lll // official regex for semver patterns that can't be broken up into multiple lines
-const semverRegex = `^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`
-
 type ErrOutOfRange struct {
 	Value int
 	Min   int
@@ -188,7 +185,8 @@ func NewOptionValues() *OptionValues {
 type OptionNameToValue map[string]interface{}
 
 // NewOptions returns all of go/template's options.
-func NewOptions(githubTagLister repos.GithubTagLister) *Options { //nolint:funlen,cyclop // Static initialization
+// Keeping repos.GithubTagLister in case it's needed in the future
+func NewOptions(_ repos.GithubTagLister) *Options { //nolint:funlen,cyclop // Static initialization
 	return &Options{
 		Base: []Option{
 			{
@@ -232,22 +230,6 @@ Please be aware that this depends on your version control system.
 The default points to "github.com" but for devops for example it would look sth. like this "dev.azure.com/org/project/repo.git"`,
 				validator: RegexValidator(`^[\S]+$`, "no whitespaces"),
 			},
-			{
-				name: "golangciVersion",
-				defaultValue: DynamicValue(func(_ *OptionValues) interface{} {
-					latestTag, err := repos.LatestGithubReleaseTag(githubTagLister, "golangci", "golangci-lint")
-					if err != nil {
-						return "1.42.1"
-					}
-
-					return latestTag.String()
-				}),
-				description: "Golangci-lint version to use.",
-				validator: RegexValidator(
-					semverRegex,
-					"valid semver version string",
-				),
-			},
 		},
 		Extensions: []Category{
 			{
@@ -270,7 +252,12 @@ Options:
 	8: The Unlicense`,
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							if v.(int) == 0 {
-								return os.RemoveAll(path.Join(targetDir, "LICENSE"))
+								files := []string{"LICENSE", "CODEOWNERS"}
+								for _, file := range files {
+									if err := os.RemoveAll(path.Join(targetDir, file)); err != nil {
+										return err
+									}
+								}
 							}
 							return nil
 						},
@@ -307,6 +294,9 @@ Options:
 							return strings.TrimSpace(buffer.String())
 						}),
 						description: "Set the codeowner of the project",
+						shouldDisplay: DynamicBoolValue(func(vals *OptionValues) bool {
+							return vals.Extensions["openSource"]["license"].(int) != 0 // 0 == no license
+						}),
 					},
 				},
 			},
@@ -354,7 +344,7 @@ Options:
 						description:  "Base configuration for gRPC",
 						postHook: func(v interface{}, _ *OptionValues, targetDir string) error {
 							set := v.(bool)
-							files := []string{"api/proto", "tools.go", "buf.gen.yaml", "buf.work.yaml", "api/openapi.v1.yml"}
+							files := []string{"api/proto", "buf.gen.yaml", "buf.work.yaml", "api/openapi.v1.yml"}
 
 							if set {
 								return os.RemoveAll(path.Join(targetDir, "api/openapi.v1.yml"))
