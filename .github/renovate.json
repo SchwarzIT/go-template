@@ -22,5 +22,8 @@
   "postUpdateOptions": [
     "gomodTidy",
     "gomodUpdateImportPaths"
+  ],
+  "gitIgnoredAuthors": [
+    "action@github.com"
   ]
 }
