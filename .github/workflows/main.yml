@@ -60,7 +60,7 @@ jobs:
         run: make test-coverage
 
       - name: Go Coverage Badge
-        uses: tj-actions/coverage-badge-go@v1
+        uses: tj-actions/coverage-badge-go@v2
         if: matrix.os == 'ubuntu-latest'
         with:
           green: 80
