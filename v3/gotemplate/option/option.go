@@ -1,27 +1,34 @@
 package option
 
-// Option represents a configuration option that can be set by the user.
+// State represents the state of a module, as a map of string keys to string values.
+type State map[string][]string
+
+type ModuleName string
 type Option interface {
 	// GetTitle returns the title of the option.
-	GetTitle() string
+	GetTitle() (string, error)
 
 	// GetDescription returns the description of the option.
-	GetDescription() string
+	GetDescription() (string, error)
 
-	// GetDefaultValue returns the default value of the option.
-	GetDefaultValue() string
+	// GetDefaultValue returns the default value of the option, taking into account the
+	// current state of the module.
+	GetDefaultValue(state map[ModuleName]State) ([]string, error)
 
-	// GetAvailableAnswers returns a list of available answers for the option.
-	GetAvailableAnswers() []string
+	// GetAvailableAnswers returns the available answers for the option. If the
+	// option does not have a limited set of answers, it returns nil.
+	GetAvailableAnswers() ([]string, error)
 
-	// GetValue returns the current value of the option.
-	GetValue() string
+	// GetCurrentValue returns the current value of the option.
+	GetCurrentValue() ([]string, error)
 
-	// SetValue sets the value of the option to the given value.
-	// Returns an error if the value is invalid.
-	SetValue(value string) error
+	// SetCurrentValue sets the value of the option.
+	SetCurrentValue(value []string) error
 
 	// Validate validates the given value for the option.
-	// Returns an error if the value is invalid.
-	Validate(value string) error
+	Validate(value []string) error
+
+	// ShouldDisplay determines if the option should be displayed given the
+	// current state of the module.
+	ShouldDisplay(state map[ModuleName]State) (bool, error)
 }

@@ -7,9 +7,12 @@ import (
 	"strings"
 
 	"github.com/schwarzit/go-template/v3/gotemplate/module"
+	"github.com/schwarzit/go-template/v3/gotemplate/option"
 )
 
-type CLI struct{}
+type CLI struct {
+	State map[option.ModuleName]option.State
+}
 
 func NewCLI() *CLI {
 	return &CLI{}
@@ -21,15 +24,52 @@ func (c *CLI) Start(modules []module.Module, events chan<- Event) error {
 
 	// Iterate over the modules and prompt the user for input.
 	for _, m := range modules {
-		fmt.Printf("\n=== %s ===\n", m.GetName())
+		name, err := m.GetName()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("\n=== %s ===\n", name)
 
-		for _, o := range m.GetOptions() {
+		options, err := m.GetOptions()
+		if err != nil {
+			return err
+		}
+
+		for _, o := range options {
+			shouldDisplay, err := o.ShouldDisplay(nil)
+			if err != nil {
+				return err
+			}
+			if !shouldDisplay {
+				continue
+			}
+
 			// Print the option title and description.
-			fmt.Println(o.GetTitle())
-			fmt.Println(o.GetDescription())
+			title, err := o.GetTitle()
+			if err != nil {
+				return err
+			}
+			fmt.Println(title)
+
+			desc, err := o.GetDescription()
+			if err != nil {
+				return err
+			}
+			fmt.Println(desc)
+
+			defaultValue, err := o.GetDefaultValue(c.State)
+			if err != nil {
+				return err
+			}
+			if len(defaultValue) > 0 {
+				fmt.Printf("Default value: %s\n", strings.Join(defaultValue, ", "))
+			}
 
 			// Print the available answers (if any).
-			answers := o.GetAvailableAnswers()
+			answers, err := o.GetAvailableAnswers()
+			if err != nil {
+				return err
+			}
 			if len(answers) > 0 {
 				fmt.Printf("Available answers: %s\n", strings.Join(answers, ", "))
 			}
@@ -41,12 +81,28 @@ func (c *CLI) Start(modules []module.Module, events chan<- Event) error {
 			input := scanner.Text()
 
 			// Validate the input and set the option value.
-			if err := o.Validate(input); err != nil {
+			if err := o.Validate([]string{input}); err != nil {
 				fmt.Printf("Invalid input: %v\n", err)
 				return err
 			}
-			if err := o.SetValue(input); err != nil {
+			if err := o.SetCurrentValue([]string{input}); err != nil {
 				fmt.Printf("Failed to set option value: %v\n", err)
+				return err
+			}
+
+			// Merge the state.
+			moduleName, err := m.GetName()
+			if err != nil {
+				return err
+			}
+			if c.State == nil {
+				c.State = make(map[option.ModuleName]option.State)
+			}
+			if c.State[moduleName] == nil {
+				c.State[moduleName] = make(option.State)
+			}
+			c.State[moduleName][title], err = o.GetCurrentValue()
+			if err != nil {
 				return err
 			}
 		}
@@ -60,10 +116,12 @@ func (c *CLI) Start(modules []module.Module, events chan<- Event) error {
 	return nil
 }
 
-func (c *CLI) ShowMessage(message string) {
+func (c *CLI) ShowMessage(message string) error {
 	fmt.Println(message)
+	return nil
 }
 
-func (c *CLI) ShowError(err error) {
+func (c *CLI) ShowError(err error) error {
 	fmt.Printf("Error: %v\n", err)
+	return err
 }

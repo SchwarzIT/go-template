@@ -18,8 +18,8 @@ type View interface {
 	Start(modules []module.Module, events chan<- Event) error
 
 	// Show a message to the user.
-	ShowMessage(message string)
+	ShowMessage(message string) error
 
 	// Show an error message to the user.
-	ShowError(err error)
+	ShowError(err error) error
 }

@@ -11,6 +11,14 @@
       "mode": "auto",
       "program": "${workspaceFolder}/v2/cmd/gt/main.go",
       "cwd": "${workspaceFolder}",
+    },
+    {
+      "name": "V3 gt",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/v3/cmd/cli/main.go",
+      "cwd": "${workspaceFolder}",
     }
   ]
 }

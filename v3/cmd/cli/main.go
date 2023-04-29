@@ -1,33 +1,28 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/schwarzit/go-template/v3/gotemplate/engine"
 	"github.com/schwarzit/go-template/v3/gotemplate/module"
-	"github.com/schwarzit/go-template/v3/gotemplate/option"
 	"github.com/schwarzit/go-template/v3/gotemplate/view"
+	"github.com/schwarzit/go-template/v3/modules/base"
 )
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "an error occurred: %s\n", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	// Create a new module with two options: project name and description.
-	m := module.NewBaseModule(
-		"Readme",
-		[]option.Option{
-			option.NewBaseOption(
-				"Project Name",
-				"The name of the new project.",
-				"My Project",
-				nil,
-				nil,
-			),
-			option.NewBaseOption(
-				"Project Description",
-				"A brief description of the new project.",
-				"This is a new project.",
-				nil,
-				nil,
-			),
-		},
-	)
+	m, err := base.NewReadmeModule()
+	if err != nil {
+		return err
+	}
 
 	// Create a new CLI view.
 	cli := view.NewCLI()
@@ -36,7 +31,10 @@ func main() {
 	engine := engine.NewEngine([]module.Module{m})
 
 	// Start the engine.
-	if err := engine.Start(cli); err != nil {
-		panic(err)
+	err = engine.Start(cli)
+	if err != nil {
+		return err
 	}
+
+	return nil
 }
