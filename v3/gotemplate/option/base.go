@@ -3,6 +3,8 @@ package option
 import (
 	"errors"
 	"fmt"
+
+	"github.com/schwarzit/go-template/v3/gotemplate/slugify"
 )
 
 var (
@@ -13,7 +15,10 @@ var (
 )
 
 type BaseOption struct {
-	Title             string
+	Title string
+	// TemplateTag is the tag used in the template to render the option.
+	// if not provided, the title is used in a slugify form.
+	TemplateTag       string
 	Description       string
 	DefaultValue      []string
 	AvailableAnswers  []string
@@ -24,6 +29,7 @@ type BaseOption struct {
 
 type NewBaseOptionArgs struct {
 	Title             string
+	TemplateTag       string
 	Description       string
 	DefaultValue      []string
 	AvailableAnswers  []string
@@ -34,6 +40,7 @@ type NewBaseOptionArgs struct {
 func NewBaseOption(args NewBaseOptionArgs) *BaseOption {
 	return &BaseOption{
 		Title:             args.Title,
+		TemplateTag:       args.TemplateTag,
 		Description:       args.Description,
 		DefaultValue:      args.DefaultValue,
 		AvailableAnswers:  args.AvailableAnswers,
@@ -48,6 +55,13 @@ func (o *BaseOption) GetTitle() (string, error) {
 		return "", ErrMissingTitle
 	}
 	return o.Title, nil
+}
+
+func (o *BaseOption) GetTemplateKey() (string, error) {
+	if o.TemplateTag == "" {
+		return slugify.Slugify(o.Title), nil
+	}
+	return o.TemplateTag, nil
 }
 
 func (o *BaseOption) GetDescription() (string, error) {

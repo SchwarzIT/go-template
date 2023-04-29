@@ -69,7 +69,7 @@ func (e *Engine) generateProject() error {
 			return err
 		}
 
-		if err := m.Generate(templateFiles, allOptions); err != nil {
+		if err := m.Generate(templateFiles, allOptions, "./testing-project/"); err != nil { // TODO: fix out path
 			return err
 		}
 	}

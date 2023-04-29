@@ -15,8 +15,9 @@ var (
 )
 
 const (
-	ModuleName        = "README"
-	OptionProjectName = "Project Name"
+	ModuleName             = "README"
+	TemplateTagProjectName = "NAME"
+	TemplateTagProjectSlug = "SLUG"
 )
 
 type ReadmeModule struct {
@@ -25,13 +26,15 @@ type ReadmeModule struct {
 
 func NewReadmeModule() (*ReadmeModule, error) {
 	nameOption := option.NewBaseOption(option.NewBaseOptionArgs{
-		Title:       OptionProjectName,
+		Title:       "Project Name",
+		TemplateTag: TemplateTagProjectName,
 		Description: "The name of the project",
 	})
 
 	slugOption := SlugOption{
 		BaseOption: option.NewBaseOption(option.NewBaseOptionArgs{
 			Title:       "Project Slug",
+			TemplateTag: TemplateTagProjectSlug,
 			Description: "The name of the project slug",
 		}),
 	}
@@ -58,7 +61,7 @@ func (m *ReadmeModule) GetTemplateFiles() ([]module.TemplateFile, error) {
 
 	return []module.TemplateFile{
 		&module.BaseTemplateFile{
-			SourcePath: filepath.Join(currentPackagePath, "templates", "README.md"),
+			SourcePath: filepath.Join(currentPackagePath, "template", "README.md"),
 			TargetPath: "README.md",
 		},
 	}, nil

@@ -101,7 +101,11 @@ func (c *CLI) Start(modules []module.Module, events chan<- Event) error {
 			if c.State[moduleName] == nil {
 				c.State[moduleName] = make(option.State)
 			}
-			c.State[moduleName][title], err = o.GetCurrentValue()
+			templateKey, err := o.GetTemplateKey()
+			if err != nil {
+				return err
+			}
+			c.State[moduleName][templateKey], err = o.GetCurrentValue()
 			if err != nil {
 				return err
 			}

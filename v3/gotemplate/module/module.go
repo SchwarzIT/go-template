@@ -9,6 +9,9 @@ type TemplateFile interface {
 
 	// Target path sets the target path of the generated file.
 	Target() string
+
+	// FilePermission returns the file permissions for the generated file.
+	FilePermission() uint
 }
 
 // Module is an interface that describes a module that can be used to generate
@@ -22,7 +25,7 @@ type Module interface {
 
 	// Generate generates the project files for the module using the current
 	// option values.
-	Generate([]TemplateFile, []option.Option) error
+	Generate(files []TemplateFile, options []option.Option, outPath string) error
 
 	// GetTemplateFiles returns the template files for the module.
 	GetTemplateFiles() ([]TemplateFile, error)

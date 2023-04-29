@@ -8,6 +8,9 @@ type Option interface {
 	// GetTitle returns the title of the option.
 	GetTitle() (string, error)
 
+	// GetTemplateKey returns the template key of the option.
+	GetTemplateKey() (string, error)
+
 	// GetDescription returns the description of the option.
 	GetDescription() (string, error)
 
