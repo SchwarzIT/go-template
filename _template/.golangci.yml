@@ -7,8 +7,7 @@ linters:
   # Enable specific linter
   # https://golangci-lint.run/usage/linters/
   enable:
-    - cyclop # Go linter that checks if package imports are in a list of acceptable packages
-    - depguard # Go linter that checks if package imports are in a list of acceptable packages
+    - cyclop # Go linter that checks if the cyclic complexity of a function is acceptable
     - dogsled # Checks assignments with too many blank identifiers (e.g. x, , , _, := f())
     - dupl # Tool for code clone detection
     - errorlint # errorlint is a linter for that can be used to find code that will cause problems with the error wrapping scheme introduced in Go 1.13.
