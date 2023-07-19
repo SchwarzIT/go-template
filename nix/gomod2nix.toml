@@ -551,8 +551,8 @@ schema = 3
     version = "v0.7.0"
     hash = "sha256-ZEjfFulQd6U9r4mEJ5RZOnW49NZnQnrCFLMKCgLg7go="
   [mod."golang.org/x/vuln"]
-    version = "v0.0.0-20230413193909-03dd099d9b0d"
-    hash = "sha256-VBndCbBi2ffzdlr9kigG2WhhzGBs7CionvxEbjz58ws="
+    version = "v0.0.0-20230414205624-d3666e3e8dbb"
+    hash = "sha256-vKEON5xlVBVBof9wbvc2tppcWCCLeH5e9Zs0hHmB0/I="
   [mod."google.golang.org/appengine"]
     version = "v1.6.7"
     hash = "sha256-zIxGRHiq4QBvRqkrhMGMGCaVL4iM4TtlYpAi/hrivS4="
