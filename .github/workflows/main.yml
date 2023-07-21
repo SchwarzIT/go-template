@@ -130,5 +130,5 @@ jobs:
         if: steps.verify-changed-files-coverage.outputs.files_changed == 'true' || steps.verify-changed-files-generate.outputs.files_changed == 'true'
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ github.token }}
+          github_token: ${{ secrets.SIT_BOT_PAT }}
           branch: ${{ github.head_ref }}
