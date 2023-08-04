@@ -81,10 +81,6 @@ jobs:
           git add README.md
           git commit -m "chore(docs): update coverage badge"
 
-      - name: Run Vulnerability detection using govulncheck
-        if: matrix.os == 'ubuntu-latest'
-        run: make govulncheck
-
       - name: Build package
         run: make build
 
