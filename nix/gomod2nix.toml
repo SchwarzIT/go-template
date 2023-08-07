@@ -98,8 +98,8 @@ schema = 3
     version = "v0.0.0-20230227094218-b8c73b2037b8"
     hash = "sha256-NiQp4UixMU4r7hVNDEc0g/nOtq8Kv+h1GKox2k4UOIg="
   [mod."github.com/cloudflare/circl"]
-    version = "v1.1.0"
-    hash = "sha256-3FxALC6ZXwhv+MwZsh3iHusx0E4Mh/SoxyfXWIwD3MU="
+    version = "v1.3.3"
+    hash = "sha256-ItdVkU53Ep01553/tJ4MdAwoTpPljRxiBW9sAd7p0xI="
   [mod."github.com/curioswitch/go-reassign"]
     version = "v0.2.0"
     hash = "sha256-p/Scj8JNKxZ6KHcw3hLSEXcfSRrKsvhV5su6t5C8kO0="
@@ -202,9 +202,9 @@ schema = 3
   [mod."github.com/google/go-cmp"]
     version = "v0.5.9"
     hash = "sha256-lQc4O00R3QSMGs9LP8Sy7A9kj0cqV5rrUdpnGeipIyg="
-  [mod."github.com/google/go-github/v51"]
-    version = "v51.0.0"
-    hash = "sha256-MyYdvL4P2ziuBtVAe+3WbnWIqJJRG0VbUR5zxwhE5Ow="
+  [mod."github.com/google/go-github/v53"]
+    version = "v53.2.0"
+    hash = "sha256-k77KOa5VfzUVXu/EJ/jEpaxBGXD6KxyaVTsgye6rUiM="
   [mod."github.com/google/go-querystring"]
     version = "v1.1.0"
     hash = "sha256-itsKgKghuX26czU79cK6C2n+lc27jm5Dw1XbIRgwZJY="
@@ -551,8 +551,8 @@ schema = 3
     version = "v0.10.0"
     hash = "sha256-HkGiUYBZOBdOtt7mYo3N3swFjjAXzW++pG2JeWGJR9Q="
   [mod."golang.org/x/oauth2"]
-    version = "v0.6.0"
-    hash = "sha256-M6yqSRqMcgp4bOCa4ey8/13z/0BrjQgyUQXJZU1hmnw="
+    version = "v0.8.0"
+    hash = "sha256-Ge6x2dR+ap7JSF9W1FwaSCK9ilyuGTQWpgFQHg83Sho="
   [mod."golang.org/x/sync"]
     version = "v0.2.0"
     hash = "sha256-hKk9zsy2aXY7R0qGFZhGOVvk5qD17f6KHEuK4rGpTsg="
