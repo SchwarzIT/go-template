@@ -35,7 +35,6 @@ generate: ## Generates files
 lint: fmt download ## Lints all code with golangci-lint
 	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run
 
-
 govulncheck: ## Vulnerability detection using govulncheck
 	@go run golang.org/x/vuln/cmd/govulncheck ./...
 
