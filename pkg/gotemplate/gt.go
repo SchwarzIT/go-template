@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/google/go-github/v51/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/muesli/termenv"
 	"github.com/schwarzit/go-template/pkg/repos"
 )
