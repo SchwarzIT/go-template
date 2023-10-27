@@ -98,8 +98,8 @@ schema = 3
     version = "v0.0.0-20230227094218-b8c73b2037b8"
     hash = "sha256-NiQp4UixMU4r7hVNDEc0g/nOtq8Kv+h1GKox2k4UOIg="
   [mod."github.com/cloudflare/circl"]
-    version = "v1.1.0"
-    hash = "sha256-3FxALC6ZXwhv+MwZsh3iHusx0E4Mh/SoxyfXWIwD3MU="
+    version = "v1.3.3"
+    hash = "sha256-ItdVkU53Ep01553/tJ4MdAwoTpPljRxiBW9sAd7p0xI="
   [mod."github.com/curioswitch/go-reassign"]
     version = "v0.2.0"
     hash = "sha256-p/Scj8JNKxZ6KHcw3hLSEXcfSRrKsvhV5su6t5C8kO0="
