@@ -60,7 +60,7 @@ nix run github:schwarzit/go-template
 
 `go/template`'s `gt` CLI requires at least the following executables on `$PATH` to run succesfully:
 
-- Go >= 1.15
+- Go >= 1.20
 - Git
 
 These are used at the end of `gt new`'s execution to initialize Git and Go modules in the newly created project repository.
