@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	minGoVersion  = "1.20"
+	minGoVersion  = "1.21"
 	permissionRWX = 0755
 	permissionRW  = 0644
 )
