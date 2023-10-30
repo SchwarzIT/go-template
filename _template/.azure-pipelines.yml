@@ -15,7 +15,7 @@ pool:
   vmImage: ubuntu-latest
 variables:
   - name: goVersion
-    value: 1.20.x
+    value: 1.21.x
 
 stages:
   - stage: test

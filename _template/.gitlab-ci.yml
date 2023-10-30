@@ -46,7 +46,7 @@ semgrep:
 
 golang:
   stage: test
-  image: golang:1.20
+  image: golang:1.21
   script:
     - make download
     - make lint
