@@ -31,7 +31,7 @@
 
 #### From source
 
-If you have Go 1.16+, you can directly install by running:
+If you have Go 1.21+, you can directly install by running:
 
 ```bash
 go install github.com/schwarzit/go-template/cmd/gt@latest
