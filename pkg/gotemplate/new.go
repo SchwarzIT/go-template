@@ -218,9 +218,17 @@ func (gt *GT) InitNewProject(opts *NewRepositoryOptions) (err error) { //nolint:
 			return err
 		}
 
-		data, err := gt.executeTemplateString(string(fileBytes), opts.OptionValues)
-		if err != nil {
-			return err
+		// skip added Go tests (e.g. internal/log package) since its test braces trigger the text template
+		// and raises an error specifying that the function "Name" cannot be found (or, the name of the first
+		// element of the testcase data structure)
+		var data string
+		if strings.HasSuffix(pathToWrite, "_test.go") {
+			data = string(fileBytes)
+		} else {
+			data, err = gt.executeTemplateString(string(fileBytes), opts.OptionValues)
+			if err != nil {
+				return err
+			}
 		}
 
 		filePermissions := fs.FileMode(permissionRW)
