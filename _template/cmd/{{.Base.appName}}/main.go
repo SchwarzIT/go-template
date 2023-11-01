@@ -21,11 +21,7 @@ func main() {
 }
 
 func run() error {
-	logger, err := log.New(os.Getenv("LOG_LEVEL"))
-	if err != nil {
-		return err
-	}
-
+	logger := log.New(os.Getenv("LOG_LEVEL"))
 	ctx := context.Background()
 
 	logger.InfoContext(ctx, "Hello world!", slog.String("location", "world"))
