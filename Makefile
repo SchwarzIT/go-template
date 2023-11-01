@@ -1,5 +1,6 @@
 SHELL=/bin/bash -e -o pipefail
 PWD = $(shell pwd)
+LINTER_VERSION = v1.55.1
 
 all: git-hooks generate ## Initializes all tools and files
 
@@ -32,8 +33,9 @@ generate: ## Generates files
 	@go run cmd/options2md/main.go -o docs/options.md
 	@go run github.com/nix-community/gomod2nix@latest --outdir nix
 
+
 lint: fmt download ## Lints all code with golangci-lint
-	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run
+	@go run -v github.com/golangci/golangci-lint/cmd/golangci-lint@$(LINTER_VERSION) run
 
 govulncheck: ## Vulnerability detection using govulncheck
 	@go run golang.org/x/vuln/cmd/govulncheck ./...
