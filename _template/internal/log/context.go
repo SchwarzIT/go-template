@@ -77,8 +77,6 @@ func (h *SpanContextHandler) Enabled(ctx context.Context, level slog.Level) bool
 //   - If a group's key is empty, inline the group's Attrs.
 //   - If a group has no Attrs (even if it has a non-empty key),
 //     ignore it.
-//
-//nolint:gocritic // this method implements the slog.Handler interface
 func (h *SpanContextHandler) Handle(ctx context.Context, record slog.Record) error {
 	if sc := trace.SpanContextFromContext(ctx); sc.IsValid() {
 		attrs := make([]slog.Attr, 1, maxSpanContextAttrs)
