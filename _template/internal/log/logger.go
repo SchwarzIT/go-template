@@ -1,27 +1,57 @@
 package log
 
 import (
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"context"
+	"log/slog"
+	"os"
 )
 
-func NewAtLevel(levelStr string) (*zap.Logger, error) {
-	logLevel := zapcore.InfoLevel
-	if levelStr != "" {
-		var err error
-		logLevel, err = zapcore.ParseLevel(levelStr)
-		if err != nil {
-			return nil, err
-		}
-	}
+func New(level string) *slog.Logger {
+	var logLevel slog.Level
 
-	logConf := zap.NewProductionConfig()
-	logConf.Level = zap.NewAtomicLevelAt(logLevel)
-
-	logger, err := logConf.Build()
+	err := logLevel.UnmarshalText([]byte(level))
 	if err != nil {
-		return nil, err
+		logLevel = slog.LevelInfo
 	}
 
-	return logger, nil
+	logger := slog.New(
+		NewSpanContextHandler(
+			slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+				AddSource: true,
+				Level:     logLevel,
+			}),
+			true,
+		),
+	)
+
+	if err != nil {
+		logger.WarnContext(context.Background(), "invalid log level string",
+			slog.String("input_level", level),
+			slog.String("error", err.Error()),
+		)
+	}
+
+	return logger
+}
+
+func NoOp() *slog.Logger {
+	return slog.New(noOpHandler{})
+}
+
+type noOpHandler struct{}
+
+func (noOpHandler) Enabled(context.Context, slog.Level) bool {
+	return false
+}
+
+func (noOpHandler) Handle(context.Context, slog.Record) error {
+	return nil
+}
+
+func (h noOpHandler) WithAttrs([]slog.Attr) slog.Handler {
+	return h
+}
+
+func (h noOpHandler) WithGroup(string) slog.Handler {
+	return h
 }
