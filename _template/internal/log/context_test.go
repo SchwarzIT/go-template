@@ -90,7 +90,7 @@ func TestSpanContextHandler_Handle(t *testing.T) {
 
 			require.NoError(t, json.Unmarshal(buf.Bytes(), &m))
 
-			if traceID, ok := m[traceIDKey]; ok == testcase.withSpanContext && ok {
+			if traceID, ok := m[traceIDKey]; ok && testcase.withSpanContext {
 				require.Equal(t, testTraceID.String(), traceID)
 			}
 
