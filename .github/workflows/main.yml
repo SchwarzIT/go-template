@@ -28,13 +28,13 @@ jobs:
           go-version: "^1.20.6"
 
       - name: Checkout code
-        uses: actions/checkout@1e31de5234b9f8995739874a8ce0492dc87873e2 # v4.0.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
       # cache go modules
-      - uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+      - uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
         with:
           # In order:
           # * Module download cache
