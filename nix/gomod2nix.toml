@@ -86,8 +86,8 @@ schema = 3
     version = "v0.3.6"
     hash = "sha256-0imcpfUeSWYM3a3bbMQbBQOqhUtCBRoN4xNGGamKpkk="
   [mod."github.com/butuzov/ireturn"]
-    version = "v0.2.1"
-    hash = "sha256-HtDQFpAXZoKEmwlZSLDjZ0Ek3ienOxNUyYu6AyK2WZU="
+    version = "v0.2.2"
+    hash = "sha256-56zMeDyeQwJJNMXKVRdPUPgxKJiMd3lnPri1g13yWws="
   [mod."github.com/butuzov/mirror"]
     version = "v1.1.0"
     hash = "sha256-ttedSfCBTFSLcyXBEg5aikxKaNnxaaa734Td1kED0JY="
@@ -188,8 +188,8 @@ schema = 3
     version = "v0.0.0-20231019111953-be8c47862aaa"
     hash = "sha256-ZNFqKg6MmWpBm1aZLHIRA74VGiVnQtDihHBtbzvrApc="
   [mod."github.com/golangci/golangci-lint"]
-    version = "v1.55.1"
-    hash = "sha256-MgOl4gBOeVAvOzG9BG/oY7p3WDtkomfiCuje/RHoxEo="
+    version = "v1.55.2"
+    hash = "sha256-lKbMf5YAmAfA1mlCN4UiQ2BUtybzGdeQ2hPFqFX1hx0="
   [mod."github.com/golangci/lint-1"]
     version = "v0.0.0-20191013205115-297bf364a8e0"
     hash = "sha256-rOuNPlUFvXoonHgdgnoqreAxYBOhUfCQHnS+VdOO6pY="
@@ -464,8 +464,8 @@ schema = 3
     version = "v1.5.1"
     hash = "sha256-/tQNGGQv+Osp+2jepQaQe6GlncZbqdxzSR82FieiUBU="
   [mod."github.com/spf13/cobra"]
-    version = "v1.7.0"
-    hash = "sha256-bom9Zpnz8XPwx9IVF+GAodd3NVQ1dM1Uwxn8sy4Gmzs="
+    version = "v1.8.0"
+    hash = "sha256-oAE+fEaRfZPE541IPWE0GMeBBYgH2DMhtZNxzp7DFlY="
   [mod."github.com/spf13/pflag"]
     version = "v1.0.5"
     hash = "sha256-w9LLYzxxP74WHT4ouBspH/iQZXjuAh2WQCHsuvyEjAw="
