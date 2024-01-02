@@ -67,7 +67,7 @@ jobs:
           filename: out/coverage.out
 
       - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v16
+        uses: tj-actions/verify-changed-files@v17
         if: matrix.os == 'ubuntu-latest'
         id: verify-changed-files-coverage
         with:
@@ -106,7 +106,7 @@ jobs:
         run: make generate
 
       - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v16
+        uses: tj-actions/verify-changed-files@v17
         if: matrix.os == 'ubuntu-latest'
         id: verify-changed-files-generate
         with:
