@@ -6,10 +6,8 @@ on:
   pull_request:
     branches: ["main"]
     paths-ignore:
-      - "docs/**"
       - "config/version.txt"
       - "README.md"
-      - "nix/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -117,8 +115,8 @@ jobs:
       - name: Commit changes
         if: steps.verify-changed-files-generate.outputs.files_changed == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "opensource@mail.schwarz"
+          git config --local user.name "SchwarzIT Bot"
           git add nix/gomod2nix.toml docs/options.md
           git commit -m "chore: regenerate files"
 
