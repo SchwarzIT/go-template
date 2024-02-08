@@ -1,0 +1,47 @@
+name: Generate files
+
+on:
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - "config/version.txt"
+      - "README.md"
+
+jobs:
+  test:
+    permissions:
+      contents: write
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Run generate
+        if: matrix.os == 'ubuntu-latest'
+        run: make generate
+
+      - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v17
+        if: matrix.os == 'ubuntu-latest'
+        id: verify-changed-files-generate
+        with:
+          files: |
+            nix/gomod2nix.toml
+            docs/options.md
+
+      - name: Commit changes
+        if: steps.verify-changed-files-generate.outputs.files_changed == 'true'
+        run: |
+          git config --local user.email "opensource@mail.schwarz"
+          git config --local user.name "SchwarzIT Bot"
+          git add nix/gomod2nix.toml docs/options.md
+          git commit -m "chore: regenerate files"
+
+      - name: Push changes
+        if: steps.verify-changed-files-coverage.outputs.files_changed == 'true' || steps.verify-changed-files-generate.outputs.files_changed == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.SIT_BOT_PAT }}
+          branch: ${{ github.head_ref }}
