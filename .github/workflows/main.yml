@@ -21,18 +21,18 @@ jobs:
 
     steps:
       - name: Install Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        uses: actions/setup-go@5
         with:
           go-version: "^1.20.6"
 
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
       # cache go modules
-      - uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+      - uses: actions/cache@3
         with:
           # In order:
           # * Module download cache
@@ -57,28 +57,6 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: make test-coverage
 
-      - name: Go Coverage Badge
-        uses: tj-actions/coverage-badge-go@v2
-        if: matrix.os == 'ubuntu-latest'
-        with:
-          green: 80
-          filename: out/coverage.out
-
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v17
-        if: matrix.os == 'ubuntu-latest'
-        id: verify-changed-files-coverage
-        with:
-          files: README.md
-
-      - name: Commit changes
-        if: steps.verify-changed-files-coverage.outputs.files_changed == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add README.md
-          git commit -m "chore(docs): update coverage badge"
-
       - name: Build package
         run: make build
 
@@ -98,31 +76,3 @@ jobs:
 
       - name: Test generate projects
         run: make testing-project-ci
-
-      - name: Run generate
-        if: matrix.os == 'ubuntu-latest'
-        run: make generate
-
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v17
-        if: matrix.os == 'ubuntu-latest'
-        id: verify-changed-files-generate
-        with:
-          files: |
-            nix/gomod2nix.toml
-            docs/options.md
-
-      - name: Commit changes
-        if: steps.verify-changed-files-generate.outputs.files_changed == 'true'
-        run: |
-          git config --local user.email "opensource@mail.schwarz"
-          git config --local user.name "SchwarzIT Bot"
-          git add nix/gomod2nix.toml docs/options.md
-          git commit -m "chore: regenerate files"
-
-      - name: Push changes
-        if: steps.verify-changed-files-coverage.outputs.files_changed == 'true' || steps.verify-changed-files-generate.outputs.files_changed == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.SIT_BOT_PAT }}
-          branch: ${{ github.head_ref }}
