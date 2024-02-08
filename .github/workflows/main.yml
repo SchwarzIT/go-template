@@ -21,18 +21,18 @@ jobs:
 
     steps:
       - name: Install Go
-        uses: actions/setup-go@5
+        uses: actions/setup-go@v5
         with:
           go-version: "^1.20.6"
 
       - name: Checkout code
-        uses: actions/checkout@4
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
       # cache go modules
-      - uses: actions/cache@3
+      - uses: actions/cache@v3
         with:
           # In order:
           # * Module download cache
