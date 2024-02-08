@@ -1,8 +1,7 @@
 name: Bug Report
 description: File a bug report
-labels: [ bug, triage ]
+labels: [bug, triage]
 assignees:
-  - brumhard
   - linuxluigi
 body:
   - type: markdown
@@ -27,7 +26,7 @@ body:
     id: gt-version
     attributes:
       label: gt version
-      description: '`gt version` output'
+      description: "`gt version` output"
       render: bash
     validations:
       required: true

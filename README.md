@@ -89,7 +89,6 @@ To get an overview of all options that can be set for the template you can take 
 
 | Name                                           |
 | :--------------------------------------------- |
-| [@brumhard](https://github.com/brumhard)       |
 | [@linuxluigi](https://github.com/linuxluigi)   |
 | [@danielzwink](https://github.com/danielzwink) |
 
