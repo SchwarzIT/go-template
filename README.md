@@ -1,6 +1,5 @@
 # `go/template`
 
-![Coverage](https://img.shields.io/badge/Coverage-78.9%25-yellow)
 [![SIT](https://img.shields.io/badge/SIT-awesome-blueviolet.svg)](https://jobs.schwarz)
 [![CI](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/SchwarzIT/go-template)](https://goreportcard.com/report/github.com/SchwarzIT/go-template)
