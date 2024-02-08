@@ -94,7 +94,7 @@ func TestSpanContextHandler_Handle(t *testing.T) {
 				require.Equal(t, testTraceID.String(), traceID)
 			}
 
-			if spanID, ok := m[spanIDKey]; ok == testcase.withSpanContext && ok {
+			if spanID, ok := m[spanIDKey]; ok && testcase.withSpanContext {
 				require.Equal(t, testSpanID.String(), spanID)
 			}
 		})
