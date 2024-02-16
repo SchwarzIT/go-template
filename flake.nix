@@ -27,7 +27,6 @@
             meta = with pkgs.lib; {
               description = "go/template is a tool for jumpstarting production-ready Golang projects quickly.";
               homepage = "https://github.com/schwarzit/go-template";
-              maintainers = with maintainers; [ brumhard ];
               license = licenses.asl20; # Apache License 2.0
             };
           };
