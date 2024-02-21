@@ -2,7 +2,6 @@
 
 [![SIT](https://img.shields.io/badge/SIT-awesome-blueviolet.svg)](https://jobs.schwarz)
 [![CI](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/main.yml)
-[![Semgrep](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml/badge.svg)](https://github.com/SchwarzIT/go-template/actions/workflows/semgrep.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/SchwarzIT/go-template)](https://goreportcard.com/report/github.com/SchwarzIT/go-template)
 [![Go Reference](https://pkg.go.dev/badge/github.com/schwarzit/go-template.svg)](https://pkg.go.dev/github.com/schwarzit/go-template)
 
@@ -84,14 +83,6 @@ make all
 ## Options
 
 To get an overview of all options that can be set for the template you can take a look at the [options docs](docs/options.md), run the CLI or check out the [testing example values file](pkg/gotemplate/testdata/values.yml).
-
-## Maintainers
-
-| Name                                           |
-| :--------------------------------------------- |
-| [@brumhard](https://github.com/brumhard)       |
-| [@linuxluigi](https://github.com/linuxluigi)   |
-| [@danielzwink](https://github.com/danielzwink) |
 
 ## Contribution
 
