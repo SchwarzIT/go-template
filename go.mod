@@ -9,7 +9,7 @@ require (
 	github.com/google/go-github/v56 v56.0.0
 	github.com/muesli/termenv v0.15.2
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/vuln v1.0.4
 	gopkg.in/yaml.v3 v3.0.1
