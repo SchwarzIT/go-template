@@ -22,7 +22,7 @@ func main() {
 
 //nolint:unparam // currently run returns no error; remove this exclusion directive if otherwise
 func run() error {
-	logger := log.New(os.Getenv("LOG_LEVEL"))
+	logger := log.New(log.WithLevel(os.Getenv("LOG_LEVEL")))
 	ctx := context.Background()
 
 	logger.InfoContext(ctx, "Hello world!", slog.String("location", "world"))
