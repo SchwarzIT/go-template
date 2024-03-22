@@ -50,7 +50,7 @@ func TestNew(t *testing.T) {
 		},
 	} {
 		t.Run(testcase.name, func(t *testing.T) {
-			require.Equal(t, testcase.wants, New(testcase.level))
+			require.Equal(t, testcase.wants, New(WithLevel(testcase.level)))
 		})
 	}
 }
