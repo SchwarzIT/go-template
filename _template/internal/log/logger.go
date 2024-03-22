@@ -6,18 +6,34 @@ import (
 	"os"
 )
 
-func New(level string) *slog.Logger {
-	var logLevel slog.Level
+func New(opts ...Option) *slog.Logger {
+	config := &Config{}
 
-	err := logLevel.UnmarshalText([]byte(level))
-	if err != nil {
-		logLevel = slog.LevelInfo
+	for i := range opts {
+		opts[i].apply(config)
+	}
+
+	if config.handler != nil {
+		return slog.New(NewSpanContextHandler(config.handler, true))
+	}
+
+	if config.writer == nil {
+		config.writer = os.Stderr
+	}
+
+	var (
+		logLevel slog.Level // default is LevelInfo as a zero (int) value
+		err      error
+	)
+
+	if config.level != "" {
+		err = logLevel.UnmarshalText([]byte(config.level))
 	}
 
 	logger := slog.New(
 		NewSpanContextHandler(
-			slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-				AddSource: true,
+			slog.NewJSONHandler(config.writer, &slog.HandlerOptions{
+				AddSource: config.addSource,
 				Level:     logLevel,
 			}),
 			true,
@@ -26,7 +42,7 @@ func New(level string) *slog.Logger {
 
 	if err != nil {
 		logger.WarnContext(context.Background(), "invalid log level string",
-			slog.String("input_level", level),
+			slog.String("input_level", config.level),
 			slog.String("error", err.Error()),
 		)
 	}
