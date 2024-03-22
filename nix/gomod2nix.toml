@@ -538,12 +538,15 @@ schema = 3
   [mod."go.tmz.dev/musttag"]
     version = "v0.7.2"
     hash = "sha256-3Abk2qz1XsgfvR/kYCuPVT6QHK0TfieluFd19sHLapw="
+  [mod."go.uber.org/atomic"]
+    version = "v1.9.0"
+    hash = "sha256-D8OtLaViqPShz1w8ijhIHmjw9xVaRu0qD2hXKj63r4Q="
   [mod."go.uber.org/multierr"]
     version = "v1.11.0"
     hash = "sha256-Lb6rHHfR62Ozg2j2JZy3MKOMKdsfzd1IYTR57r3Mhp0="
   [mod."go.uber.org/zap"]
-    version = "v1.26.0"
-    hash = "sha256-EUQnALSDtoJryWp01K/PMbRUvQYG1uDbqGnlJ/7thE4="
+    version = "v1.24.0"
+    hash = "sha256-yLzjFbMWnc5b033gcPLGP0KY1xWPJ3sjnUG/RndmC3o="
   [mod."golang.org/x/crypto"]
     version = "v0.14.0"
     hash = "sha256-UUSt3X/i34r1K0mU+Y5IzljX5HYy07JcHh39Pm1MU+o="
