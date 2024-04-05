@@ -25,6 +25,13 @@ func run() error {
 	logger := log.New(log.WithLevel(os.Getenv("LOG_LEVEL")))
 	ctx := context.Background()
 
+	_, err = maxprocs.Set(maxprocs.Logger(func(s string, i ...interface{}) {
+		logger.InfoContext(ctx, fmt.Sprintf(s, i...))
+	}))
+	if err != nil {
+		return fmt.Errorf("setting max procs: %w", err)
+	}
+
 	logger.InfoContext(ctx, "Hello world!", slog.String("location", "world"))
 
 	return nil
