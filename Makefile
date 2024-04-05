@@ -31,7 +31,6 @@ run: fmt ## Run a controller from your host
 
 generate: ## Generates files
 	@go run cmd/options2md/main.go -o docs/options.md
-	@go run github.com/nix-community/gomod2nix@latest --outdir nix
 
 
 lint: fmt download ## Lints all code with golangci-lint

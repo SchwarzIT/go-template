@@ -8,7 +8,7 @@
 `go/template` provides a **blueprint** for production-ready Go project layouts.
 
 ![go/template logo](docs/gotemplate.png)
-> Credit to Renée French for the [Go Gopher logo](https://go.dev/blog/gopher)  
+> Credit to Renée French for the [Go Gopher logo](https://go.dev/blog/gopher)
 > Credit to Go Authors for the [official Go logo](https://go.dev/blog/go-brand)
 
 ## Batteries included
@@ -43,16 +43,6 @@ go install github.com/schwarzit/go-template/cmd/gt@latest
 
 Download the desired version for your operating system and processor architecture from the [go-template releases page](https://github.com/SchwarzIT/go-template/releases).
 Make the file executable and place it in a directory available in your `$PATH`.
-
-#### nix
-
-`go-template` also provides a [flake.nix](flake.nix) to install it via [nix package manager](https://github.com/NixOS/nix).
-
-You can also try out `go-template` without installing:
-
-```shell
-nix run github:schwarzit/go-template
-```
 
 ### Preconditions
 
