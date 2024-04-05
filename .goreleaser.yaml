@@ -32,11 +32,6 @@ builds:
 source:
   enabled: true
 
-sboms:
-  - artifacts: binary
-  - id: source
-    artifacts: source
-
 checksum:
   name_template: 'checksums.txt'
 
