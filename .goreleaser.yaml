@@ -49,5 +49,8 @@ signs:
     output: true
 
 archives:
-  - format: binary
+  - format: tar.gz
     name_template: '{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}'
+    format_overrides:
+      - goos: windows
+        format: zip
