@@ -26,7 +26,7 @@ func run() error {
 	ctx := context.Background()
 
 	_, err := maxprocs.Set(maxprocs.Logger(func(s string, i ...interface{}) {
-		logger.InfoContext(ctx, fmt.Sprintf(s, i...))
+		logger.DebugContext(ctx, fmt.Sprintf(s, i...))
 	}))
 	if err != nil {
 		return fmt.Errorf("setting max procs: %w", err)
