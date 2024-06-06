@@ -20,7 +20,6 @@ func main() {
 	}
 }
 
-//nolint:unparam // currently run returns no error; remove this exclusion directive if otherwise
 func run() error {
 	logger := log.New(log.WithLevel(os.Getenv("LOG_LEVEL")))
 	ctx := context.Background()
