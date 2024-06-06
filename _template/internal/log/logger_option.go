@@ -22,7 +22,6 @@ func (o OptionFunc) apply(c *Config) {
 	o(c)
 }
 
-//nolint:revive // usable configuration function
 func WithHandler(handler slog.Handler) OptionFunc {
 	if handler == nil {
 		return func(*Config) {}
@@ -33,7 +32,6 @@ func WithHandler(handler slog.Handler) OptionFunc {
 	}
 }
 
-//nolint:revive // usable configuration function
 func WithWriter(writer io.Writer) OptionFunc {
 	if writer == nil {
 		return func(*Config) {}
@@ -54,7 +52,6 @@ func WithLevel(level string) OptionFunc {
 	}
 }
 
-//nolint:revive // usable configuration function
 func WithSource() OptionFunc {
 	return func(config *Config) {
 		config.addSource = true
