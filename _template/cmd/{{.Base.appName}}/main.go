@@ -14,14 +14,15 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "an error occurred: %s\n", err)
+	logger := log.New(log.WithLevel(os.Getenv("LOG_LEVEL")))
+
+	if err := run(logger); err != nil {
+		logger.ErrorContext(context.Background(), "an error occurred", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 }
 
-func run() error {
-	logger := log.New(log.WithLevel(os.Getenv("LOG_LEVEL")))
+func run(logger *slog.Logger) error {
 	ctx := context.Background()
 
 	_, err := maxprocs.Set(maxprocs.Logger(func(s string, i ...interface{}) {
