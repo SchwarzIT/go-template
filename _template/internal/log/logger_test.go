@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 			wants: slog.New(&SpanContextHandler{
 				withSpanID: true,
 				handler: slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-					AddSource: true,
+					AddSource: false,
 					Level:     slog.LevelDebug,
 				}),
 			}),
@@ -32,7 +32,7 @@ func TestNew(t *testing.T) {
 			wants: slog.New(&SpanContextHandler{
 				withSpanID: true,
 				handler: slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-					AddSource: true,
+					AddSource: false,
 					Level:     slog.LevelError,
 				}),
 			}),
@@ -43,7 +43,7 @@ func TestNew(t *testing.T) {
 			wants: slog.New(&SpanContextHandler{
 				withSpanID: true,
 				handler: slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-					AddSource: true,
+					AddSource: false,
 					Level:     slog.LevelInfo,
 				}),
 			}),
