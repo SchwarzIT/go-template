@@ -14,7 +14,11 @@ import (
 )
 
 func main() {
-	logger := log.New(log.WithLevel(os.Getenv("LOG_LEVEL")))
+	// Logger configuration
+	logger := log.New(
+		log.WithLevel(os.Getenv("LOG_LEVEL")),
+		log.WithSource(),
+	)
 
 	if err := run(logger); err != nil {
 		logger.ErrorContext(context.Background(), "an error occurred", slog.String("error", err.Error()))
