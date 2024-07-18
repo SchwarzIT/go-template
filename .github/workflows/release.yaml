@@ -35,9 +35,7 @@ jobs:
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@5742e2a039330cbb23ebf35f046f814d4c6ff811 # v5.1.0
         with:
-          # TODO(brumhard): set back to latest after issue is fixed
-          # https://github.com/goreleaser/goreleaser/issues/3573
-          version: v1.10.3
+          version: v2.1.0
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
