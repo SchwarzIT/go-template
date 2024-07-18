@@ -22,16 +22,6 @@ func (o OptionFunc) apply(c *Config) {
 	o(c)
 }
 
-func WithHandler(handler slog.Handler) OptionFunc {
-	if handler == nil {
-		return func(*Config) {}
-	}
-
-	return func(config *Config) {
-		config.handler = handler
-	}
-}
-
 func WithWriter(writer io.Writer) OptionFunc {
 	if writer == nil {
 		return func(*Config) {}
