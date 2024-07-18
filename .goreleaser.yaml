@@ -1,7 +1,9 @@
+version: 2
+
 project_name: gt
 
 snapshot:
-  name_template: '{{ .Tag }}-SNAPSHOT'
+  name_template: "{{ .Tag }}-SNAPSHOT"
 
 before:
   hooks:
@@ -33,24 +35,24 @@ source:
   enabled: true
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 
 signs:
   - cmd: cosign
     env:
       - COSIGN_EXPERIMENTAL=1
-    certificate: '${artifact}.pem'
+    certificate: "${artifact}.pem"
     args:
       - sign-blob
-      - '--output-certificate=${certificate}'
-      - '--output-signature=${signature}'
-      - '${artifact}'
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
     artifacts: checksum
     output: true
 
 archives:
   - format: tar.gz
-    name_template: '{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}'
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
