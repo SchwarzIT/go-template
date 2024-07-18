@@ -39,7 +39,6 @@ jobs:
         id: verify-changed-files-generate
         with:
           files: |
-            nix/gomod2nix.toml
             docs/options.md
 
       - name: Commit changes
@@ -47,7 +46,7 @@ jobs:
         run: |
           git config --local user.email "opensource@mail.schwarz"
           git config --local user.name "SchwarzIT Bot"
-          git add nix/gomod2nix.toml docs/options.md
+          git add toml docs/options.md
           git commit -m "chore: regenerate files"
 
       - name: Push changes
