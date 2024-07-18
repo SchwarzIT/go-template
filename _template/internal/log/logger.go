@@ -46,10 +46,10 @@ func New(opts ...Option) *slog.Logger {
 	return logger
 }
 
-// FromHandler initializes a logger with the provided slog.Handler interface.
+// NewFromHandler initializes a logger with the provided slog.Handler interface.
 //
 // If the provided handler is nil, the function returns a no-op slog.Logger.
-func FromHandler(handler slog.Handler) *slog.Logger {
+func NewFromHandler(handler slog.Handler) *slog.Logger {
 	if handler == nil {
 		return NoOp()
 	}
