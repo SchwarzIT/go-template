@@ -2,11 +2,9 @@ package log
 
 import (
 	"io"
-	"log/slog"
 )
 
 type Config struct {
-	handler   slog.Handler
 	writer    io.Writer
 	addSource bool
 	level     string

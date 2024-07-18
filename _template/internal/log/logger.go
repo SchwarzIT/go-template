@@ -13,10 +13,6 @@ func New(opts ...Option) *slog.Logger {
 		opts[i].apply(config)
 	}
 
-	if config.handler != nil {
-		return slog.New(NewSpanContextHandler(config.handler, true))
-	}
-
 	if config.writer == nil {
 		config.writer = os.Stderr
 	}
