@@ -1,35 +1,42 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"os"
-
-	"{{.Base.moduleName}}/internal/log"
-	"go.uber.org/zap"
 
 	// This controls the maxprocs environment variable in container runtimes.
 	// see https://martin.baillie.id/wrote/gotchas-in-the-go-network-packages-defaults/#bonus-gomaxprocs-containers-and-the-cfs
-	_ "go.uber.org/automaxprocs"
+	"go.uber.org/automaxprocs/maxprocs"
+
+	"{{.Base.moduleName}}/internal/log"
 )
 
 func main() {
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "an error occurred: %s\n", err)
+	// Logger configuration
+	logger := log.New(
+		log.WithLevel(os.Getenv("LOG_LEVEL")),
+		log.WithSource(),
+	)
+
+	if err := run(logger); err != nil {
+		logger.ErrorContext(context.Background(), "an error occurred", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 }
 
-func run() error {
-	logger, err := log.NewAtLevel(os.Getenv("LOG_LEVEL"))
+func run(logger *slog.Logger) error {
+	ctx := context.Background()
+
+	_, err := maxprocs.Set(maxprocs.Logger(func(s string, i ...interface{}) {
+		logger.DebugContext(ctx, fmt.Sprintf(s, i...))
+	}))
 	if err != nil {
-		return err
+		return fmt.Errorf("setting max procs: %w", err)
 	}
 
-	defer func() {
-		err = logger.Sync()
-	}()
+	logger.InfoContext(ctx, "Hello world!", slog.String("location", "world"))
 
-	logger.Info("Hello world!", zap.String("location", "world"))
-
-	return err
+	return nil
 }

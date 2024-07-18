@@ -20,7 +20,7 @@
 - gRPC support
 - folder structure based on [github.com/golang-standards/project-layout](https://github.com/golang-standards/project-layout)
 - enforced default packages
-  - `go.uber.org/zap` for logging
+  - `log/slog` for logging
   - `go.uber.org/automaxprocs` to be safe in container environments (see [this article](https://martin.baillie.id/wrote/gotchas-in-the-go-network-packages-defaults/#bonus-gomaxprocs-containers-and-the-cfs) for more information)
 
 ## Usage
