@@ -83,30 +83,22 @@ Values can then be accessed with template expressions like for example `{{ .Exte
 
 ### Release via GoReleaser
 
-We use for the release of the `go-template` project [GoReleaser](https://goreleaser.com/). `GoReleaser` is a tool that 
+We use for the release of the `go-template` project [GoReleaser](https://goreleaser.com/). `GoReleaser` is a tool that
 helps you to release your projects in a fast and easy way.
 
 Important is the `.goreleaser.yaml` file which is used to configure the release process.
 
-We can start locale builds with adding the `--snapshot` flag to the `goreleaser` command. The `--snapshot` flag will 
+We can start locale builds with adding the `--snapshot` flag to the `goreleaser` command. The `--snapshot` flag will
 disable some of the phases, like creating a release tag and pushing to the remote.
 
 ```bash
 goreleaser build --rm-dist --snapshot
 ```
 
-or even a release with: 
+or even a release with:
+
 ```bash
 goreleaser release --snapshot --rm-dist
 ```
 
 Check the great documentation of GoReleaser [here](https://goreleaser.com/intro/) for further information.
-
-#### Cosign and Syft
-
-During the release process we use `cosign` to keyless sign the release artifacts.
-
-On top of that, we use `syft` to generate a Software Bill of Materials (SBOM) from our go modules.
-
-Check the docs for [`syft`](https://github.com/anchore/syft) and [`cosign`](https://github.com/sigstore/cosign) 
-for further information.
