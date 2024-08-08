@@ -16,7 +16,7 @@ jobs:
         # using a PAT is necessary to trigger the release workflow
         # see https://github.com/orgs/community/discussions/25702
         with:
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.SIT_BOT_PAT }}
       - name: Get version from file
         id: tag
         run: |
