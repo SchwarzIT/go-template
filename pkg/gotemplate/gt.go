@@ -5,7 +5,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"sync"
 	"text/template"
 	"time"
 
@@ -19,7 +18,6 @@ type GT struct {
 	Options         *Options
 	FuncMap         template.FuncMap
 	GithubTagLister repos.GithubTagLister
-	once            sync.Once
 }
 
 type Streams struct {
