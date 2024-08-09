@@ -76,3 +76,16 @@ tasks:
     cmds:
       - git config --local core.hooksPath .githooks/
       - go mod download
+
+  create-test-project:
+    desc: Creates a preconfigured test project
+    aliases:
+      - test-project
+      - tp
+    vars:
+      CONFIG_FILE: testdata/default.yml
+    deps:
+      - build
+    cmds:
+      - rm -rf {{.TEST_PROJECT_DIR}}
+      - go run cmd/gt/*.go new -c {{.CONFIG_FILE}}

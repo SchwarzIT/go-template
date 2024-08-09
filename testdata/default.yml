@@ -1,9 +1,9 @@
 base:
-  projectName: Testing Project
-  projectSlug: testing-project
+  projectName: Test Project
+  projectSlug: test-project
   projectDescription: Some project used for testing
   appName: testing
-  moduleName: github.com/fake/testing
+  moduleName: github.com/fake/test
 extensions:
   openSource:
     author: "Marty Mc Fly"
