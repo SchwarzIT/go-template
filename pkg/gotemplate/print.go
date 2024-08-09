@@ -1,48 +1,30 @@
 package gotemplate
 
 import (
-	"fmt"
 	"strings"
 
-	"github.com/muesli/termenv"
-	"github.com/schwarzit/go-template/pkg/colors"
+	"github.com/pterm/pterm"
 )
 
-func (gt *GT) colorStyler(color string) termenv.Style {
-	return gt.styler().String().Foreground(gt.styler().Color(color))
-}
-
-func (gt *GT) cyanStyler() termenv.Style {
-	return gt.colorStyler(colors.Cyan)
-}
-
-func (gt *GT) yellowStyler() termenv.Style {
-	return gt.colorStyler(colors.Yellow)
-}
-
 func (gt *GT) printProgressf(format string, a ...interface{}) {
-	s := gt.cyanStyler().Bold().Styled(fmt.Sprintf(format, a...))
-	_, _ = fmt.Fprintln(gt.Out, s)
+	pterm.NewStyle(pterm.FgCyan, pterm.Bold).Printfln(format, a...) // TODO: Use gt.Out
 }
 
 func (gt *GT) printf(format string, a ...interface{}) {
-	_, _ = fmt.Fprintf(gt.Out, format, a...)
+	pterm.Printf(format, a...) // TODO: Use gt.Out
 }
 
 func (gt *GT) printWarningf(format string, a ...interface{}) {
-	warningBanner := gt.yellowStyler().Bold().Styled("WARNING")
-	warningText := gt.yellowStyler().Styled(fmt.Sprintf(format, a...))
-
-	_, _ = fmt.Fprintf(gt.Err, "%s: %s\n", warningBanner, warningText)
+	pterm.Warning.Printf(format, a...) // TODO: Use gt.Out
 }
 
 func (gt *GT) printOption(opts *Option, optionValues *OptionValues) {
-	gt.printf("%s\n", gt.yellowStyler().Underline().Styled(opts.Description()))
-	gt.printf("%s: (%v) ", gt.cyanStyler().Styled(opts.Name()), opts.Default(optionValues))
+	gt.printf("%s\n", pterm.NewStyle(pterm.FgYellow, pterm.Underscore).Sprint(opts.Description()))
+	gt.printf("%s: (%v) ", pterm.NewStyle(pterm.FgCyan).Sprint(opts.Name()), opts.Default(optionValues))
 }
 
 func (gt *GT) printBanner() {
-	highlight := gt.cyanStyler().Styled
+	highlight := pterm.FgCyan.Sprint
 	gt.printf("Hi! Welcome to the %s cli.\n", highlight("go/template"))
 	gt.printf("This command will walk you through creating a new project.\n")
 	gt.printf("You will first be asked to set values for the base paremeters that are needed for the minimal setup.\n")

@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/muesli/termenv"
-	"github.com/schwarzit/go-template/pkg/colors"
+	"github.com/pterm/pterm"
 	"github.com/schwarzit/go-template/pkg/gotemplate"
 	"github.com/spf13/cobra"
 )
@@ -14,26 +13,18 @@ import (
 const goTemplate = "go/template"
 
 func main() {
-	output := termenv.NewOutput(os.Stdout, termenv.WithProfile(termenv.EnvColorProfile()))
-
-	cmd := buildRootCommand(output)
+	cmd := buildRootCommand()
 	if err := cmd.Execute(); err != nil {
-		printError(output, err)
+		printError(err)
 		os.Exit(1)
 	}
 }
 
-func printError(output *termenv.Output, err error) {
-	redStyler := output.String().Foreground(output.Color(colors.Red))
-
-	_, _ = fmt.Fprintf(
-		os.Stderr, "%s: %s\n",
-		redStyler.Bold().Styled("ERROR"),
-		redStyler.Styled(err.Error()),
-	)
+func printError(err error) {
+	pterm.Error.PrintOnError(err)
 }
 
-func buildRootCommand(output *termenv.Output) *cobra.Command {
+func buildRootCommand() *cobra.Command {
 	gt := gotemplate.New()
 
 	cmd := &cobra.Command{
@@ -48,13 +39,15 @@ To begin working with %[1]s, run the 'gt new' command:
 This will prompt you to create a new Golang project using standard configs.
 
 For more information, please visit the project's Github page: github.com/schwarzit/go-template.`,
-			output.String(goTemplate).Foreground(output.Color(colors.Cyan)),
+			pterm.Cyan(goTemplate),
 		),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// Enable swapping out stdout/stderr for testing
 			gt.Out = cmd.OutOrStdout()
 			gt.Err = cmd.OutOrStderr()
 			gt.InScanner = bufio.NewScanner(cmd.InOrStdin())
+
+			pterm.SetDefaultOutput(gt.Out)
 
 			gt.CheckVersion()
 		},
@@ -63,8 +56,8 @@ For more information, please visit the project's Github page: github.com/schwarz
 		SilenceUsage:  true,
 	}
 
-	cmd.AddCommand(buildNewCommand(output, gt))
-	cmd.AddCommand(buildVersionCommand(output, gt))
+	cmd.AddCommand(buildNewCommand(gt))
+	cmd.AddCommand(buildVersionCommand(gt))
 
 	return cmd
 }

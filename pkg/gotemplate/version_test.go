@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/pterm/pterm"
 	"github.com/schwarzit/go-template/config"
 	"github.com/schwarzit/go-template/pkg/gotemplate"
 	"github.com/schwarzit/go-template/pkg/repos"
@@ -18,6 +19,7 @@ func TestGT_PrintVersion(t *testing.T) {
 
 	buffer := &bytes.Buffer{}
 	gt.Out = buffer
+	pterm.SetDefaultOutput(gt.Out)
 	gt.PrintVersion()
 	assert.Equal(t, config.Version, strings.Trim(buffer.String(), "\n"))
 }
@@ -61,6 +63,8 @@ func TestGT_CheckVersion(t *testing.T) {
 				},
 				GithubTagLister: test.listerFunc,
 			}
+
+			pterm.SetDefaultOutput(out)
 
 			gt.CheckVersion()
 			if test.expectWarning {
