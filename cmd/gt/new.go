@@ -3,18 +3,18 @@ package main
 import (
 	"fmt"
 
-	"github.com/muesli/termenv"
+	"github.com/pterm/pterm"
 	"github.com/schwarzit/go-template/pkg/gotemplate"
 	"github.com/spf13/cobra"
 )
 
-func buildNewCommand(output *termenv.Output, gt *gotemplate.GT) *cobra.Command {
+func buildNewCommand(gt *gotemplate.GT) *cobra.Command {
 	var (
 		configFile string
 		opts       gotemplate.NewRepositoryOptions
 	)
 
-	underline := output.String().Underline().Styled
+	underline := pterm.Underscore.Sprint
 
 	cmd := &cobra.Command{
 		Use:   "new",

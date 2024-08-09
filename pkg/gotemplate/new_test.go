@@ -12,15 +12,14 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/pterm/pterm"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
 	"github.com/schwarzit/go-template/pkg/gotemplate"
 )
 
-var (
-	errFoundLeftoverTemplateVar = errors.New("Found a leftover template variable in")
-)
+var errFoundLeftoverTemplateVar = errors.New("Found a leftover template variable in")
 
 const (
 	targetDirOptionName = "projectSlug"
@@ -281,6 +280,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		// simulate writing the value to stdin
 		gt.InScanner = bufio.NewScanner(strings.NewReader(fmt.Sprintf("%s\n true\n", optionValue)))
 		gt.Out = out
+		pterm.SetDefaultOutput(out)
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
 				optionName,
@@ -322,6 +322,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		// simulate writing the value to stdin
 		out := &bytes.Buffer{}
 		gt.Err = out
+		pterm.SetDefaultOutput(out)
 		gt.InScanner = bufio.NewScanner(strings.NewReader("DOES_NOT_MATCH\n matches-the-regex\n"))
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
@@ -346,6 +347,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 		// simulate writing the value to stdin
 		out := &bytes.Buffer{}
 		gt.Err = out
+		pterm.SetDefaultOutput(out)
 		gt.InScanner = bufio.NewScanner(strings.NewReader("\nmatches-the-regex"))
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
@@ -368,6 +370,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 	t.Run("retries to get value on error", func(t *testing.T) {
 		out := &bytes.Buffer{}
 		gt.Err = out
+		pterm.SetDefaultOutput(out)
 		gt.InScanner = bufio.NewScanner(strings.NewReader(optionValue + "not a bool\ntrue\n"))
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(optionName, "description", gotemplate.StaticValue(false)),
@@ -417,6 +420,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 
 		out := &bytes.Buffer{}
 		gt.Out = out
+		pterm.SetDefaultOutput(out)
 
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
@@ -440,6 +444,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 
 		out := &bytes.Buffer{}
 		gt.Out = out
+		pterm.SetDefaultOutput(out)
 
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
@@ -465,6 +470,7 @@ func TestGT_LoadConfigValuesInteractively(t *testing.T) {
 
 		out := &bytes.Buffer{}
 		gt.Out = out
+		pterm.SetDefaultOutput(out)
 
 		gt.Options.Base = []gotemplate.Option{
 			gotemplate.NewOption(
@@ -580,7 +586,8 @@ func TestGT_InitNewProject(t *testing.T) {
 					Base: gotemplate.OptionNameToValue{
 						targetDirOptionName: "testingDir",
 					},
-				}},
+				},
+			},
 		)
 		require.Error(t, err)
 

@@ -11,7 +11,6 @@ import (
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/google/go-github/v56/github"
-	"github.com/muesli/termenv"
 	"github.com/schwarzit/go-template/pkg/repos"
 )
 
@@ -21,25 +20,6 @@ type GT struct {
 	FuncMap         template.FuncMap
 	GithubTagLister repos.GithubTagLister
 	once            sync.Once
-	output          *termenv.Output
-}
-
-func (gt *GT) styler() *termenv.Output {
-	if gt.output != nil {
-		return gt.output
-	}
-
-	if gt.Out == nil {
-		// panic here since it's a package user error
-		// that it is not set
-		panic("gt out stream not set")
-	}
-
-	gt.once.Do(func() {
-		gt.output = termenv.NewOutput(gt.Out, termenv.WithProfile(termenv.EnvColorProfile()))
-	})
-
-	return gt.output
 }
 
 type Streams struct {
