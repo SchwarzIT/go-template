@@ -2,9 +2,10 @@
 # Project #
 ###########
 
-# make output
-bin/
+# build files
+build/
 out/
+.task
 
 # test projects
 awesome-project/

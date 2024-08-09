@@ -1,0 +1,9 @@
+base:
+  projectName: Test Project
+  projectSlug: test-project
+  projectDescription: Some project used for testing
+  appName: test
+  moduleName: github.com/fake/test
+extensions:
+  ci:
+    provider: 2 #Gitlab

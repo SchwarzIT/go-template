@@ -5,5 +5,12 @@ base:
   appName: testing
   moduleName: github.com/fake/testing
 extensions:
+  openSource:
+    author: "Marty Mc Fly"
+    codeowner: "Marty.Mc.Fly@future.back"
+    license: 1 # MIT License
   ci:
-    provider: 2 #Gitlab
+    provider: 1
+  grpc:
+    base: true
+    grpcGateway: false
