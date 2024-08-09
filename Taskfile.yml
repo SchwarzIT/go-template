@@ -1,0 +1,91 @@
+version: "3"
+
+vars:
+  LINTER_VERSION: v1.55.1
+  BUILD_DIR: ./build/
+  TEST_PROJECT_DIR: ./test-project/
+
+tasks:
+  build:
+    desc: Builds the project
+    sources:
+      - "**/*.go"
+    cmds:
+      - go build -o {{.BUILD_DIR}} ./...
+    generates:
+      - build/gt
+      - build/options2md
+
+  run:
+    desc: Builds and runs gt (cleans test project output before)
+    deps:
+      - build
+    cmds:
+      - rm -rf {{.TEST_PROJECT_DIR}}
+      - build/gt
+    generates:
+      - build/gt
+
+  clean:
+    desc: Removes artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -rf {{.TEST_PROJECT_DIR}}
+
+  lint:
+    desc: Lints the project
+    cmds:
+      - go run -v github.com/golangci/golangci-lint/cmd/golangci-lint@{{.LINTER_VERSION}} run
+
+  test:
+    desc: Runs all automated tests
+    cmds:
+      - go test ./...
+
+  test-build:
+    desc: Tests if the project can be built
+    cmds:
+      - go build -o /dev/null ./...
+
+  coverage:
+    desc: Generates test coverage report
+    cmds:
+      - go test -v -cover ./... -coverprofile out/coverage.out -coverpkg ./...
+      - go tool cover -func out/coverage.out -o out/coverage.out
+    generates:
+      - out/coverage.out
+
+  generate:
+    desc: Regenerates generated files
+    cmds:
+      - go run cmd/options2md/main.go -o docs/options.md
+    generates:
+      - docs/options.md
+
+  release:
+    desc: Creates a new release
+    prompt: Are you sure you want to create a new release?
+    deps:
+      - lint
+      - test
+    cmds:
+      - hack/release.sh
+
+  setup:
+    desc: Set up the project
+    cmds:
+      - git config --local core.hooksPath .githooks/
+      - go mod download
+
+  create-test-project:
+    desc: Creates a preconfigured test project
+    aliases:
+      - test-project
+      - tp
+    vars:
+      CONFIG_FILE: testdata/default.yml
+    deps:
+      - build
+    cmds:
+      - rm -rf {{.TEST_PROJECT_DIR}}
+      - go run cmd/gt/*.go new -c {{.CONFIG_FILE}}

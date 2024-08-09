@@ -1,11 +1,16 @@
 base:
-  projectName: Testing Project
-  projectSlug: testing-project
+  projectName: Test Project
+  projectSlug: test-project
   projectDescription: Some project used for testing
   appName: testing
-  moduleName: github.com/fake/testing
+  moduleName: github.com/fake/test
 extensions:
   openSource:
     author: "Marty Mc Fly"
     codeowner: "Marty.Mc.Fly@future.back"
     license: 1 # MIT License
+  ci:
+    provider: 1
+  grpc:
+    base: true
+    grpcGateway: false

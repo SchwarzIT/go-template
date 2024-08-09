@@ -18,4 +18,4 @@ function failed {
 
 trap 'failed' ERR
 
-make lint
+task lint
