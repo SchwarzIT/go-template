@@ -3,7 +3,7 @@ module github.com/schwarzit/go-template
 go 1.21.0
 
 require (
-	github.com/Masterminds/semver/v3 v3.2.1
+	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/golangci/golangci-lint v1.59.1
 	github.com/google/go-github/v56 v56.0.0
