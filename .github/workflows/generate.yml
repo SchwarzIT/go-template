@@ -10,7 +10,7 @@ on:
 jobs:
   generate:
     permissions:
-      contents: write
+      contents: write   
 
     strategy:
       matrix:
@@ -26,32 +26,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: main
+          token: ${{ secrets.SIT_BOT_PAT }}
           fetch-depth: 0
 
       - name: Run generate
         if: matrix.os == 'ubuntu-latest'
         run: make generate
 
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v17
+      - name: Check for file changes
+        id: git-check
         if: matrix.os == 'ubuntu-latest'
-        id: verify-changed-files-generate
-        with:
-          files: |
-            docs/options.md
+        run: echo "changed=$(if git diff --quiet; then echo 'false'; else echo 'true'; fi)" >> $GITHUB_OUTPUT
 
       - name: Commit changes
-        if: steps.verify-changed-files-generate.outputs.files_changed == 'true'
+        if: steps.git-check.outputs.changed == 'true'
         run: |
           git config --local user.email "opensource@mail.schwarz"
           git config --local user.name "SchwarzIT Bot"
-          git add toml docs/options.md
+          # This is more robust. It adds ALL files modified by 'make generate'.
+          git add .
           git commit -m "chore: regenerate files"
 
       - name: Push changes
-        if: steps.verify-changed-files-coverage.outputs.files_changed == 'true' || steps.verify-changed-files-generate.outputs.files_changed == 'true'
+        if: steps.git-check.outputs.changed == 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.SIT_BOT_PAT }}
-          branch: ${{ github.head_ref }}
+          branch: main
